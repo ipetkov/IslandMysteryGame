@@ -10,6 +10,8 @@ var uniformModelMatrix     = 'modelMatrix';
 var uniformProjViewMatrix  = 'projViewMatrix';
 var uniformColor           = 'vColor';
 
+var shape;
+
 var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
 var program; // The WebGL linked program
@@ -23,11 +25,11 @@ var moveUnit = 0.125;
 // Helper to set shader attributes/uniforms
 var glHelper = (function() {
 	var helper = {};
-	function setAttrib(name, vbo, numFloats) {
+	function setAttrib(name, vbo) {
 		var loc = gl.getAttribLocation(program, name);
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
 		gl.enableVertexAttribArray(loc);
-		gl.vertexAttribPointer(loc, numFloats, gl.FLOAT, false, 0, 0);
+		gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 0, 0);
 	}
 
 	function setUniformMat(name, mat) {
@@ -40,8 +42,8 @@ var glHelper = (function() {
 		gl.uniform4fv(loc, flatten(vec));
 	}
 
-	helper.setPositionAttrib = function(vbo, numFloats) {
-		setAttrib(attrPosition, vbo, numFloats);
+	helper.setPositionAttrib = function(vbo) {
+		setAttrib(attrPosition, vbo);
 	}
 
 	helper.setModelMatrix = function(mat) {
@@ -84,13 +86,9 @@ window.onload = function() {
 	camera = new Camera(canvas);
 	camera.moveBy(0.0, 0.0, -1.0);
 
-	var vbo = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-	gl.bufferData(gl.ARRAY_BUFFER, flatten([vec3(-0.5, -0.5, 0.0), vec3(0.5, -0.5, 0.0), vec3(0.0, 0.5, 0.0)]), gl.STATIC_DRAW);
-
-	glHelper.setPositionAttrib(vbo, 3);
-	glHelper.setColor(vec4(1.0, 1.0, 0.0, 1.0));
-	glHelper.setModelMatrix(mat4());
+	shape = new Cube();
+	shape.position = vec3(-1.0, -1.0, -3.0);
+	shape.scale = vec3(1.0, 0.25, 2.0);
 
 	// Attach our keyboard listener to the canvas
 	window.addEventListener('keydown', handleKey);
@@ -170,6 +168,8 @@ function draw() {
 
 	glHelper.setProjViewMatrix(camera.getProjViewMatrix());
 
-	gl.drawArrays(gl.TRIANGLES, 0, 3);
+	var dt = timer.getElapsedTime();
+	shape.draw(dt);
+
 	window.requestAnimationFrame(draw);
 }

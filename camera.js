@@ -1,3 +1,5 @@
+"use strict";
+
 function Camera(glCanvas) {
 	var fovx = 90;
 	var canvas = glCanvas;
