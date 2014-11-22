@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Island Mystery Game</title>
+		<script type="text/javascript" src="MV.js"></script>
+		<script type="text/javascript" src="webgl-utils.js"></script>
+		<script type="text/javascript" src="initShaders.js"></script>
+		<script type="text/javascript" src="camera.js"></script>
+		<script type="text/javascript" src="scene.js"></script>
+
+		<script id="shader-vertex" type="x-shader/x-vertex">
+			precision mediump float;
+			attribute vec3 vPosition;
+
+			uniform mat4 modelMatrix;
+			uniform mat4 projViewMatrix;
+			void main() {
+				gl_Position = projViewMatrix * modelMatrix * vec4(vPosition, 1.0);
+			}
+		</script>
+
+		<script id="shader-fragment" type="x-shader/x-fragment">
+			precision mediump float;
+			uniform vec4 vColor;
+			void main() {
+				gl_FragColor = vColor;
+			}
+		</script>
+
+		<style>
+			.columns {
+				columns: 2;
+				-webkit-columns: 2;
+				-moz-columns: 2;
+			}
+		</style>
+	</head>
+	<body>
+		<div style="width: 640px; margin: auto;">
+			<center>
+				<h2>Island Mystery Game</h2>
+				<h3>Kyle Kodani, Kevin Lu, Ivan Petkov, Xiaosong Shi, David Vasko</h3>
+			</center>
+
+			<canvas id="gl-canvas" width="640" height="480" class="centered">
+				Sorry, your browser does not support WebGL.
+			</canvas>
+
+			<br />
+			<center><strong>Controls</strong></center>
+			<ul class="columns">
+				<li>Change elevation with <strong>Up</strong>/<strong>Down</strong> arrows</li>
+				<li>Turn with <strong>Left</strong>/<strong>Right</strong> arrows</li>
+				<li>Move forward/backward with <strong>I</strong>/<strong>K</strong></li>
+				<li>Strafe left with <strong>J</strong> and right with <strong>L</strong> or <strong>M</strong></li>
+				<li>Roll left/right with <strong>U</strong>/<strong>O</strong></li>
+				<li>Zoom in/out with <strong>N</strong>/<strong>W</strong></li>
+				<li>Pitch up/down with <strong>;</strong>/<strong>P</strong></li>
+			</ul>
+		</div>
+	</body>
+</html>
