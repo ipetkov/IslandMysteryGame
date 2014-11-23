@@ -6,17 +6,30 @@ var fragmentSourceId = 'shader-fragment';
 
 // Shader attributes/uniforms
 var attrPosition           = 'vPosition';
+var attrNormal             = 'vNormal';
 var uniformModelMatrix     = 'modelMatrix';
 var uniformProjViewMatrix  = 'projViewMatrix';
-var uniformColor           = 'vColor';
+var uniformAmbientProduct  = 'ambientProduct';
+var uniformDiffuseProduct  = 'diffuseProduct';
+var uniformNormalMat       = 'normalMat';
+var uniformLightPosition   = 'lightPosition';
 
 var shape;
+var ground;
 
 var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
 var program; // The WebGL linked program
 var camera;  // Camera used for navigating the scene
 var timer = new Timer();
+
+var light = {
+	position: vec3(0.0, 1000.0, 0.0),
+	material: new Material(
+		vec4(0.3, 0.3, 0.3, 1.0),
+		vec4(0.7, 0.7, 0.7, 1.0)
+	),
+}
 
 // Steps in for moving camera
 var rotateDegree = 1;
@@ -46,6 +59,14 @@ var glHelper = (function() {
 		setAttrib(attrPosition, vbo);
 	}
 
+	helper.setNormalAttrib = function(vbo) {
+		setAttrib(attrNormal, vbo);
+	}
+
+	helper.setNormalModelMatrix = function(mat) {
+		setUniformMat(uniformNormalMat, mat);
+	}
+
 	helper.setModelMatrix = function(mat) {
 		setUniformMat(uniformModelMatrix, mat);
 	}
@@ -54,8 +75,17 @@ var glHelper = (function() {
 		setUniformMat(uniformProjViewMatrix, mat);
 	}
 
-	helper.setColor = function(color) {
-		setUniformVec4(uniformColor, color);
+	helper.setAmbientProduct = function(vec) {
+		setUniformVec4(uniformAmbientProduct, mult(light.material.ambient, vec));
+	}
+
+	helper.setDiffuseProduct = function(vec) {
+		setUniformVec4(uniformDiffuseProduct, mult(light.material.diffuse, vec));
+	}
+
+	helper.setLightPosition = function(vec) {
+		var loc = gl.getUniformLocation(program, uniformLightPosition);
+		gl.uniform3fv(loc, flatten(vec));
 	}
 
 	return helper;
@@ -84,11 +114,25 @@ window.onload = function() {
 
 	// Initialize the camera
 	camera = new Camera(canvas);
-	camera.moveBy(0.0, 0.0, -1.0);
+	camera.moveBy(0.0, 2.0, -1.0);
 
-	shape = new Cube();
-	shape.position = vec3(-1.0, -1.0, -3.0);
-	shape.scale = vec3(1.0, 0.25, 2.0);
+	var redMaterial = new Material(
+		vec4(0.2, 0.2, 0.2, 1.0),
+		vec4(0.8, 0.0, 0.0, 1.0)
+	);
+
+	var grayMaterial = new Material(
+		vec4(0.5, 0.5, 0.5, 1.0),
+		vec4(0.0, 0.0, 0.0, 1.0)
+	);
+
+	shape = new Cube(redMaterial, false);
+	shape.position = vec3(0.0, .75, -3.0);
+	shape.scale = vec3(1.0, 0.5, 2.0);
+
+	ground = new Cube(grayMaterial, true);
+	ground.position = vec3(0.0, -0.1, 0.0);
+	ground.scale = vec3(100.0, 0.1, 100.0);
 
 	// Attach our keyboard listener to the canvas
 	window.addEventListener('keydown', handleKey);
@@ -167,9 +211,13 @@ function draw() {
 	gl.enable(gl.DEPTH_TEST);
 
 	glHelper.setProjViewMatrix(camera.getProjViewMatrix());
+	glHelper.setLightPosition(light.position);
 
 	var dt = timer.getElapsedTime();
-	shape.draw(dt);
+	shape.draw(dt, mat4());
+
+	dt += timer.getElapsedTime();
+	ground.draw(dt, mat4());
 
 	window.requestAnimationFrame(draw);
 }
