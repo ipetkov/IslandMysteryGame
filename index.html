@@ -23,13 +23,10 @@
 			uniform mat4 projViewMatrix;
 			uniform mat4 normalMat;
 
-			// Material uniforms
-			uniform vec4 ambientProduct;
-			uniform vec4 diffuseProduct;
 			uniform vec3 lightPosition;
 
 			varying vec2 fUV;
-			varying vec4 fColor;
+			varying vec3 N, L, E;
 			void main() {
 				// Make sure our w components are set properly
 				vec4 pos  = vec4(vPosition, 1.0);
@@ -40,30 +37,32 @@
 				vec3 lightInWorld  = lightPosition; // Light already in world coordinates
 
 				// We ignore specular highlights
-				vec3 N = normalize(normalInWorld);
-				vec3 L = normalize(lightInWorld - posInWorld);
-				vec3 E = normalize(-posInWorld);
-
-				float dotLN = dot(L, N);
-				float Kd = max(dotLN, 0.0);
-
-				vec4 ambient  = ambientProduct;
-				vec4 diffuse  = Kd * diffuseProduct;
+				N = normalize(normalInWorld);
+				L = normalize(lightInWorld - posInWorld);
+				E = normalize(-posInWorld);
 
 				fUV = texCoord;
-				fColor = ambient + diffuse;
-				fColor.a = 1.0;
-
 				gl_Position = projViewMatrix * vec4(posInWorld, 1.0);
 			}
 		</script>
 
 		<script id="shader-fragment" type="x-shader/x-fragment">
 			precision mediump float;
+
+			uniform vec4 ambientProduct;
+			uniform vec4 diffuseProduct;
 			uniform sampler2D uSampler;
-			varying vec4 fColor;
+
+			varying vec3 N, L, E;
 			varying vec2 fUV;
 			void main() {
+				float Kd = max(dot(L, N), 0.0);
+
+				vec4 ambient  = ambientProduct;
+				vec4 diffuse  = Kd * diffuseProduct;
+
+				vec4 fColor = ambient + diffuse;
+				fColor.a = 1.0;
 				gl_FragColor = fColor * texture2D(uSampler, fUV);
 			}
 		</script>
