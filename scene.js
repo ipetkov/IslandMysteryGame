@@ -16,8 +16,7 @@ var uniformNormalMat       = 'normalMat';
 var uniformLightPosition   = 'lightPosition';
 var uniformTexSampler      = 'uSampler';
 
-var shape;
-var ground;
+var shapes = [];
 
 var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
@@ -140,13 +139,18 @@ window.onload = function() {
 		vec4(0.0, 0.0, 0.0, 1.0)
 	);
 
-	shape = new Cube(redMaterial, false, null);
+	var cube = new Cube(null, false, new Texture.fromImageSrc('./images/chrome.jpg'));
+	cube.position = vec3(1.5, 0.5, -3.5);
+
+	var shape = new Cube(redMaterial, false, null);
 	shape.position = vec3(0.0, .75, -3.0);
 	shape.scale = vec3(1.0, 0.5, 2.0);
 
-	ground = new Cube(grayMaterial, true);
+	var ground = new Cube(grayMaterial, true);
 	ground.position = vec3(0.0, -0.1, 0.0);
 	ground.scale = vec3(100.0, 0.1, 100.0);
+
+	shapes = [shape, ground, cube];
 
 	// Attach our keyboard listener to the canvas
 	window.addEventListener('keydown', handleKey);
@@ -227,11 +231,12 @@ function draw() {
 	glHelper.setProjViewMatrix(camera.getProjViewMatrix());
 	glHelper.setLightPosition(light.position);
 
-	var dt = timer.getElapsedTime();
-	shape.draw(dt, mat4());
-
-	dt += timer.getElapsedTime();
-	ground.draw(dt, mat4());
+	var identMat = mat4();
+	var dt = 0;
+	shapes.forEach(function(e) {
+		dt += timer.getElapsedTime();
+		e.draw(dt, identMat);
+	});
 
 	window.requestAnimationFrame(draw);
 }
