@@ -7,6 +7,7 @@
 		<script type="text/javascript" src="webgl-utils.js"></script>
 		<script type="text/javascript" src="initShaders.js"></script>
 		<script type="text/javascript" src="camera.js"></script>
+		<script type="text/javascript" src="texture.js"></script>
 		<script type="text/javascript" src="shapes/shape.js"></script>
 		<script type="text/javascript" src="shapes/cube.js"></script>
 		<script type="text/javascript" src="scene.js"></script>
@@ -17,6 +18,7 @@
 			// Position attributes and uniforms
 			attribute vec3 vPosition;
 			attribute vec3 vNormal;
+			attribute vec2 texCoord;
 			uniform mat4 modelMatrix;
 			uniform mat4 projViewMatrix;
 			uniform mat4 normalMat;
@@ -26,6 +28,7 @@
 			uniform vec4 diffuseProduct;
 			uniform vec3 lightPosition;
 
+			varying vec2 fUV;
 			varying vec4 fColor;
 			void main() {
 				// Make sure our w components are set properly
@@ -47,6 +50,7 @@
 				vec4 ambient  = ambientProduct;
 				vec4 diffuse  = Kd * diffuseProduct;
 
+				fUV = texCoord;
 				fColor = ambient + diffuse;
 				fColor.a = 1.0;
 
@@ -56,9 +60,11 @@
 
 		<script id="shader-fragment" type="x-shader/x-fragment">
 			precision mediump float;
+			uniform sampler2D uSampler;
 			varying vec4 fColor;
+			varying vec2 fUV;
 			void main() {
-				gl_FragColor = fColor;
+				gl_FragColor = fColor * texture2D(uSampler, fUV);
 			}
 		</script>
 

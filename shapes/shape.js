@@ -7,18 +7,21 @@ function inheritPrototype(subType, superType) {
 }
 
 function Material(ambient, diffuse) {
-	this.ambient = ambient;
-	this.diffuse = diffuse;
+	// Default material is all white, thus the object's texture will dominate
+	var whiteColor = vec4(1.0, 1.0, 1.0, 1.0);
+	this.ambient = ambient || whiteColor;
+	this.diffuse = diffuse || whiteColor;
 }
 
-// FIXME: add texture parameters
 // FIXME: implement clipping
-function Shape(verticesBuffer, normalsBuffer, numVertices, material) {
+function Shape(verticesBuffer, normalsBuffer, texCoordBufffer, numVertices, material, texture) {
 	this.vbo = verticesBuffer;
 	this.nbo = normalsBuffer;
+	this.tbo = texCoordBufffer;
 	this.numVertices = numVertices;
 
-	this.material = material;
+	this.material = material || new Material();
+	this.texture  = texture || new Texture();
 	this.position = vec3(0.0, 0.0, 0.0);
 	this.scale    = vec3(1.0, 1.0, 1.0);
 	this.yaw      = 0;
@@ -42,6 +45,12 @@ Shape.prototype.draw = function(dt, mat) {
 	mat = mult(mat, this.getModelMatrix());
 	glHelper.setPositionAttrib(this.vbo);
 	glHelper.setNormalAttrib(this.nbo);
+	glHelper.setTexCoordAttrib(this.tbo);
+
+	gl.bindTexture(gl.TEXTURE_2D, this.texture);
+	gl.activeTexture(gl.TEXTURE0);
+	glHelper.setTexSampler(0);
+
 	glHelper.setModelMatrix(mat);
 
 	glHelper.setAmbientProduct(this.material.ambient);

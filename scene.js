@@ -7,12 +7,14 @@ var fragmentSourceId = 'shader-fragment';
 // Shader attributes/uniforms
 var attrPosition           = 'vPosition';
 var attrNormal             = 'vNormal';
+var attrTexCoord           = 'texCoord';
 var uniformModelMatrix     = 'modelMatrix';
 var uniformProjViewMatrix  = 'projViewMatrix';
 var uniformAmbientProduct  = 'ambientProduct';
 var uniformDiffuseProduct  = 'diffuseProduct';
 var uniformNormalMat       = 'normalMat';
 var uniformLightPosition   = 'lightPosition';
+var uniformTexSampler      = 'uSampler';
 
 var shape;
 var ground;
@@ -63,6 +65,13 @@ var glHelper = (function() {
 		setAttrib(attrNormal, vbo);
 	}
 
+	helper.setTexCoordAttrib = function(vbo) {
+		var loc = gl.getAttribLocation(program, attrTexCoord);
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+		gl.enableVertexAttribArray(loc);
+		gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+	}
+
 	helper.setNormalModelMatrix = function(mat) {
 		setUniformMat(uniformNormalMat, mat);
 	}
@@ -73,6 +82,11 @@ var glHelper = (function() {
 
 	helper.setProjViewMatrix = function(mat) {
 		setUniformMat(uniformProjViewMatrix, mat);
+	}
+
+	helper.setTexSampler = function(arg) {
+		var loc = gl.getUniformLocation(program, uniformTexSampler);
+		gl.uniform1i(loc, arg);
 	}
 
 	helper.setAmbientProduct = function(vec) {
@@ -126,7 +140,7 @@ window.onload = function() {
 		vec4(0.0, 0.0, 0.0, 1.0)
 	);
 
-	shape = new Cube(redMaterial, false);
+	shape = new Cube(redMaterial, false, null);
 	shape.position = vec3(0.0, .75, -3.0);
 	shape.scale = vec3(1.0, 0.5, 2.0);
 
