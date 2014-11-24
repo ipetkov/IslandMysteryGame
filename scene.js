@@ -27,7 +27,7 @@ var timer = new Timer();
 var light = {
 	position: vec3(0.0, 1000.0, 0.0),
 	material: new Material(
-		vec4(0.3, 0.3, 0.3, 1.0),
+		vec4(0.2, 0.2, 0.2, 1.0),
 		vec4(0.7, 0.7, 0.7, 1.0)
 	),
 }
@@ -130,13 +130,13 @@ window.onload = function() {
 	camera.moveBy(0.0, 2.0, -1.0);
 
 	var redMaterial = new Material(
-		vec4(0.2, 0.2, 0.2, 1.0),
+		vec4(0.4, 0.3, 0.3, 1.0),
 		vec4(0.8, 0.0, 0.0, 1.0)
 	);
 
 	var grayMaterial = new Material(
 		vec4(0.5, 0.5, 0.5, 1.0),
-		vec4(0.0, 0.0, 0.0, 1.0)
+		vec4(0.2, 0.2, 0.2, 1.0)
 	);
 
 	var cube = new Cube(null, false, new Texture.fromImageSrc('./images/chrome.jpg'));

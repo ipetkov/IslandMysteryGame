@@ -197,11 +197,6 @@ var Cube = (function() {
 			initVertexData();
 		}
 
-		material = material || new Material(
-			vec4(0.2, 0.2, 0.2, 1.0),
-			vec4(0.8, 0.8, 0.8, 1.0)
-		);
-
 		// For non-flat lighting, the cube's vertices are conveniently
 		// also its normal vectors, if we approximate it as a sphere.
 		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, vertices.length / 3, material, texture);
