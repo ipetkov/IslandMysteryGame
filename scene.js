@@ -160,6 +160,7 @@ window.onload = function() {
 }
 
 // Key handler which will update our camera position
+// FIXME: implement moving camera with mouse
 function handleKey(e) {
 	switch(e.keyCode) {
                 case 37: // Left Arrow - turn left
@@ -170,54 +171,44 @@ function handleKey(e) {
 			camera.yawBy(-rotateDegree);
 			break;
 
-                case 38: // Up Arrow - raise elevation
-			camera.moveBy(0, moveUnit, 0);
+                case 38: // Up Arrow - pitch down
+			camera.pitchBy(-rotateDegree);
 			break;
 
-                case 40: // Down Arrow - lower elevation
-			camera.moveBy(0, -moveUnit, 0);
-			break;
-
-		case 73: // i - move forward
-			camera.moveBy(0, 0, moveUnit);
-			break;
-
-		case 74: // j - strafe left
-			camera.moveBy(-moveUnit, 0, 0);
-			break;
-
-		case 75: // k - move backward
-			camera.moveBy(0, 0, -moveUnit);
-			break;
-
-		case 76: // l - strafe right
-		case 77: // m - strafe right (weird key in spec)
-			camera.moveBy(moveUnit, 0, 0);
-			break;
-
-		case 87: // w - widen horizontal fov, zoom out
-			camera.zoomBy(-rotateDegree);
-			break;
-
-		case 78: // n - narrow horizontal fov, zoom in
-			camera.zoomBy(rotateDegree);
-			break;
-
-		case 85: // u - roll left
-			camera.rollBy(rotateDegree);
-			break;
-
-		case 79: // o - roll right
-			camera.rollBy(-rotateDegree);
-			break;
-
-		case 59: // ; - pitch up
-		case 186: // ; on chrome
+                case 40: // Down Arrow - pitch up
 			camera.pitchBy(rotateDegree);
 			break;
 
-		case 80: // p - pitch down
-			camera.pitchBy(-rotateDegree);
+		case 87: // w - move forward
+			camera.moveBy(0, 0, moveUnit);
+			break;
+
+		case 65: // a - strafe left
+			camera.moveBy(-moveUnit, 0, 0);
+			break;
+
+		case 83: // s - move backward
+			camera.moveBy(0, 0, -moveUnit);
+			break;
+
+		case 68: // d - strafe right
+			camera.moveBy(moveUnit, 0, 0);
+			break;
+
+		case 32: // space - elevate up
+			camera.moveBy(0, moveUnit, 0);
+			break;
+
+		case 16: // shift - elevate down
+			camera.moveBy(0, -moveUnit, 0);
+			break;
+
+		case 81: // q - roll left
+			camera.rollBy(rotateDegree);
+			break;
+
+		case 69: // e - roll right
+			camera.rollBy(-rotateDegree);
 			break;
         }
 }
