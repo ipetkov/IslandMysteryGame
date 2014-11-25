@@ -35,6 +35,7 @@ var light = {
 // Steps in for moving camera
 var rotateDegree = 1;
 var moveUnit = 0.125;
+var mouseSensitivity = 1/10;
 
 // Helper to set shader attributes/uniforms
 var glHelper = (function() {
@@ -128,6 +129,11 @@ window.onload = function() {
 	// Initialize the camera
 	camera = new Camera(canvas);
 	camera.moveBy(0.0, 2.0, -1.0);
+
+	pointerLock(canvas, function(x, y) {
+		camera.yawBy(-x * mouseSensitivity);
+		camera.pitchBy(-y * mouseSensitivity);
+	}, null);
 
 	var redMaterial = new Material(
 		vec4(0.4, 0.3, 0.3, 1.0),
@@ -229,5 +235,5 @@ function draw() {
 		e.draw(dt, identMat);
 	});
 
-	window.requestAnimationFrame(draw);
+	window.requestAnimFrame(draw);
 }
