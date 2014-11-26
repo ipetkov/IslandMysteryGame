@@ -25,9 +25,9 @@ var camera;  // Camera used for navigating the scene
 var timer = new Timer();
 
 var light = {
-	position: vec3(0.0, 1000.0, 0.0),
+	position: vec3(0.0, 100.0, 0.0),
 	material: new Material(
-		vec4(0.2, 0.2, 0.2, 1.0),
+		vec4(0.3, 0.3, 0.3, 1.0),
 		vec4(0.7, 0.7, 0.7, 1.0)
 	),
 }
@@ -133,7 +133,7 @@ window.onload = function() {
 	pointerLock(canvas, function(x, y) {
 		camera.yawBy(-x * mouseSensitivity);
 		camera.pitchBy(-y * mouseSensitivity);
-	}, null);
+	});
 
 	var redMaterial = new Material(
 		vec4(0.4, 0.3, 0.3, 1.0),
@@ -145,18 +145,22 @@ window.onload = function() {
 		vec4(0.2, 0.2, 0.2, 1.0)
 	);
 
-	var cube = new Cube(null, false, new Texture.fromImageSrc('./images/chrome.jpg'));
+	var cube = new Cube(null, new Texture.fromImageSrc('./images/chrome.jpg'), false, false);
 	cube.position = vec3(1.5, 0.5, -3.5);
 
-	var shape = new Cube(redMaterial, false, null);
+	var shape = new Cube(redMaterial, null, false, false);
 	shape.position = vec3(0.0, .75, -3.0);
 	shape.scale = vec3(1.0, 0.5, 2.0);
 
-	var ground = new Cube(grayMaterial, true);
+	var ground = new Cube(grayMaterial, null, true, false);
 	ground.position = vec3(0.0, -0.1, 0.0);
 	ground.scale = vec3(100.0, 0.1, 100.0);
 
-	shapes = [shape, ground, cube];
+	var sun = new Cube(new Material(vec4(1.0, 1.0, 0.0, 1.0), vec4(1.0, 1.0, 0.0, 1.0)), null, true, true);
+	sun.position = light.position;
+	sun.scale = vec3(5.0, 5.0, 5.0);
+
+	shapes = [shape, ground, cube, manyTexture, sun];
 
 	// Attach our keyboard listener to the canvas
 	window.addEventListener('keydown', handleKey);
@@ -221,7 +225,8 @@ function handleKey(e) {
 
 // Draws the data in the vertex buffer on the canvas repeatedly
 function draw() {
-	gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	// Set the clear color to a light blue
+	gl.clearColor(0.54, 0.81, 0.94, 1.0),
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
 

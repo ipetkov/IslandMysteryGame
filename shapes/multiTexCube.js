@@ -1,7 +1,7 @@
 "use strict";
 
-function MultiTexCube(material, flatLighting, texFront, texBack, texLeft, texRight, texBottom, texTop) {
-	Cube.call(this, material, flatLighting, null);
+function MultiTexCube(material, flatLighting, invert, texFront, texBack, texLeft, texRight, texBottom, texTop) {
+	Cube.call(this, material, null, flatLighting, invert);
 
 	this.texFront  = texFront;
 	this.texBack   = texBack;

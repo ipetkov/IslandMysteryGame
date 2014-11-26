@@ -164,7 +164,7 @@ window.requestAnimFrame = (function() {
 /**
  * Provides locking the pointer in a cross browser way.
  */
-function pointerLock(canvas, mouseMoveCallback, unlockedCallback) {
+function pointerLock(canvas, mouseMoveCallback) {
 	canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
 	document.exitPointerLock  = document.exitPointerLock  || document.mozExitPointerLock  || document.webkitExitPointerLock;
 
