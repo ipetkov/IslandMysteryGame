@@ -214,11 +214,11 @@ function handleKey(e) {
 			break;
 
 		case 81: // q - roll left
-			camera.rollBy(rotateDegree);
+			// FIXME: implement leaning
 			break;
 
 		case 69: // e - roll right
-			camera.rollBy(-rotateDegree);
+			// FIXME: implement leaning
 			break;
         }
 }

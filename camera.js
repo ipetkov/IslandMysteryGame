@@ -23,6 +23,7 @@ function Camera(glCanvas) {
 	var yaw = 0;
 	var pitch = 0;
 	var roll = 0;
+	var lean = 0;
 
 	// Positve right strafes camera right
 	// Positve up lifts camera up
@@ -63,10 +64,19 @@ function Camera(glCanvas) {
 		var fovyDegree = fovy * 180 / Math.PI;
 		var proj = perspective(fovyDegree, canvas.width / canvas.height, .001, 500);
 
+		// Set heading
 		var orientation = rotate(roll, vec3(0, 0, 1));
 		orientation = mult(orientation, rotate(pitch, vec3(1, 0, 0)));
 		orientation = mult(orientation, rotate(yaw, vec3(0, 1, 0)));
+
+		// Set position
 		orientation = mult(orientation, translate(-position[0], -position[1], position[2]));
+
+		// Set lean
+		orientation = mult(orientation, translate(0, -1, 0));
+		orientation = mult(orientation, rotate(lean, vec3(0, 0, -1)));
+		orientation = mult(orientation, translate(0, 1, 0));
+
 		return mult(proj, orientation);
 	};
 
@@ -78,4 +88,13 @@ function Camera(glCanvas) {
 	this.zoomBy = function(angle) {
 		this.setFovx(fovx - angle);
 	};
+
+	// Lean's camera left/right, e.g. when walking
+	this.setLean = function(angle) {
+		lean = Math.min(15, Math.max(-15, -angle));
+	}
+
+	this.leanBy = function(angle) {
+		this.setLean(-lean + angle);
+	}
 }
