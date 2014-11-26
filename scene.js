@@ -17,20 +17,13 @@ var uniformLightPosition   = 'lightPosition';
 var uniformTexSampler      = 'uSampler';
 
 var shapes = [];
+var sun;
 
 var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
 var program; // The WebGL linked program
 var camera;  // Camera used for navigating the scene
 var timer = new Timer();
-
-var light = {
-	position: vec3(0.0, 100.0, 0.0),
-	material: new Material(
-		vec4(0.3, 0.3, 0.3, 1.0),
-		vec4(0.7, 0.7, 0.7, 1.0)
-	),
-}
 
 // Steps in for moving camera
 var rotateDegree = 1;
@@ -90,11 +83,11 @@ var glHelper = (function() {
 	}
 
 	helper.setAmbientProduct = function(vec) {
-		setUniformVec4(uniformAmbientProduct, mult(light.material.ambient, vec));
+		setUniformVec4(uniformAmbientProduct, mult(sun.lightMaterial.ambient, vec));
 	}
 
 	helper.setDiffuseProduct = function(vec) {
-		setUniformVec4(uniformDiffuseProduct, mult(light.material.diffuse, vec));
+		setUniformVec4(uniformDiffuseProduct, mult(sun.lightMaterial.diffuse, vec));
 	}
 
 	helper.setLightPosition = function(vec) {
@@ -156,11 +149,9 @@ window.onload = function() {
 	ground.position = vec3(0.0, -0.1, 0.0);
 	ground.scale = vec3(100.0, 0.1, 100.0);
 
-	var sun = new Cube(new Material(vec4(1.0, 1.0, 0.0, 1.0), vec4(1.0, 1.0, 0.0, 1.0)), null, true, true);
-	sun.position = light.position;
-	sun.scale = vec3(5.0, 5.0, 5.0);
+	sun = new Sun(100, 1/100);
 
-	shapes = [shape, ground, cube, manyTexture, sun];
+	shapes = [shape, ground, cube];
 
 	// Attach our keyboard listener to the canvas
 	window.addEventListener('keydown', handleKey);
@@ -231,10 +222,12 @@ function draw() {
 	gl.enable(gl.DEPTH_TEST);
 
 	glHelper.setProjViewMatrix(camera.getProjViewMatrix());
-	glHelper.setLightPosition(light.position);
 
 	var identMat = mat4();
-	var dt = 0;
+	var dt = timer.getElapsedTime();
+
+	sun.draw(dt);
+
 	shapes.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
