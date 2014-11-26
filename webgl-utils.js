@@ -161,6 +161,41 @@ window.requestAnimFrame = (function() {
          };
 })();
 
+
+function pointerLock(canvas, mouseMoveCallback, unlockedCallback) {
+  canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
+  document.exitPointerLock  = document.exitPointerLock  || document.mozExitPointerLock  || document.webkitExitPointerLock;
+
+  var oldOnClick = canvas.onclick;
+  canvas.onclick = function() {
+    canvas.requestPointerLock();
+    if(oldOnClick) {
+      oldOnClick();
+    }
+  }
+
+  function mouseMoved(e) {
+    var x = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
+    var y = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
+
+    if(mouseMoveCallback) {
+      mouseMoveCallback(x, y);
+    }
+  }
+
+  function lockChangeAlert() {
+    if(document.pointerLockElement === canvas || document.mozPointerLockElement === canvas || document.webkitPointerLockElement === canvas) {
+      document.addEventListener('mousemove', mouseMoved, false);
+    } else {
+      document.removeEventListener('mousemove', mouseMoved, false);
+    }
+  }
+
+  document.addEventListener('pointerlockchange', lockChangeAlert, false);
+  document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+  document.addEventListener('webkitpointerlockchange', lockChangeAlert, false);
+}
+
 /**
  * Timer is a light timer class to get current time
  * as well as elapsed from since last check.

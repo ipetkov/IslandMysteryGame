@@ -40,6 +40,7 @@ var light = {
 // Steps in for moving camera
 var rotateDegree = 1;
 var moveUnit = 0.125;
+var mouseSensitivity = 1/10;
 
 // Helper to set shader attributes/uniforms
 var glHelper = (function() {
@@ -134,6 +135,12 @@ window.onload = function() {
 	camera = new Camera(canvas);
 	camera.moveBy(0.0, 1.5, -3.0);
 
+	pointerLock(canvas, function(x, y) {
+		camera.yawBy(-x * mouseSensitivity);
+		camera.pitchBy(-y * mouseSensitivity);
+	}, null);
+
+
 
 	var groundMaterial = new Material(
 		vec4(0.8, 0.9, 0.5, 1.0),
@@ -147,11 +154,11 @@ window.onload = function() {
 
 	var ground = new Cube(groundMaterial, true, null);
 	ground.position = vec3(0.0, -0.1, 0.0);
-	ground.scale = vec3(100.0, 0.1, 100.0);
+	ground.scale = vec3(150.0, 0.1, 150.0);
 
-	var sky = new HexagonalPrism(skyMaterial, true, new Texture.fromImageSrc('./images/sky.jpg'));
+	var sky = new HexagonalPyramid(skyMaterial, false, new Texture.fromImageSrc('./images/sky2.jpg'));
 	sky.position = vec3(0.0, 0.0, 0.0);
-	sky.scale = vec3(100.0, 100.0, 100.0);
+	sky.scale = vec3(90.0, 50.0, 90.0);
 
 	var treeShapes = [];
 
@@ -287,7 +294,10 @@ function draw() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
 
-	camera.moveBy(rightVelocity - leftVelocity, 0.0, forwardVelocity - backVelocity);
+
+	var xMov = rightVelocity - leftVelocity;
+	var zMov = forwardVelocity - backVelocity;
+	camera.moveBy(xMov, 0.0, zMov);
 
 	glHelper.setProjViewMatrix(camera.getProjViewMatrix());
 	glHelper.setLightPosition(light.position);
@@ -299,5 +309,5 @@ function draw() {
 		e.draw(dt, identMat);
 	});
 
-	window.requestAnimationFrame(draw);
+	window.requestAnimFrame(draw);
 }
