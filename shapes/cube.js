@@ -5,6 +5,9 @@ var Cube = (function() {
 	var vbo = null;
 	var nbo = null;
 	var tbo = null;
+	var invertedFlatNormalsBuffer = null;
+	var invertedVerticesBuffer = null;
+
 	var vertices = [
 		// Front face
 		// X    Y     Z
@@ -190,16 +193,43 @@ var Cube = (function() {
 		tbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, tbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordinates), gl.STATIC_DRAW);
+
+		var invertedFlatNormals = flatNormals.map(function(p) {
+			return -p;
+		});
+
+		invertedFlatNormalsBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, invertedFlatNormalsBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, flatten(invertedFlatNormals), gl.STATIC_DRAW);
+
+		var invertedVertices = vertices.map(function(p) {
+			return -p;
+		});
+
+		invertedVerticesBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, invertedVerticesBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, flatten(invertedVertices), gl.STATIC_DRAW);
 	};
 
-	var cubeConstructor = function(material, flatLighting, texture) {
+	var cubeConstructor = function(material, texture, flatLighting, invertNormals) {
 		if(!vbo || !nbo || !tbo) {
 			initVertexData();
 		}
 
 		// For non-flat lighting, the cube's vertices are conveniently
 		// also its normal vectors, if we approximate it as a sphere.
-		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, vertices.length / 3, material, texture);
+		var normalBuffer = vbo;
+		if(flatLighting && invertNormals) {
+			normalBuffer = invertedFlatNormalsBuffer;
+		} else if(flatLighting) {
+			normalBuffer = nbo;
+		} else if(invertNormals) {
+			normalBuffer = invertedVerticesBuffer;
+		} else {
+			normalBuffer = vbo;
+		}
+
+		Shape.call(this, vbo, normalBuffer, tbo, vertices.length / 3, material, texture);
 	};
 
 	return cubeConstructor;

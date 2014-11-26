@@ -78,13 +78,25 @@ var paperFoliage = (function() {
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordinates), gl.STATIC_DRAW);
 	};
 
-	var paperFoliageConstructor = function(material, flatLighting, texture) {
+	var paperFoliageConstructor = function(material, texture, flatLighting, invertNormals) {
 		if(!vbo || !nbo || !tbo) {
 			initVertexData();
 		}
 
 		// For non-flat lighting, the cube's vertices are conveniently
 		// also its normal vectors, if we approximate it as a sphere.
+		var normalBuffer = vbo;
+		if(flatLighting && invertNormals) {
+			normalBuffer = invertedFlatNormalsBuffer;
+		} else if(flatLighting) {
+			normalBuffer = nbo;
+		} else if(invertNormals) {
+			normalBuffer = invertedVerticesBuffer;
+		} else {
+			normalBuffer = vbo;
+		}
+
+
 		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, vertices.length / 3, material, texture);
 	};
 

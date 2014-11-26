@@ -1,31 +1,61 @@
 "use strict";
 
+/**
+ * Camera will rotate about three axes: yaw, pitch, and roll.
+ * Although this implementation is more complicated than repeatedly
+ * multiplying into an orientation matrix, it allows us to ask the
+ * camera questions like "where are you?" and "which direction are you
+ * looking at?", which will be useful for moving the plaer over hills,
+ * as well as implementing clipping of objects that are not visible.
+ *
+ * This also makes it that all movements are NOT relative to the camera's
+ * current position, e.g. if the camera has rolled to the side, pitching
+ * is done relative to the xz-plane, and not the camera's orientation.
+ * This makes the camera behave in a way that is expected of first person
+ * games that navigate with a mouse.
+ *
+ * This implementation IS vulnerable to gimbal lock.
+ */
 function Camera(glCanvas) {
 	var fovx = 90;
 	var canvas = glCanvas;
-	var orientation = mat4();
+	var position = vec3(0.0, 0.0, 0.0);
+	var yaw = 0;
+	var pitch = 0;
+	var roll = 0;
+	var lean = 0;
 
 	// Positve right strafes camera right
 	// Positve up lifts camera up
 	// Positive forward strafes camera forward
 	this.moveBy = function(right, up, forward) {
-		orientation = mult(translate(-right, -up, forward), orientation);
+		var rad = radians(yaw);
+		var sin = Math.sin(rad);
+		var cos = Math.cos(rad);
+
+		var translation = vec3(
+			(forward * sin) + (right * cos),
+			up,
+			(forward * cos) - (right * sin)
+		);
+
+		position = add(position, translation);
 	};
 
 	// Positive angle corresponds to yawing left
 	this.yawBy = function(angle) {
-		orientation = mult(rotate(-angle, vec3(0, 1, 0)), orientation);
+		yaw = (yaw - angle) % 360;
 	}
 
 	// Positive angle corresponds to pitching up
 	this.pitchBy = function(angle) {
-		orientation = mult(rotate(-angle, vec3(1, 0, 0)), orientation);
+		pitch = Math.max(-90, Math.min(90, (pitch - angle)));
 	}
 
 	// Positive angle corresponds to rolling camera left
 	// (world rotates to the right)
 	this.rollBy = function(angle) {
-		orientation = mult(rotate(-angle, vec3(0, 0, 1)), orientation);
+		roll = (roll - angle) % 360;
 	}
 
 	this.getProjViewMatrix = function() {
@@ -33,6 +63,20 @@ function Camera(glCanvas) {
 		var fovy = 2 * Math.atan(hwRatio * Math.tan(radians(fovx) / 2));
 		var fovyDegree = fovy * 180 / Math.PI;
 		var proj = perspective(fovyDegree, canvas.width / canvas.height, .001, 500);
+
+		// Set heading
+		var orientation = rotate(roll, vec3(0, 0, 1));
+		orientation = mult(orientation, rotate(pitch, vec3(1, 0, 0)));
+		orientation = mult(orientation, rotate(yaw, vec3(0, 1, 0)));
+
+		// Set position
+		orientation = mult(orientation, translate(-position[0], -position[1], position[2]));
+
+		// Set lean
+		orientation = mult(orientation, translate(0, -1, 0));
+		orientation = mult(orientation, rotate(lean, vec3(0, 0, -1)));
+		orientation = mult(orientation, translate(0, 1, 0));
+
 		return mult(proj, orientation);
 	};
 
@@ -45,7 +89,12 @@ function Camera(glCanvas) {
 		this.setFovx(fovx - angle);
 	};
 
-	this.lookAt = function(eye, at, up) {
-		orientation = lookAt(eye, at, up);
-	};
+	// Lean's camera left/right, e.g. when walking
+	this.setLean = function(angle) {
+		lean = Math.min(15, Math.max(-15, -angle));
+	}
+
+	this.leanBy = function(angle) {
+		this.setLean(-lean + angle);
+	}
 }

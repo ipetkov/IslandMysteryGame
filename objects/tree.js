@@ -29,19 +29,19 @@ var TreeShapes = function(position, scale, age)
 	var kY = scale[1];
 	var kZ = scale[2];
 
-	var treeTrunk = new HexagonalPrism(trunkMaterial, false, new Texture.fromImageSrc('./images/treebark.jpg'));
+	var treeTrunk = new HexagonalPrism(trunkMaterial, new Texture.fromImageSrc('./images/treebark.jpg'), false, false);
 	treeTrunk.position = vec3(posX, posY, posZ);
 	treeTrunk.scale = vec3(0.15, 2.0 * kY, 0.15);
 
-	var foliageTop = new HexagonalPyramid(foliageMaterial, true, new Texture.fromImageSrc('./images/foliage.png'));
+	var foliageTop = new HexagonalPyramid(foliageMaterial, new Texture.fromImageSrc('./images/foliage.png'), true, false);
 	foliageTop.position = vec3(posX, posY + 2.5 * kY, posZ);
 	foliageTop.scale = vec3(0.7 * kX, 1.5 * kY, 0.7 * kZ);
 	
-	var foliageMiddle = new HexagonalPrism(foliageMaterial, false, new Texture.fromImageSrc('./images/foliage.png'));
+	var foliageMiddle = new HexagonalPrism(foliageMaterial, new Texture.fromImageSrc('./images/foliage.png'), false, false);
 	foliageMiddle.position = vec3(posX, posY + 2.0 * kY, posZ);
 	foliageMiddle.scale = vec3(0.7 * kX, 0.5 * kY, 0.7 * kZ);
 
-	var foliageBottom = new HexagonalPyramid(foliageMaterial, true, new Texture.fromImageSrc('./images/foliage.png'));
+	var foliageBottom = new HexagonalPyramid(foliageMaterial, new Texture.fromImageSrc('./images/foliage.png'), false, false);
 	foliageBottom.position = vec3(posX, posY + 2.0 * kY, posZ);
 	foliageBottom.scale = vec3(0.7 * kX, -0.3 * kY, 0.7 * kZ);
 
