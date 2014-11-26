@@ -22,12 +22,17 @@ var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
 var program; // The WebGL linked program
 var camera;  // Camera used for navigating the scene
+var leftVelocity = 0.0;
+var rightVelocity = 0.0;
+var forwardVelocity = 0.0;
+var backVelocity = 0.0;
+
 var timer = new Timer();
 
 var light = {
 	position: vec3(0.0, 1000.0, 0.0),
 	material: new Material(
-		vec4(0.2, 0.2, 0.2, 1.0),
+		vec4(0.5, 0.5, 0.5, 1.0),
 		vec4(0.7, 0.7, 0.7, 1.0)
 	),
 }
@@ -127,39 +132,93 @@ window.onload = function() {
 
 	// Initialize the camera
 	camera = new Camera(canvas);
-	camera.moveBy(0.0, 2.0, -1.0);
+	camera.moveBy(0.0, 1.5, -3.0);
 
-	var redMaterial = new Material(
-		vec4(0.4, 0.3, 0.3, 1.0),
-		vec4(0.8, 0.0, 0.0, 1.0)
+
+	var groundMaterial = new Material(
+		vec4(0.8, 0.9, 0.5, 1.0),
+		vec4(0.8, 0.7, 0.7, 1.0)
 	);
 
-	var grayMaterial = new Material(
-		vec4(0.5, 0.5, 0.5, 1.0),
-		vec4(0.2, 0.2, 0.2, 1.0)
+	var skyMaterial = new Material(
+		vec4(0.3, 0.7, 0.9, 1.0),
+		vec4(0.7, 0.8, 0.8, 1.0)
 	);
 
-	var cube = new Cube(null, false, new Texture.fromImageSrc('./images/chrome.jpg'));
-	cube.position = vec3(1.5, 0.5, -3.5);
-
-	var shape = new Cube(redMaterial, false, null);
-	shape.position = vec3(0.0, .75, -3.0);
-	shape.scale = vec3(1.0, 0.5, 2.0);
-
-	var ground = new Cube(grayMaterial, true);
+	var ground = new Cube(groundMaterial, true, null);
 	ground.position = vec3(0.0, -0.1, 0.0);
 	ground.scale = vec3(100.0, 0.1, 100.0);
 
-	shapes = [shape, ground, cube];
+	var sky = new HexagonalPrism(skyMaterial, true, new Texture.fromImageSrc('./images/sky.jpg'));
+	sky.position = vec3(0.0, 0.0, 0.0);
+	sky.scale = vec3(100.0, 100.0, 100.0);
+
+	var treeShapes = [];
+
+	for (var i = 0; i < 10; i++)
+	{
+		var posX = Math.random() * 10.0 - 5.0;
+		var posZ = Math.random() * 10.0 - 5.0;
+		var kXZ = Math.random() + 0.8;
+		var kY = Math.random() * 0.3 + 1.0;
+		var age = Math.random();
+		treeShapes = treeShapes.concat(new TreeShapes(
+					vec3(posX, 0.0, posZ),
+					vec3(kXZ, kY, kXZ),
+					age
+					));
+	}
+
+	// Objects to draw
+	shapes = [ground, sky];
+	shapes = shapes.concat(treeShapes);
 
 	// Attach our keyboard listener to the canvas
-	window.addEventListener('keydown', handleKey);
+	window.addEventListener('keydown', handleKeyDown);
+	window.addEventListener('keyup', handleKeyUp);
+
 
 	// Set off the draw loop
 	draw();
 }
 
+
 // Key handler which will update our camera position
+function handleKeyDown(e) {
+	switch(e.keyCode) {
+        case 87: // W - forward
+			forwardVelocity = moveUnit;
+			break;
+		case 65: // A - left
+			leftVelocity = moveUnit;
+			break;
+		case 83: // S - back
+			backVelocity = moveUnit;
+			break;
+		case 68: // D - right
+			rightVelocity = moveUnit;
+			break;
+        }
+}
+
+function handleKeyUp(e) {
+	switch(e.keyCode) {
+        case 87: // W - forward
+			forwardVelocity = 0.0;
+			break;
+		case 65: // A - left
+			leftVelocity = 0.0;
+			break;
+		case 83: // S - back
+			backVelocity = 0.0;
+			break;
+		case 68: // D - right
+			rightVelocity = 0.0;
+			break;
+        }
+}
+
+// ignoring for now
 function handleKey(e) {
 	switch(e.keyCode) {
                 case 37: // Left Arrow - turn left
@@ -224,9 +283,11 @@ function handleKey(e) {
 
 // Draws the data in the vertex buffer on the canvas repeatedly
 function draw() {
-	gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	gl.clearColor(0.3, 0.5, 0.6, 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
+
+	camera.moveBy(rightVelocity - leftVelocity, 0.0, forwardVelocity - backVelocity);
 
 	glHelper.setProjViewMatrix(camera.getProjViewMatrix());
 	glHelper.setLightPosition(light.position);
