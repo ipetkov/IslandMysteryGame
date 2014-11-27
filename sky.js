@@ -81,28 +81,28 @@ Sun.prototype.draw = function(dt) {
 
 	// Leaving these values hardcoded becuase the result looks decent enough
 	// and this should never have to change at run time.
-	if(this.angle < 160 && this.angle > 140) {
+	if(this.angle < 170 && this.angle > 160) {
 		// Start setting, go from daytime to setting sky
-		this.skyColor = mix(this.settingSky, this.daySky, (this.angle - 140)/20);
+		this.skyColor = mix(this.settingSky, this.daySky, (this.angle - 160)/10);
 
-	} else if(this.angle >= 160 && this.angle < 200) {
+	} else if(this.angle >= 170 && this.angle < 190) {
 		// Start darkening, from setting sky to night time
-		this.skyColor = mix(this.nightSky, this.settingSky, (this.angle - 160)/40);
+		this.skyColor = mix(this.nightSky, this.settingSky, (this.angle - 170)/20);
 
-	} else if(this.angle >= 200 && this.angle < 340) {
+	} else if(this.angle >= 190 && this.angle < 350) {
 		// Stay at night time
 		this.skyColor = this.nightSky;
 
-	} else if(this.angle >= 340) {
+	} else if(this.angle >= 350) {
 		// Sunrise, start going from dark to the sunset/sunrise color
-		this.skyColor = mix(this.settingSky, this.nightSky, (this.angle - 340)/40);
-	} else if(this.angle < 20) {
+		this.skyColor = mix(this.settingSky, this.nightSky, (this.angle - 350)/20);
+	} else if(this.angle < 10) {
 		// Finish transitioning from night to sunrise sky
-		this.skyColor = mix(this.settingSky, this.nightSky, (this.angle+20)/40);
+		this.skyColor = mix(this.settingSky, this.nightSky, (this.angle + 10)/20);
 
-	} else if(this.angle >= 20 && this.angle < 40) {
+	} else if(this.angle >= 10 && this.angle < 20) {
 		// Transition from sunrise to day time sky
-		this.skyColor = mix(this.daySky, this.settingSky, (this.angle - 20)/20);
+		this.skyColor = mix(this.daySky, this.settingSky, (this.angle - 10)/10);
 
 	} else {
 		// Default day sky
