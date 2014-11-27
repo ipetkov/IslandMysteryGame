@@ -30,17 +30,17 @@ function Sun(distFromOrigin, omega) {
 
 	this.skyColor = this.daySky;
 
-	this.sun = new Cube(new Material(
-		vec4(1.0, 1.0, 0.0, 1.0),
-		vec4(1.0, 1.0, 0.0, 1.0)
-	), null, true, true);
-	this.sun.scale = vec3(10.0, 10.0, 10.0);
+	this.sun = new Sphere(new Material(vec4(1.0, 1.0, 0.0, 1.0), vec4(1.0, 1.0, 0.0, 1.0)), null, true);
+	this.sun.radius = 4;
 
-	this.moon = new Cube(new Material(
-		vec4(0.3, 0.3, 0.3, 1.0),
-		vec4(0.65, 0.65, 0.65, 1.0)
-	), null, false, false);
-	this.moon.scale = vec3(6.0, 6.0, 6.0);
+	var moonTex = new Texture.fromImageSrc(
+		'./images/moon.jpg',
+		gl.REPEAT, gl.REPEAT,
+		gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR
+	);
+
+	this.moon = new Sphere(new Material(vec4(0.3, 0.3, 0.3, 1.0), vec4(0.65, 0.65, 0.65, 1.0)), moonTex, false);
+	this.moon.radius = 7;
 }
 
 Sun.prototype.draw = function(dt) {
@@ -67,7 +67,8 @@ Sun.prototype.draw = function(dt) {
 	// jumping in/out when it is around the horizon.
 	if(this.angle > 180 - epsilon || this.angle < epsilon ) {
 		// Sun's light position already set
-		this.moon.draw(dt, rotate(this.angle + 180, vec3(0, 0, 1)));
+		this.moon.position = vec3(-posCos, -posSin, 0);
+		this.moon.draw(dt, mat4());
 	}
 
 	// Draw the sun around the horizon to avoid it jumping in/out of view
@@ -111,7 +112,7 @@ Sun.prototype.draw = function(dt) {
 	// If the sun is "gone", use the moon's position as a light source
 	// and moonlight for the rest of the scene
 	if(this.angle > 180) {
-		glHelper.setLightPosition(vec3(-posCos, -posSin, 0));
+		glHelper.setLightPosition(this.moon.position);
 		envLight = this.moonlight;
 	}
 
