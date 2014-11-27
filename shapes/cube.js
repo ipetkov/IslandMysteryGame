@@ -229,7 +229,7 @@ var Cube = (function() {
 			normalBuffer = vbo;
 		}
 
-		Shape.call(this, vbo, normalBuffer, tbo, vertices.length / 3, material, texture);
+		Shape.call(this, vbo, normalBuffer, tbo, null, vertices.length / 3, material, texture);
 	};
 
 	return cubeConstructor;
