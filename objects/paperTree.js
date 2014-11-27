@@ -1,6 +1,6 @@
 "use strict";
 
-var paperFoliage = (function() {
+var PaperFoliage = (function() {
 	// Vertices used by each cube instance
 	var vbo = null;
 	var nbo = null;
@@ -62,7 +62,7 @@ var paperFoliage = (function() {
 	// Method for sending vertex data to GPU a single time
 	var initVertexData = function() {
 		if(!gl) {
-			throw "Unable to init paperFoliage data, gl not defined";
+			throw "Unable to init PaperFoliage data, gl not defined";
 		}
 
 		vbo = gl.createBuffer();
@@ -103,4 +103,4 @@ var paperFoliage = (function() {
 	return paperFoliageConstructor;
 })();
 
-inheritPrototype(paperFoliage, Shape);
+inheritPrototype(PaperFoliage, Shape);

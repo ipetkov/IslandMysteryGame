@@ -22,10 +22,7 @@ var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
 var program; // The WebGL linked program
 var camera;  // Camera used for navigating the scene
-var leftVelocity = 0.0;
-var rightVelocity = 0.0;
-var forwardVelocity = 0.0;
-var backVelocity = 0.0;
+var player;
 
 var timer = new Timer();
 
@@ -131,13 +128,12 @@ window.onload = function() {
 		throw e;
 	}
 
-	// Initialize the camera
-	camera = new Camera(canvas);
-	camera.moveBy(0.0, 1.5, -3.0);
+	// Initialize the player
+	player = new Player(canvas, vec3(0.0, 1.0, -3.0), moveUnit);
 
 	pointerLock(canvas, function(x, y) {
-		camera.yawBy(-x * mouseSensitivity);
-		camera.pitchBy(-y * mouseSensitivity);
+		player.camera.yawBy(-x * mouseSensitivity);
+		player.camera.pitchBy(-y * mouseSensitivity);
 	}, null);
 
 
@@ -161,7 +157,7 @@ window.onload = function() {
 
 	var treeShapes = [];
 
-	for (var i = 0; i < 10; i++)
+	for (var i = 0; i < 3; i++)
 	{
 		var posX = Math.random() * 10.0 - 5.0;
 		var posZ = Math.random() * 10.0 - 5.0;
@@ -183,8 +179,10 @@ window.onload = function() {
 	shapes = shapes.concat(treeShapes);
 
 	// Attach our keyboard listener to the canvas
-	window.addEventListener('keydown', handleKeyDown);
-	window.addEventListener('keyup', handleKeyUp);
+	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
+	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
+	window.addEventListener('keydown', playerHandleKeyDown);
+	window.addEventListener('keyup', playerHandleKeyUp);
 
 	// Set off the draw loop
 	draw();
@@ -199,12 +197,9 @@ function draw() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
 
+	player.move();
 
-	var xMov = rightVelocity - leftVelocity;
-	var zMov = forwardVelocity - backVelocity;
-	camera.moveBy(xMov, 0.0, zMov);
-
-	glHelper.setProjViewMatrix(camera.getProjViewMatrix());
+	glHelper.setProjViewMatrix(player.camera.getProjViewMatrix());
 	glHelper.setLightPosition(light.position);
 
 	var identMat = mat4();
