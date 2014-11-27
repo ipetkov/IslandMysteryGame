@@ -29,6 +29,7 @@ var timer = new Timer();
 var rotateDegree = 1;
 var moveUnit = 0.125;
 var mouseSensitivity = 1/10;
+var dayDuration = 1000;
 
 // Helper to set shader attributes/uniforms
 var glHelper = (function() {
@@ -149,7 +150,7 @@ window.onload = function() {
 	ground.position = vec3(0.0, -0.1, 0.0);
 	ground.scale = vec3(100.0, 0.1, 100.0);
 
-	sun = new Sun(100, 1/100);
+	sun = new Sun(100, 1/dayDuration);
 
 	shapes = [shape, ground, cube];
 
@@ -216,8 +217,8 @@ function handleKey(e) {
 
 // Draws the data in the vertex buffer on the canvas repeatedly
 function draw() {
-	// Set the clear color to a light blue
-	gl.clearColor(0.54, 0.81, 0.94, 1.0),
+	var skyColor = sun.skyColor;
+	gl.clearColor(skyColor[0], skyColor[1], skyColor[2], 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
 
