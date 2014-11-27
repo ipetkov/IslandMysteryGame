@@ -7,10 +7,16 @@
 		<script type="text/javascript" src="webgl-utils.js"></script>
 		<script type="text/javascript" src="initShaders.js"></script>
 		<script type="text/javascript" src="camera.js"></script>
+		<script type="text/javascript" src="player.js"></script>
 		<script type="text/javascript" src="texture.js"></script>
 		<script type="text/javascript" src="shapes/shape.js"></script>
 		<script type="text/javascript" src="shapes/cube.js"></script>
-		<script type="text/javascript" src="shapes/multiTexCube.js"></script>
+		<script type="text/javascript" src="shapes/hexagonalPrism.js"></script>
+		<script type="text/javascript" src="shapes/hexagonalPyramid.js"></script>
+		<script type="text/javascript" src="objects/tree.js"></script>
+		<script type="text/javascript" src="objects/paperTree.js"></script>
+
+
 		<script type="text/javascript" src="scene.js"></script>
 
 		<script id="shader-vertex" type="x-shader/x-vertex">
@@ -77,23 +83,26 @@
 		</style>
 	</head>
 	<body>
-		<div style="width: 720px; margin: auto;">
+		<div style="width: 640px; margin: auto;">
 			<center>
 				<h2>Island Mystery Game</h2>
 				<h3>Kyle Kodani, Kevin Lu, Ivan Petkov, Xiaosong Shi, David Vasko</h3>
 			</center>
 
-			<canvas id="gl-canvas" width="720" height="480" class="centered">
+			<canvas id="gl-canvas" width="640" height="480" class="centered">
 				Sorry, your browser does not support WebGL.
 			</canvas>
 
 			<br />
 			<center><strong>Controls</strong></center>
 			<ul class="columns">
-				<li>Move around with <strong>W</strong>, <strong>A</strong>, <strong>S</strong>, <strong>D</strong></li>
-				<li>Look around with <strong>arrow keys</strong></li>
-				<li>Change elevation <strong>up</strong>/<strong>down</strong> with <strong>Space</strong>/<strong>Shift</strong></li>
-				<li>Roll <strong>left</strong>/<strong>right</strong> with <strong>Q</strong>/<strong>E</strong></li>
+				<li>Change elevation with <strong>Up</strong>/<strong>Down</strong> arrows</li>
+				<li>Turn with <strong>Left</strong>/<strong>Right</strong> arrows</li>
+				<li>Move forward/backward with <strong>I</strong>/<strong>K</strong></li>
+				<li>Strafe left with <strong>J</strong> and right with <strong>L</strong> or <strong>M</strong></li>
+				<li>Roll left/right with <strong>U</strong>/<strong>O</strong></li>
+				<li>Zoom in/out with <strong>N</strong>/<strong>W</strong></li>
+				<li>Pitch up/down with <strong>;</strong>/<strong>P</strong></li>
 			</ul>
 		</div>
 	</body>

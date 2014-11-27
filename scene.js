@@ -22,6 +22,8 @@ var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
 var program; // The WebGL linked program
 var camera;  // Camera used for navigating the scene
+var player;
+
 var timer = new Timer();
 
 var light = {
@@ -35,7 +37,7 @@ var light = {
 // Steps in for moving camera
 var rotateDegree = 1;
 var moveUnit = 0.125;
-var mouseSensitivity = 1/10;
+var mouseSensitivity = 0.1;
 
 // Helper to set shader attributes/uniforms
 var glHelper = (function() {
@@ -126,111 +128,78 @@ window.onload = function() {
 		throw e;
 	}
 
-	// Initialize the camera
-	camera = new Camera(canvas);
-	camera.moveBy(0.0, 2.0, -1.0);
+	// Initialize the player
+	player = new Player(canvas, vec3(0.0, 1.0, -3.0), moveUnit);
 
 	pointerLock(canvas, function(x, y) {
-		camera.yawBy(-x * mouseSensitivity);
-		camera.pitchBy(-y * mouseSensitivity);
-	});
+		player.camera.yawBy(-x * mouseSensitivity);
+		player.camera.pitchBy(-y * mouseSensitivity);
+	}, null);
 
-	var redMaterial = new Material(
-		vec4(0.4, 0.3, 0.3, 1.0),
-		vec4(0.8, 0.0, 0.0, 1.0)
+
+	var groundMaterial = new Material(
+		vec4(0.8, 0.9, 0.5, 1.0),
+		vec4(0.8, 0.7, 0.7, 1.0)
 	);
 
-	var grayMaterial = new Material(
-		vec4(0.5, 0.5, 0.5, 1.0),
-		vec4(0.2, 0.2, 0.2, 1.0)
+	var skyMaterial = new Material(
+		vec4(0.3, 0.7, 0.9, 1.0),
+		vec4(0.7, 0.8, 0.8, 1.0)
 	);
 
-	var cube = new Cube(null, new Texture.fromImageSrc('./images/chrome.jpg'), false, false);
-	cube.position = vec3(1.5, 0.5, -3.5);
-
-	var shape = new Cube(redMaterial, null, false, false);
-	shape.position = vec3(0.0, .75, -3.0);
-	shape.scale = vec3(1.0, 0.5, 2.0);
-
-	var ground = new Cube(grayMaterial, null, true, false);
+	var ground = new Cube(groundMaterial, null, true, false);
 	ground.position = vec3(0.0, -0.1, 0.0);
-	ground.scale = vec3(100.0, 0.1, 100.0);
+	ground.scale = vec3(150.0, 0.1, 150.0);
+
+	var sky = new HexagonalPyramid(skyMaterial, new Texture.fromImageSrc('./images/sky2.jpg'), false, false);
+	sky.position = vec3(0.0, 0.0, 0.0);
+	sky.scale = vec3(90.0, 50.0, 90.0);
+
+	var treeShapes = [];
+
+	for (var i = 0; i < 3; i++)
+	{
+		var posX = Math.random() * 10.0 - 5.0;
+		var posZ = Math.random() * 10.0 - 5.0;
+		var kXZ = Math.random() + 0.8;
+		var kY = Math.random() * 0.3 + 1.0;
+		var age = Math.random();
+		treeShapes = treeShapes.concat(new TreeShapes(
+					vec3(posX, 0.0, posZ),
+					vec3(kXZ, kY, kXZ),
+					age
+					));
+	}
 
 	var sun = new Cube(new Material(vec4(1.0, 1.0, 0.0, 1.0), vec4(1.0, 1.0, 0.0, 1.0)), null, true, true);
 	sun.position = light.position;
 	sun.scale = vec3(5.0, 5.0, 5.0);
 
-	shapes = [shape, ground, cube, manyTexture, sun];
+	shapes = [ground, sky, sun];
+	shapes = shapes.concat(treeShapes);
 
 	// Attach our keyboard listener to the canvas
-	window.addEventListener('keydown', handleKey);
+	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
+	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
+	window.addEventListener('keydown', playerHandleKeyDown);
+	window.addEventListener('keyup', playerHandleKeyUp);
 
 	// Set off the draw loop
 	draw();
 }
 
-// Key handler which will update our camera position
-// FIXME: implement moving camera with mouse
-function handleKey(e) {
-	switch(e.keyCode) {
-                case 37: // Left Arrow - turn left
-			camera.yawBy(rotateDegree);
-			break;
-
-                case 39: // Right Arrow - turn right
-			camera.yawBy(-rotateDegree);
-			break;
-
-                case 38: // Up Arrow - pitch down
-			camera.pitchBy(-rotateDegree);
-			break;
-
-                case 40: // Down Arrow - pitch up
-			camera.pitchBy(rotateDegree);
-			break;
-
-		case 87: // w - move forward
-			camera.moveBy(0, 0, moveUnit);
-			break;
-
-		case 65: // a - strafe left
-			camera.moveBy(-moveUnit, 0, 0);
-			break;
-
-		case 83: // s - move backward
-			camera.moveBy(0, 0, -moveUnit);
-			break;
-
-		case 68: // d - strafe right
-			camera.moveBy(moveUnit, 0, 0);
-			break;
-
-		case 32: // space - elevate up
-			camera.moveBy(0, moveUnit, 0);
-			break;
-
-		case 16: // shift - elevate down
-			camera.moveBy(0, -moveUnit, 0);
-			break;
-
-		case 81: // q - roll left
-			// FIXME: implement leaning
-			break;
-
-		case 69: // e - roll right
-			// FIXME: implement leaning
-			break;
-        }
-}
 
 // Draws the data in the vertex buffer on the canvas repeatedly
 function draw() {
+
 	// Set the clear color to a light blue
-	gl.clearColor(0.54, 0.81, 0.94, 1.0),
+	gl.clearColor(0.54, 0.81, 0.94, 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
 
-	glHelper.setProjViewMatrix(camera.getProjViewMatrix());
+	player.move();
+
+	glHelper.setProjViewMatrix(player.camera.getProjViewMatrix());
 	glHelper.setLightPosition(light.position);
 
 	var identMat = mat4();
