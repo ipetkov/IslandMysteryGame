@@ -68,19 +68,18 @@ function Camera(glCanvas) {
 		var fovy = 2 * Math.atan(hwRatio * Math.tan(radians(fovx) / 2));
 		var fovyDegree = fovy * 180 / Math.PI;
 		var proj = perspective(fovyDegree, canvas.width / canvas.height, .001, 500);
+		var leanRad = radians(lean);
+
+		// Set lean
+		var orientation = translate(-Math.sin(leanRad), -Math.cos(leanRad), 0);
 
 		// Set heading
-		var orientation = rotate(roll, vec3(0, 0, 1));
+		orientation = mult(orientation, rotate(roll,  vec3(0, 0, 1)));
 		orientation = mult(orientation, rotate(pitch, vec3(1, 0, 0)));
-		orientation = mult(orientation, rotate(yaw, vec3(0, 1, 0)));
+		orientation = mult(orientation, rotate(yaw,   vec3(0, 1, 0)));
 
 		// Set position
 		orientation = mult(orientation, translate(-position[0], -position[1], position[2]));
-
-		// Set lean
-		orientation = mult(orientation, translate(0, -1, 0));
-		orientation = mult(orientation, rotate(lean, vec3(0, 0, -1)));
-		orientation = mult(orientation, translate(0, 1, 0));
 
 		return mult(proj, orientation);
 	};
@@ -96,7 +95,7 @@ function Camera(glCanvas) {
 
 	// Lean's camera left/right, e.g. when walking
 	this.setLean = function(angle) {
-		lean = Math.min(15, Math.max(-15, -angle));
+		lean = Math.min(45, Math.max(-45, -angle));
 	}
 
 	this.leanBy = function(angle) {
