@@ -17,6 +17,7 @@ var uniformLightPosition   = 'lightPosition';
 var uniformTexSampler      = 'uSampler';
 
 var shapes = [];
+var sun;
 
 var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
@@ -26,18 +27,11 @@ var player;
 
 var timer = new Timer();
 
-var light = {
-	position: vec3(0.0, 100.0, 0.0),
-	material: new Material(
-		vec4(0.3, 0.3, 0.3, 1.0),
-		vec4(0.7, 0.7, 0.7, 1.0)
-	),
-}
-
 // Steps in for moving camera
 var rotateDegree = 1;
 var moveUnit = 0.125;
 var mouseSensitivity = 0.1;
+var dayDuration = 1000;
 
 // Helper to set shader attributes/uniforms
 var glHelper = (function() {
@@ -92,11 +86,11 @@ var glHelper = (function() {
 	}
 
 	helper.setAmbientProduct = function(vec) {
-		setUniformVec4(uniformAmbientProduct, mult(light.material.ambient, vec));
+		setUniformVec4(uniformAmbientProduct, mult(sun.lightMaterial.ambient, vec));
 	}
 
 	helper.setDiffuseProduct = function(vec) {
-		setUniformVec4(uniformDiffuseProduct, mult(light.material.diffuse, vec));
+		setUniformVec4(uniformDiffuseProduct, mult(sun.lightMaterial.diffuse, vec));
 	}
 
 	helper.setLightPosition = function(vec) {
@@ -142,18 +136,9 @@ window.onload = function() {
 		vec4(0.8, 0.7, 0.7, 1.0)
 	);
 
-	var skyMaterial = new Material(
-		vec4(0.3, 0.7, 0.9, 1.0),
-		vec4(0.7, 0.8, 0.8, 1.0)
-	);
-
 	var ground = new Cube(groundMaterial, null, true, false);
 	ground.position = vec3(0.0, -0.1, 0.0);
 	ground.scale = vec3(150.0, 0.1, 150.0);
-
-	var sky = new HexagonalPyramid(skyMaterial, new Texture.fromImageSrc('./images/sky2.jpg'), false, false);
-	sky.position = vec3(0.0, 0.0, 0.0);
-	sky.scale = vec3(90.0, 50.0, 90.0);
 
 	var treeShapes = [];
 
@@ -171,11 +156,9 @@ window.onload = function() {
 					));
 	}
 
-	var sun = new Cube(new Material(vec4(1.0, 1.0, 0.0, 1.0), vec4(1.0, 1.0, 0.0, 1.0)), null, true, true);
-	sun.position = light.position;
-	sun.scale = vec3(5.0, 5.0, 5.0);
+	sun = new Sun(100, 1/dayDuration);
 
-	shapes = [ground, sky, sun];
+	shapes = [ground, sun];
 	shapes = shapes.concat(treeShapes);
 
 	// Attach our keyboard listener to the canvas
@@ -191,19 +174,19 @@ window.onload = function() {
 
 // Draws the data in the vertex buffer on the canvas repeatedly
 function draw() {
-
-	// Set the clear color to a light blue
-	gl.clearColor(0.54, 0.81, 0.94, 1.0);
+	var skyColor = sun.skyColor;
+	gl.clearColor(skyColor[0], skyColor[1], skyColor[2], 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
 
-	player.move();
-
+	player.move(); // This will set our camera in the world
 	glHelper.setProjViewMatrix(player.camera.getProjViewMatrix());
-	glHelper.setLightPosition(light.position);
 
 	var identMat = mat4();
-	var dt = 0;
+	var dt = timer.getElapsedTime();
+
+	sun.draw(dt);  // This will set our light position and material
+
 	shapes.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);

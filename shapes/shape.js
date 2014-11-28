@@ -14,10 +14,11 @@ function Material(ambient, diffuse) {
 }
 
 // FIXME: implement clipping
-function Shape(verticesBuffer, normalsBuffer, texCoordBufffer, numVertices, material, texture) {
+function Shape(verticesBuffer, normalsBuffer, texCoordBufffer, elementBuffer, numVertices, material, texture) {
 	this.vbo = verticesBuffer;
 	this.nbo = normalsBuffer;
 	this.tbo = texCoordBufffer;
+	this.ebo = elementBuffer;
 	this.numVertices = numVertices;
 
 	this.material = material || new Material();
@@ -47,6 +48,10 @@ Shape.prototype.draw = function(dt, mat) {
 	glHelper.setNormalAttrib(this.nbo);
 	glHelper.setTexCoordAttrib(this.tbo);
 
+	// If this object has no elements buffer, the previously
+	// used buffer will be unbound, which is what we want.
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ebo);
+
 	gl.bindTexture(gl.TEXTURE_2D, this.texture);
 	gl.activeTexture(gl.TEXTURE0);
 	glHelper.setTexSampler(0);
@@ -65,7 +70,12 @@ Shape.prototype.draw = function(dt, mat) {
 	}
 
 	glHelper.setNormalModelMatrix(mat);
-	gl.drawArrays(gl.TRIANGLES, 0, this.numVertices);
+
+	if(this.ebo) {
+		gl.drawElements(gl.TRIANGLES, this.numVertices, gl.UNSIGNED_SHORT, 0);
+	} else {
+		gl.drawArrays(gl.TRIANGLES, 0, this.numVertices);
+	}
 }
 
 function inverse(m) {

@@ -97,7 +97,7 @@ var PaperFoliage = (function() {
 		}
 
 
-		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, vertices.length / 3, material, texture);
+		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, null, vertices.length / 3, material, texture);
 	};
 
 	return paperFoliageConstructor;
