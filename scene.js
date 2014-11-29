@@ -140,7 +140,9 @@ window.onload = function() {
 	ground.position = vec3(0.0, -0.1, 0.0);
 	ground.scale = vec3(150.0, 0.1, 150.0);
 
-	var treeShapes = [];
+	sun = new Sun(100, 1/dayDuration);
+
+	shapes = [ground, sun];
 
 	for (var i = 0; i < 3; i++)
 	{
@@ -149,17 +151,12 @@ window.onload = function() {
 		var kXZ = Math.random() + 0.8;
 		var kY = Math.random() * 0.3 + 1.0;
 		var age = Math.random();
-		treeShapes = treeShapes.concat(new TreeShapes(
-					vec3(posX, 0.0, posZ),
-					vec3(kXZ, kY, kXZ),
-					age
-					));
+		shapes.push(new Tree(
+			vec3(posX, 0.0, posZ),
+			vec3(kXZ, kY, kXZ),
+			age
+		));
 	}
-
-	sun = new Sun(100, 1/dayDuration);
-
-	shapes = [ground, sun];
-	shapes = shapes.concat(treeShapes);
 
 	// Attach our keyboard listener to the canvas
 	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
