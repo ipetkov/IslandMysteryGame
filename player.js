@@ -6,14 +6,13 @@ function Player(glCanvas, pos, speed) {
 	this.leftVelocity = 0.0;
 	this.backVelocity = 0.0;
 	this.rightVelocity = 0.0;
-
 	this.movementSpeed = speed;
-
 
 	this.leanLeft = false;
 	this.leftRight = false;
-	
 	this.leanAngle = 0.0;
+	
+	this.isRunning = false;
 
 	this.position = function()
 	{
@@ -26,27 +25,52 @@ function Player(glCanvas, pos, speed) {
 		var zV = this.forwardVelocity - this.backVelocity;
 		var leanSpeed = 5.0;
 
+		if (this.isRunning && zV > 0)
+		{
+			zV *= 2.5;
+			this.leanAngle = nextLeanAngle(this.leanAngle);
+		}
+		else // Player can choose lean directions if he is not running
+		{
+			if (this.leanLeft == this.leanRight)
+			{
+				// Adjust camera back to normal
+				if (this.leanAngle != 0.0)
+					this.leanAngle += (this.leanAngle < 0.0) ? leanSpeed : -leanSpeed;
+			}
+			else if (this.leanLeft && this.leanAngle <= 45.0)
+				this.leanAngle += leanSpeed;
+			else if (this.leanRight && this.leanAngle >= -45.0)
+				this.leanAngle -= leanSpeed;
+		}
+		
+
+
 		this.camera.moveBy(	xV,
 							0.0,
 							zV );
-
-		if (this.leanLeft == this.leanRight)
-		{
-			// adjust camera back to normal
-			if (this.leanAngle != 0.0)
-				this.leanAngle += (this.leanAngle < 0.0) ? leanSpeed : -leanSpeed;
-		}
-		else if (this.leanLeft && this.leanAngle < 45.0)
-			this.leanAngle += leanSpeed;
-		else if (this.leanRight && this.leanAngle > -45.0)
-			this.leanAngle -= leanSpeed;
-		
 		this.camera.setLean(this.leanAngle);
 	}
 }
 
 
-
+function nextLeanAngle(curAngle)
+{
+	if (!nextLeanAngle.isInitialized)
+		nextLeanAngle.isLeft = 1;
+	nextLeanAngle.isInitialized = true;
+	
+	var newAngle = curAngle;
+	if (curAngle >= 30.0)
+		nextLeanAngle.isLeft = 0;
+	else if (curAngle <= -30.0)
+		nextLeanAngle.isLeft = 1;
+	if (nextLeanAngle.isLeft)
+		newAngle += 5.0;
+	else
+		newAngle -= 5.0;
+	return newAngle;
+}
 
 // Key handler which will update our camera position
 Player.prototype.handleKeyDown = function(e) {
@@ -68,6 +92,9 @@ Player.prototype.handleKeyDown = function(e) {
 			break;
 		case 69: // E - lean right
 			this.leanRight = true;
+			break;
+		case 16: // SHIFT - run
+			this.isRunning = true;
 			break;
     }
 }
@@ -91,6 +118,9 @@ Player.prototype.handleKeyUp = function(e) {
 			break;
 		case 69: // E - lean right
 			this.leanRight = false;
+			break;
+		case 16: // SHIFT - run
+			this.isRunning = false;
 			break;
     }
 }
