@@ -8,8 +8,11 @@ function Player(glCanvas, pos, speed) {
 	this.rightVelocity = 0.0;
 	this.movementSpeed = speed;
 
+	this.yVelocity = 0.0;
+	this.yAcceleration = -0.015;
+
 	this.leanLeft = false;
-	this.leftRight = false;
+	this.leanRight = false;
 	this.leanAngle = 0.0;
 	
 	this.isRunning = false;
@@ -23,32 +26,55 @@ function Player(glCanvas, pos, speed) {
 	this.move = function()
 	{
 		var xV = this.rightVelocity - this.leftVelocity;
+		var yV = this.yVelocity;
 		var zV = this.forwardVelocity - this.backVelocity;
-		var leanSpeed = 5.0;
 
-		if (this.isRunning && zV > 0)
+		// Adjust velocities and lean based on player's state
+		if (this.isAirborne)
 		{
-			zV *= 2.5;
-			this.leanAngle = nextLeanAngle(this.leanAngle);
+			if (this.isRunning && zV > 0)
+				zV *= 2.5;
 		}
-		else // Player can choose lean directions if he is not running
+		else
 		{
-			if (this.leanLeft == this.leanRight)
+			if (this.isRunning && zV > 0)
 			{
-				// Adjust camera back to normal
-				if (this.leanAngle != 0.0)
-					this.leanAngle += (this.leanAngle < 0.0) ? leanSpeed : -leanSpeed;
+				zV *= 2.5;
+				this.leanAngle = nextLeanAngle(this.leanAngle);
 			}
-			else if (this.leanLeft && this.leanAngle <= 45.0)
-				this.leanAngle += leanSpeed;
-			else if (this.leanRight && this.leanAngle >= -45.0)
-				this.leanAngle -= leanSpeed;
+			else
+			{
+				if (this.leanLeft == this.leanRight)
+				{
+					// Adjust camera back to normal
+					if (this.leanAngle < 5.0 && this.leanAngle > -5.0)
+						this.leanAngle = 0.0;
+					else if (this.leanAngle != 0.0)
+						this.leanAngle += (this.leanAngle < 0.0) ? 5.0 : -5.0;
+				}
+				else if (this.leanLeft && this.leanAngle <= 45.0)
+					this.leanAngle += 5.0;
+				else if (this.leanRight && this.leanAngle >= -45.0)
+					this.leanAngle -= 5.0;
+			}
 		}
-		
 
-
-		this.camera.moveBy(	xV, 0.0, zV );
 		this.camera.setLean(this.leanAngle);
+		this.camera.moveBy(	xV, yV, zV );
+		var terrainHeight = heightOf(this.position()[0], this.position()[2]);
+		if ((this.position())[1] > terrainHeight)
+		{
+			this.isAirborne = true;
+			this.yVelocity += this.yAcceleration;
+			if (this.yVelocity < -5.0) // Terminal velocity
+				this.yVelocity = -5.0;
+		}
+		else
+		{
+			this.camera.moveBy(0.0, terrainHeight - this.position()[1], 0.0);
+			this.isAirborne = false;
+			this.yVelocity = 0.0;
+		}
 	}
 }
 
@@ -65,9 +91,9 @@ function nextLeanAngle(curAngle)
 	else if (curAngle <= -30.0)
 		nextLeanAngle.isLeft = 1;
 	if (nextLeanAngle.isLeft)
-		newAngle += 5.0;
+		newAngle += 4.0;
 	else
-		newAngle -= 5.0;
+		newAngle -= 4.0;
 	return newAngle;
 }
 
@@ -87,7 +113,7 @@ Player.prototype.handleKeyDown = function(e) {
 			this.rightVelocity = this.movementSpeed;
 			break;
 		case 81: // Q - lean left
-			this.leanLeft = true;;
+			this.leanLeft = true;
 			break;
 		case 69: // E - lean right
 			this.leanRight = true;
@@ -95,7 +121,12 @@ Player.prototype.handleKeyDown = function(e) {
 		case 16: // SHIFT - run
 			this.isRunning = true;
 			break;
-		case 32: // SPACE - jump
+		case 67: // C - jump
+			if (!this.isAirborne)
+			{
+				this.isAirborne = true;
+				this.yVelocity = 0.45;
+			}
 			break;
     }
 }
