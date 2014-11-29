@@ -9,6 +9,12 @@ function Player(glCanvas, pos, speed) {
 
 	this.movementSpeed = speed;
 
+
+	this.leanLeft = false;
+	this.leftRight = false;
+	
+	this.leanAngle = 0.0;
+
 	this.position = function()
 	{
 		return this.camera.position();
@@ -18,10 +24,24 @@ function Player(glCanvas, pos, speed) {
 	{
 		var xV = this.rightVelocity - this.leftVelocity;
 		var zV = this.forwardVelocity - this.backVelocity;
+		var leanSpeed = 5.0;
 
 		this.camera.moveBy(	xV,
 							0.0,
 							zV );
+
+		if (this.leanLeft == this.leanRight)
+		{
+			// adjust camera back to normal
+			if (this.leanAngle != 0.0)
+				this.leanAngle += (this.leanAngle < 0.0) ? leanSpeed : -leanSpeed;
+		}
+		else if (this.leanLeft && this.leanAngle < 45.0)
+			this.leanAngle += leanSpeed;
+		else if (this.leanRight && this.leanAngle > -45.0)
+			this.leanAngle -= leanSpeed;
+		
+		this.camera.setLean(this.leanAngle);
 	}
 }
 
@@ -43,6 +63,12 @@ Player.prototype.handleKeyDown = function(e) {
 		case 68: // D - right
 			this.rightVelocity = this.movementSpeed;
 			break;
+		case 81: // Q - lean left
+			this.leanLeft = true;;
+			break;
+		case 69: // E - lean right
+			this.leanRight = true;
+			break;
     }
 }
 
@@ -59,6 +85,12 @@ Player.prototype.handleKeyUp = function(e) {
 			break;
 		case 68: // D - right
 			this.rightVelocity = 0.0;
+			break;
+		case 81: // Q - lean left
+			this.leanLeft = false;
+			break;
+		case 69: // E - lean right
+			this.leanRight = false;
 			break;
     }
 }
