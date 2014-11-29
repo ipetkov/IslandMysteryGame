@@ -13,6 +13,7 @@ function Player(glCanvas, pos, speed) {
 	this.leanAngle = 0.0;
 	
 	this.isRunning = false;
+	this.isAirborne = false;
 
 	this.position = function()
 	{
@@ -46,9 +47,7 @@ function Player(glCanvas, pos, speed) {
 		
 
 
-		this.camera.moveBy(	xV,
-							0.0,
-							zV );
+		this.camera.moveBy(	xV, 0.0, zV );
 		this.camera.setLean(this.leanAngle);
 	}
 }
@@ -95,6 +94,8 @@ Player.prototype.handleKeyDown = function(e) {
 			break;
 		case 16: // SHIFT - run
 			this.isRunning = true;
+			break;
+		case 32: // SPACE - jump
 			break;
     }
 }
