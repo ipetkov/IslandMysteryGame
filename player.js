@@ -34,6 +34,11 @@ function Player(glCanvas, pos, speed) {
 		{
 			if (this.isRunning && zV > 0)
 				zV *= 2.5;
+			// Adjust camera back to normal
+			if (this.leanAngle < 5.0 && this.leanAngle > -5.0)
+				this.leanAngle = 0.0;
+			else if (this.leanAngle != 0.0)
+				this.leanAngle += (this.leanAngle < 0.0) ? 5.0 : -5.0;
 		}
 		else
 		{
@@ -121,7 +126,7 @@ Player.prototype.handleKeyDown = function(e) {
 		case 16: // SHIFT - run
 			this.isRunning = true;
 			break;
-		case 67: // C - jump
+		case 32: // SPACE - jump
 			if (!this.isAirborne)
 			{
 				this.isAirborne = true;
