@@ -43,7 +43,7 @@ var Tree = (function() {
 
 		this.trunk = new HexagonalPrism(trunkMaterial, barkTex, false, false);
 		this.trunk.position = vec3(posX, posY, posZ);
-		this.trunk.scale = vec3(0.15, 2.0 * kY, 0.15);
+		this.trunk.scale = vec3(kX * 0.15, 2.0 * kY, kZ * 0.15);
 
 		this.foliageTop          = new HexagonalPyramid(foliageMaterial, foliageTex, true, false);
 		this.foliageTop.position = vec3(posX, posY + 2.5 * kY, posZ);

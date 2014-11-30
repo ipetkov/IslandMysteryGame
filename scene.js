@@ -123,7 +123,7 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(0.0, 1.0, -3.0), moveUnit);
+	player = new Player(canvas, vec3(0.0, 0.0, 0.0), moveUnit);
 
 	pointerLock(canvas, function(x, y) {
 		player.camera.yawBy(-x * mouseSensitivity);
@@ -148,8 +148,8 @@ window.onload = function() {
 	{
 		var posX = Math.random() * 10.0 - 5.0;
 		var posZ = Math.random() * 10.0 - 5.0;
-		var kXZ = Math.random() + 0.8;
-		var kY = Math.random() * 0.3 + 1.0;
+		var kXZ = 2.5 * (Math.random() + 1.5);
+		var kY = 4.0 * (Math.random() * 0.3 + 1.0);
 		var age = Math.random();
 		shapes.push(new Tree(
 			vec3(posX, 0.0, posZ),
