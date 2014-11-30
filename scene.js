@@ -15,6 +15,7 @@ var uniformDiffuseProduct  = 'diffuseProduct';
 var uniformNormalMat       = 'normalMat';
 var uniformLightPosition   = 'lightPosition';
 var uniformTexSampler      = 'uSampler';
+var uniformEnableLighting  = 'enableLighting';
 
 var shapes = [];
 var sun;
@@ -83,6 +84,11 @@ var glHelper = (function() {
 	helper.setTexSampler = function(arg) {
 		var loc = gl.getUniformLocation(program, uniformTexSampler);
 		gl.uniform1i(loc, arg);
+	}
+
+	helper.enableLighting = function(arg) {
+		var loc = gl.getUniformLocation(program, uniformEnableLighting);
+		gl.uniform1i(loc, (arg ? 1 : 0));
 	}
 
 	helper.setAmbientProduct = function(vec) {
@@ -176,6 +182,7 @@ function draw() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
 
+	glHelper.enableLighting(true);
 	player.move(); // This will set our camera in the world
 	glHelper.setProjViewMatrix(player.camera.getProjViewMatrix());
 
@@ -189,6 +196,6 @@ function draw() {
 		e.draw(dt, identMat);
 	});
 
-	player.draw(); // This will draw the crosshairs on the screen
+	player.draw(); // This will draw the crosshairs and arms on the screen
 	window.requestAnimFrame(draw);
 }

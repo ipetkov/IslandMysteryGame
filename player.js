@@ -101,6 +101,31 @@ function Player(glCanvas, pos, speed) {
 	left.scale = right.scale = vec3(1.0, 0.25, 1.0);
 
 	this.crosshairs = [top, bottom, left, right];
+
+	// FIXME: texture arms
+	var orthoMat          = ortho( -.5,  .5, -.5, .5, -.5, .5);
+
+	this.leftArm          = new Cube(null, null, false, false);
+	this.leftArm.scale    = vec3(0.0625, 0.0625, 0.75);
+	this.leftArm.position = vec3(-0.35, -0.45, 0);
+	this.leftArm.pitch    = 20;
+	this.leftArm.yaw      = -10;
+
+	this.leftArm.draw = function(dt, mat) {
+		glHelper.enableLighting(false);
+		glHelper.setProjViewMatrix(orthoMat);
+		Cube.prototype.draw.call(this, dt, mat);
+		glHelper.setProjViewMatrix(player.camera.getProjViewMatrix()); // Reset the proj matrix
+		glHelper.enableLighting(true);
+	}
+
+	this.rightArm              = new Cube(null, null, false, false);
+	this.rightArm.scale        = this.leftArm.scale;
+	this.rightArm.position     = scaleVec(-1, this.leftArm.position);
+	this.rightArm.position[1] *= -1;
+	this.rightArm.pitch        = this.leftArm.pitch;
+	this.rightArm.yaw          = -this.leftArm.yaw;
+	this.rightArm.draw         = this.leftArm.draw;
 }
 
 
@@ -122,7 +147,7 @@ function nextLeanAngle(curAngle)
 	return newAngle;
 }
 
-Player.prototype.draw = function() {
+Player.prototype.draw = function(dt) {
 	// Using a 32x32x32 box seems to make the crosshairs appropriately small
 	var ratio = canvas.width / canvas.height;
 	var orthoMat = ortho( -32 * ratio,  32 * ratio, -32, 32, -32, 32);
@@ -132,6 +157,9 @@ Player.prototype.draw = function() {
 	this.crosshairs.forEach(function(e) {
 		e.draw(0, identMat);
 	});
+
+	this.leftArm.draw(dt, identMat);
+	this.rightArm.draw(dt, identMat);
 }
 
 // Key handler which will update our camera position
@@ -194,56 +222,3 @@ Player.prototype.handleKeyUp = function(e) {
     }
 }
 
-
-// ignoring for now
-function handleKey(e) {
-	switch(e.keyCode) {
-                case 37: // Left Arrow - turn left
-			camera.yawBy(rotateDegree);
-			break;
-
-                case 39: // Right Arrow - turn right
-			camera.yawBy(-rotateDegree);
-			break;
-
-                case 38: // Up Arrow - pitch down
-			camera.pitchBy(-rotateDegree);
-			break;
-
-                case 40: // Down Arrow - pitch up
-			camera.pitchBy(rotateDegree);
-			break;
-
-		case 87: // w - move forward
-			camera.moveBy(0, 0, moveUnit);
-			break;
-
-		case 65: // a - strafe left
-			camera.moveBy(-moveUnit, 0, 0);
-			break;
-
-		case 83: // s - move backward
-			camera.moveBy(0, 0, -moveUnit);
-			break;
-
-		case 68: // d - strafe right
-			camera.moveBy(moveUnit, 0, 0);
-			break;
-
-		case 32: // space - elevate up
-			camera.moveBy(0, moveUnit, 0);
-			break;
-
-		case 16: // shift - elevate down
-			camera.moveBy(0, -moveUnit, 0);
-			break;
-
-		case 81: // q - roll left
-			// FIXME: implement leaning
-			break;
-
-		case 69: // e - roll right
-			// FIXME: implement leaning
-			break;
-        }
-}
