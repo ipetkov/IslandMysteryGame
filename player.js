@@ -81,6 +81,26 @@ function Player(glCanvas, pos, speed) {
 			this.yVelocity = 0.0;
 		}
 	}
+
+	var blackMaterial = new Material(
+		vec4(0.0, 0.0, 0.0, 1.0),
+		vec4(0.0, 0.0, 0.0, 1.0)
+	);
+
+	var top    = new Cube(blackMaterial, null, true, false);
+	var bottom = new Cube(blackMaterial, null, true, false);
+	var left   = new Cube(blackMaterial, null, true, false);
+	var right  = new Cube(blackMaterial, null, true, false);
+
+	top.position    = vec3(0,  0.75, 0);
+	bottom.position = vec3(0, -0.75, 0);
+	top.scale = bottom.scale = vec3(0.25, 1.0, 1.0);
+
+	left.position  = vec3(-0.75, 0, 0);
+	right.position = vec3( 0.75, 0, 0);
+	left.scale = right.scale = vec3(1.0, 0.25, 1.0);
+
+	this.crosshairs = [top, bottom, left, right];
 }
 
 
@@ -100,6 +120,18 @@ function nextLeanAngle(curAngle)
 	else
 		newAngle -= 4.0;
 	return newAngle;
+}
+
+Player.prototype.draw = function() {
+	// Using a 32x32x32 box seems to make the crosshairs appropriately small
+	var ratio = canvas.width / canvas.height;
+	var orthoMat = ortho( -32 * ratio,  32 * ratio, -32, 32, -32, 32);
+	var identMat = mat4();
+
+	glHelper.setProjViewMatrix(orthoMat);
+	this.crosshairs.forEach(function(e) {
+		e.draw(0, identMat);
+	});
 }
 
 // Key handler which will update our camera position

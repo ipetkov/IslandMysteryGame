@@ -189,5 +189,6 @@ function draw() {
 		e.draw(dt, identMat);
 	});
 
+	player.draw(); // This will draw the crosshairs on the screen
 	window.requestAnimFrame(draw);
 }
