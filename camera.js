@@ -44,7 +44,7 @@ function Camera(glCanvas) {
 
 	this.position = function()
 	{
-		return vec3(position);
+		return vec3(position[0], position[1], -position[2]);
 	}
 
 	// Positive angle corresponds to yawing left

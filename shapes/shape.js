@@ -39,7 +39,7 @@ Shape.prototype.getModelMatrix = function() {
 	rotMat = mult(rotate(this.yaw,   vec3(0, 1, 0)), rotMat);
 	rotMat = mult(rotate(this.roll,  vec3(0, 0, 1)), rotMat);
 
-	return mult(transMat, mult(scaleMat, rotMat));
+	return mult(transMat, mult(rotMat, scaleMat));
 }
 
 Shape.prototype.draw = function(dt, mat) {
