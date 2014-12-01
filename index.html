@@ -62,6 +62,7 @@
 			uniform vec4 ambientProduct;
 			uniform vec4 diffuseProduct;
 			uniform sampler2D uSampler;
+			uniform int enableLighting;
 
 			varying vec3 N, L, E;
 			varying vec2 fUV;
@@ -71,8 +72,15 @@
 				vec4 ambient  = ambientProduct;
 				vec4 diffuse  = Kd * diffuseProduct;
 
-				vec4 fColor = ambient + diffuse;
+				vec4 fColor;
+
+				fColor = ambient + diffuse;
 				fColor.a = 1.0;
+
+				if(enableLighting == 0) {
+					fColor = (0.25 * ambient) + (0.75 * diffuseProduct);
+				}
+
 				gl_FragColor = fColor * texture2D(uSampler, fUV);
 			}
 		</script>
