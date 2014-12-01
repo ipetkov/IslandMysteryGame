@@ -15,34 +15,54 @@ var Rock = (function() {
 	var invertedFlatNormalsBuffer = null;
 	var invertedVerticesBuffer = null;
 
-	var topLeftFloor = vec3(-0.5, 0.0, 0.0);
-	var bottomLeftFloor = vec3(-0.4, 0.0, -0.3);
-	var bottomRightFloor = vec3(0.4, 0.0, -0.4);
-	var topRightFloor = vec3(0.2, 0.0, 0.1);
-	var bottomLeftCeiling = vec3(-0.1, 0.3, -0.2);
-	var topLeftCeiling = vec3(-0.3, 0.2, 0.1);
-	var topRightCeiling = vec3(0.1, 0.2, 0.1);
+	var underground = vec3(0.0, -0.1, 0.1);
+
+	var topLeftFloor = vec3(-0.3, 0.0, 0.2);
+	var bottomLeftFloor = vec3(-0.3, 0.0, -0.2);
+	var bottomCenterFloor = vec3(0.0, 0.1, -0.3);
+	var bottomRightFloor = vec3(0.2, 0.0, -0.1);
+	var topRightFloor = vec3(0.2, 0.0, 0.2);
+	
+	var bottomLeftCeiling = vec3(-0.1, 0.2, -0.1);
+	var topLeftCeiling = vec3(-0.2, 0.2, 0.2);
+	var topRightCeiling = vec3(0.1, 0.2, 0.2);
+	
 
 	var vertices = [];
 	vertices = vertices.concat(
 		topLeftFloor, bottomLeftFloor, bottomRightFloor,
-		bottomRightFloor, topRightFloor, topLeftFloor,
+		topRightFloor, topLeftFloor, bottomRightFloor,
+		bottomLeftFloor, bottomRightFloor, bottomCenterFloor,
 		
-		bottomLeftCeiling, topLeftCeiling, topRightCeiling,
+		topRightCeiling, bottomLeftCeiling, topLeftCeiling,
 		
-		topLeftFloor, topLeftCeiling, bottomLeftFloor,
+		bottomLeftFloor, topLeftFloor, topLeftCeiling,
 
-		bottomLeftFloor, topLeftCeiling, bottomLeftCeiling,
+		bottomLeftCeiling, bottomLeftFloor, topLeftCeiling,
 
 		bottomLeftFloor, bottomLeftCeiling, bottomRightFloor,
 
-		bottomRightFloor, bottomLeftCeiling, topRightCeiling,
+		bottomLeftCeiling, topRightCeiling, bottomRightFloor,
 
-		bottomRightFloor, topRightCeiling, topRightFloor,
+		topRightCeiling, topRightFloor, bottomRightFloor,
 
 		topRightFloor, topRightCeiling, topLeftCeiling,
 
-		topRightFloor, topLeftCeiling, topLeftFloor
+		topLeftFloor, topRightFloor, topLeftCeiling,
+
+		topLeftFloor, bottomLeftFloor, underground,
+
+		underground, bottomLeftFloor, bottomCenterFloor,
+
+		bottomRightFloor, underground, bottomCenterFloor, 
+
+		bottomLeftFloor, bottomLeftCeiling, bottomCenterFloor,
+
+		bottomLeftCeiling, bottomRightFloor, bottomCenterFloor,
+
+		bottomRightFloor, topRightFloor, underground,
+
+		topRightFloor, topLeftFloor, underground
 		);
 
 	var flatNormals = [];

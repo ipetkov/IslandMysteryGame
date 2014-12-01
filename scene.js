@@ -153,7 +153,7 @@ window.onload = function() {
 
 	var rock = new Rock(rockMaterial, new Texture.fromImageSrc('./images/rock.jpg'), false, false);
 	rock.position = vec3(0.0, 0.0, 0.0);
-	rock.scale = vec3(1.0, 1.0, 1.0);
+	rock.scale = vec3(2.0, 2.0, 2.0);
 
 
 
