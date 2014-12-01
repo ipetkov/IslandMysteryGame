@@ -74,12 +74,13 @@
 
 				vec4 fColor;
 
-				if(enableLighting != 0) {
-					fColor = ambient + diffuse;
-				} else {
-					fColor = ambient;
-				}
+				fColor = ambient + diffuse;
 				fColor.a = 1.0;
+
+				if(enableLighting == 0) {
+					fColor = (0.25 * ambient) + (0.75 * diffuseProduct);
+				}
+
 				gl_FragColor = fColor * texture2D(uSampler, fUV);
 			}
 		</script>

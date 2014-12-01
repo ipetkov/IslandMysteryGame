@@ -102,13 +102,14 @@ function Player(glCanvas, pos, speed) {
 
 	this.crosshairs = [top, bottom, left, right];
 
-	// FIXME: texture arms
-	var orthoMat          = ortho( -.5,  .5, -.5, .5, -.5, .5);
+	var orthoMat = ortho( -.5,  .5, -.5, .5, -.5, .5);
+	var leftTex  = new Texture.fromImageSrc('./images/arm-left.png',  gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
+	var rightTex = new Texture.fromImageSrc('./images/arm-right.png', gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
 
-	this.leftArm          = new Cube(null, null, false, false);
-	this.leftArm.scale    = vec3(0.0625, 0.0625, 0.75);
+	this.leftArm          = new Cube(null, leftTex, false, false);
+	this.leftArm.scale    = vec3(0.0625, 0.75, 0.0625);
 	this.leftArm.position = vec3(-0.35, -0.45, 0);
-	this.leftArm.pitch    = 20;
+	this.leftArm.pitch    = -70;
 	this.leftArm.yaw      = -10;
 
 	this.leftArm.draw = function(dt, mat) {
@@ -119,7 +120,7 @@ function Player(glCanvas, pos, speed) {
 		glHelper.enableLighting(true);
 	}
 
-	this.rightArm              = new Cube(null, null, false, false);
+	this.rightArm              = new Cube(null, rightTex, false, false);
 	this.rightArm.scale        = this.leftArm.scale;
 	this.rightArm.position     = scaleVec(-1, this.leftArm.position);
 	this.rightArm.position[1] *= -1;
