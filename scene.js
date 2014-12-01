@@ -136,13 +136,24 @@ window.onload = function() {
 		vec4(0.8, 0.7, 0.7, 1.0)
 	);
 
+	var rockMaterial = new Material(
+		vec4(0.9, 0.9, 0.9, 1.0),
+		vec4(0.9, 0.9, 0.9, 1.0)
+	);
+
 	var ground = new Cube(groundMaterial, null, true, false);
 	ground.position = vec3(0.0, -0.1, 0.0);
 	ground.scale = vec3(150.0, 0.1, 150.0);
 
+	var rock = new Rock(rockMaterial, new Texture.fromImageSrc('./images/rock.jpg'), false, false);
+	rock.position = vec3(0.0, 0.0, 0.0);
+	rock.scale = vec3(1.0, 1.0, 1.0);
+
+
+
 	sun = new Sun(100, 1/dayDuration);
 
-	shapes = [ground, sun];
+	shapes = [ground, rock, sun];
 
 	for (var i = 0; i < 3; i++)
 	{
