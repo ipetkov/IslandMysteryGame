@@ -169,6 +169,8 @@ window.onload = function() {
 	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
 	window.addEventListener('keydown', playerHandleKeyDown);
 	window.addEventListener('keyup', playerHandleKeyUp);
+	window.addEventListener('mousedown', function(event)
+		{});
 
 	// Set off the draw loop
 	draw();
