@@ -1,25 +1,57 @@
 
 var canvas;
 var gl;
+//size of pig body
 var length = 1.5;
-var deg = 180.0;
+var deg = 180.0; //rotate triangle to form legs
+var time = 0.0;
+var timer = new Timer();
+var omega = 40;
 
 var pig_body = vec3( 1.0, 1.0, 1.5 );
-var pig_legs = vec3( 1.0, 1.5, 1.0 );
+var pig_legs = vec3( 1.0, 1.7, 1.0 );
 var pig_scaleNose = vec3( 0.2, 0.2, 0.3 );
 var pig_translateNose = vec3( 0.0, 0.0, 2.3 );
+var pig_move1 = [
+    vec3( 0.0, 0.0,  0.0  ),
+    vec3( 0.0, 0.0,  0.0  ),
+    vec3( 0.0, 0.0, -0.03 ),
+    vec3( 0.0, 0.0, -0.03 ),
+    vec3( 0.0, 0.0, -0.03 ),
+    vec3( 0.0, 0.0, -0.03 ),
+    vec3( 0.0, 0.0,  0.03 ),
+    vec3( 0.0, 0.0,  0.03 ),
+    vec3( 0.0, 0.0,  0.03 ),
+    vec3( 0.0, 0.0,  0.03 )
+];
+
+var pig_move2 = [
+    vec3( 0.0, 0.0,  0.0  ),
+    vec3( 0.0, 0.0,  0.0  ),
+    vec3( 0.0, 0.0,  0.03 ),
+    vec3( 0.0, 0.0,  0.03 ),
+    vec3( 0.0, 0.0,  0.03 ),
+    vec3( 0.0, 0.0,  0.03 ),
+    vec3( 0.0, 0.0, -0.03 ),
+    vec3( 0.0, 0.0, -0.03 ),
+    vec3( 0.0, 0.0, -0.03 ),
+    vec3( 0.0, 0.0, -0.03 )
+];
+
+var pig_legMove = false;
+var pig_distant = 5;
 
 var pig_translate = [
     vec3( -0.9,  1.5,  1.5 ), //[0] right ear
     vec3(  0.9,  1.5,  1.5 ), //[1] left ear
     vec3( -0.7, -1.5,  1.3 ), //[2] right front leg
     vec3( -0.6, -1.5,  1.3 ), //[3] right front leg
-    vec3(  0.7, -1.5,  1.3 ), //[4] left front leg
-    vec3(  0.6, -1.5,  1.3 ), //[5] left front leg
-    vec3( -0.7, -1.5, -1.4 ), //[6] right rear leg
-    vec3( -0.6, -1.5, -1.4 ), //[7] right rear leg
-    vec3(  0.7, -1.5, -1.4 ), //[8] left rear leg
-    vec3(  0.6, -1.5, -1.4 )  //[9] left rear leg
+    vec3(  0.7, -1.5, -1.2 ), //[4] left front leg
+    vec3(  0.6, -1.5, -1.2 ), //[5] left front leg
+    vec3( -0.7, -1.5, -1.3 ), //[6] right rear leg
+    vec3( -0.6, -1.5, -1.3 ), //[7] right rear leg
+    vec3(  0.7, -1.5,  1.1 ), //[8] left rear leg
+    vec3(  0.6, -1.5,  1.1 )  //[9] left rear leg
 ];
 
 var modelViewMatrix;
@@ -30,10 +62,11 @@ var vertices;
 var points;
 var normals = [];
 
-var eye = vec3(13.0, 0.0, 5.0);
+var eye = vec3(0.0, 0.0, 10.0);
 var at = vec3(0, 0, 0);
 var up = vec3(0, 1, 0);
 
+//generate trianglar
 function tri( trianglar, points, normals )
 {
     trip( trianglar, points, normals, 0, 2, 1, vec3( 0, 0, 1 ) ); //front face
@@ -141,6 +174,32 @@ function render()
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     var ctm;
+    time += timer.getElapsedTime() / 1000;
+
+    for( var i = 0; i < 10; i++ )
+    {
+        var temp_leg = vec3( pig_translate[ i ] );
+        if ( pig_legMove === false )
+        {
+            var temp_move = vec3( pig_move1[ i ] );
+            pig_translate[ i ] = vec3( add( temp_leg, temp_move ) );
+        }
+        else
+        {
+            var temp_move = vec3( pig_move2[ i ] );
+            pig_translate[ i ] = vec3( add( temp_leg, temp_move ) );
+        }
+    }
+
+    if( pig_distant > 24 )
+    {
+        if( pig_legMove === false )
+        pig_legMove = true;
+    else
+        pig_legMove = false;
+    pig_distant = -10;
+    }
+    pig_distant += 1;
 
     //generating ears and legs
     for( var i = 0; i < 10; i++ )
@@ -149,6 +208,7 @@ function render()
         var translatePig = vec3( pig_translate[ i ] );
         ctm = mult( ctm, projectionMatrix );
         ctm = mult( ctm, viewMatrix );
+        ctm = mult( ctm, rotate( time * omega, [ 0, 1, 0 ] ) );
         ctm = mult( ctm, translate( translatePig ) );
         //rotate and scale if generating legs, each leg is combination of two trianglar
         if( i > 1 )
@@ -164,6 +224,7 @@ function render()
     ctm = mat4();
     ctm = mult( ctm, projectionMatrix );
     ctm = mult( ctm, viewMatrix );
+    ctm = mult( ctm, rotate( time * omega, [ 0, 1, 0 ] ) );
     ctm = mult( ctm, scale( pig_body ) );
     gl.uniformMatrix4fv( modelViewMatrix, false, flatten( ctm ) );
     gl.drawArrays( gl.TRIANGLES, 24, 36 );
@@ -172,6 +233,7 @@ function render()
     ctm = mat4();
     ctm = mult( ctm, projectionMatrix );
     ctm = mult( ctm, viewMatrix );
+    ctm = mult( ctm, rotate( time * omega, [ 0, 1, 0 ] ) );
     ctm = mult( ctm, translate( pig_translateNose ) );
     ctm = mult( ctm, scale( pig_scaleNose ) );
     gl.uniformMatrix4fv( modelViewMatrix, false, flatten( ctm ) );
@@ -179,4 +241,6 @@ function render()
 
     window.requestAnimFrame( render );
 }
+
+
 
