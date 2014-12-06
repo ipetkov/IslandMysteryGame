@@ -81,7 +81,7 @@ function Camera(glCanvas) {
 		// Set position
 		orientation = mult(orientation, translate(-position[0], -position[1], position[2]));
 
-		return mult(proj, orientation);
+		return [proj, orientation];
 	};
 
 	this.setFovx = function(f) {

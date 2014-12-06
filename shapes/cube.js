@@ -211,7 +211,7 @@ var Cube = (function() {
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(invertedVertices), gl.STATIC_DRAW);
 	};
 
-	var cubeConstructor = function(material, texture, flatLighting, invertNormals) {
+	var cubeConstructor = function(material, texture, flatLighting, invertNormals, bumpTexture) {
 		if(!vbo || !nbo || !tbo) {
 			initVertexData();
 		}
@@ -229,7 +229,7 @@ var Cube = (function() {
 			normalBuffer = vbo;
 		}
 
-		Shape.call(this, vbo, normalBuffer, tbo, null, vertices.length / 3, material, texture);
+		Shape.call(this, vbo, normalBuffer, tbo, null, vertices.length / 3, material, texture, bumpTexture);
 	};
 
 	return cubeConstructor;

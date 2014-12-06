@@ -20,7 +20,7 @@ function Sun(distFromOrigin, omega) {
 	// The material the glHelper will use for calculating light products
 	this.lightMaterial = this.daylight;
 
-	this.angle = 0;      // Stores the time of day
+	this.angle = 20;      // Stores the time of day
 	this.omega = omega;  // Determines how fast the day is
 	this.distFromOrigin = distFromOrigin;
 
@@ -30,7 +30,7 @@ function Sun(distFromOrigin, omega) {
 
 	this.skyColor = this.daySky;
 
-	this.sun = new Sphere(new Material(vec4(1.0, 1.0, 0.0, 1.0), vec4(1.0, 1.0, 0.0, 1.0)), null, true);
+	this.sun = new Sphere(new Material(vec4(1.0, 1.0, 0.0, 1.0), vec4(1.0, 1.0, 0.0, 1.0)), null, true, null);
 	this.sun.radius = 4;
 
 	var moonTex = new Texture.fromImageSrc(
@@ -39,7 +39,7 @@ function Sun(distFromOrigin, omega) {
 		gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR
 	);
 
-	this.moon = new Sphere(new Material(vec4(0.3, 0.3, 0.3, 1.0), vec4(0.65, 0.65, 0.65, 1.0)), moonTex, false);
+	this.moon = new Sphere(new Material(vec4(0.3, 0.3, 0.3, 1.0), vec4(0.65, 0.65, 0.65, 1.0)), moonTex, false, null);
 	this.moon.radius = 7;
 }
 

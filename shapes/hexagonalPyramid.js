@@ -159,7 +159,7 @@ var HexagonalPyramid = (function() {
 	};
 
 	//remove "texture" parameter when constant texture is found
-	var hexagonalPyramidConstructor = function(material, texture, flatLighting, invertNormals) {
+	var hexagonalPyramidConstructor = function(material, texture, flatLighting, invertNormals, bumpTexture) {
 		if(!vbo || !nbo || !tbo) {
 			initVertexData();
 		}
@@ -175,7 +175,7 @@ var HexagonalPyramid = (function() {
 			normalBuffer = vbo;
 		}
 
-		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, null, vertices.length / 3, material, texture);
+		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, null, vertices.length / 3, material, texture, bumpTexture);
 	};
 
 	return hexagonalPyramidConstructor;

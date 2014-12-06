@@ -9,12 +9,14 @@ var attrPosition           = 'vPosition';
 var attrNormal             = 'vNormal';
 var attrTexCoord           = 'texCoord';
 var uniformModelMatrix     = 'modelMatrix';
-var uniformProjViewMatrix  = 'projViewMatrix';
+var uniformProjMatrix      = 'projMatrix';
+var uniformViewMatrix      = 'viewMatrix';
 var uniformAmbientProduct  = 'ambientProduct';
 var uniformDiffuseProduct  = 'diffuseProduct';
 var uniformNormalMat       = 'normalMat';
 var uniformLightPosition   = 'lightPosition';
 var uniformTexSampler      = 'uSampler';
+var uniformBumpTexSampler  = 'nSampler';
 var uniformEnableLighting  = 'enableLighting';
 
 var shapes = [];
@@ -77,12 +79,21 @@ var glHelper = (function() {
 		setUniformMat(uniformModelMatrix, mat);
 	}
 
-	helper.setProjViewMatrix = function(mat) {
-		setUniformMat(uniformProjViewMatrix, mat);
+	helper.setViewMatrix = function(mat) {
+		setUniformMat(uniformViewMatrix, mat);
+	}
+
+	helper.setProjMatrix = function(mat) {
+		setUniformMat(uniformProjMatrix, mat);
 	}
 
 	helper.setTexSampler = function(arg) {
 		var loc = gl.getUniformLocation(program, uniformTexSampler);
+		gl.uniform1i(loc, arg);
+	}
+	
+	helper.setBumpTexSampler = function(arg) {
+		var loc = gl.getUniformLocation(program, uniformBumpTexSampler);
 		gl.uniform1i(loc, arg);
 	}
 
@@ -142,7 +153,7 @@ window.onload = function() {
 		vec4(0.8, 0.7, 0.7, 1.0)
 	);
 
-	var ground = new Cube(groundMaterial, null, true, false);
+	var ground = new Cube(groundMaterial, null, true, false, null);
 	ground.position = vec3(0.0, -0.1, 0.0);
 	ground.scale = vec3(150.0, 0.1, 150.0);
 
@@ -150,7 +161,7 @@ window.onload = function() {
 
 	shapes = [ground, sun];
 
-	for (var i = 0; i < 3; i++)
+	for (var i = 0; i < 0; i++)
 	{
 		var posX = Math.random() * 10.0 - 5.0;
 		var posZ = Math.random() * 10.0 - 5.0;
@@ -163,6 +174,9 @@ window.onload = function() {
 			age
 		));
 	}
+
+	var barkBumpMap = new Texture.fromImageSrc('./images/balls.png',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
+	shapes.push(new Cube(null, null, true, false, barkBumpMap));
 
 	// Attach our keyboard listener to the canvas
 	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
@@ -184,15 +198,17 @@ function draw() {
 
 	glHelper.enableLighting(true);
 	player.move(); // This will set our camera in the world
-	glHelper.setProjViewMatrix(player.camera.getProjViewMatrix());
+	var ProjAndView = player.camera.getProjViewMatrix();
+	glHelper.setProjMatrix(ProjAndView[0]);
+	glHelper.setViewMatrix(ProjAndView[1]);
 
 	var identMat = mat4();
-	var dt = timer.getElapsedTime();
+	var dt = 0;// 4*timer.getElapsedTime();
 
 	sun.draw(dt);  // This will set our light position and material
 
 	shapes.forEach(function(e) {
-		dt += timer.getElapsedTime();
+//		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
 

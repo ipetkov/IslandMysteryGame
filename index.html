@@ -30,29 +30,33 @@
 			attribute vec3 vNormal;
 			attribute vec2 texCoord;
 			uniform mat4 modelMatrix;
-			uniform mat4 projViewMatrix;
+			uniform mat4 projMatrix;
+			uniform mat4 viewMatrix;
 			uniform mat4 normalMat;
 
 			uniform vec3 lightPosition;
 
 			varying vec2 fUV;
-			varying vec3 N, L, E;
+			varying vec3 N, L, V;
 			void main() {
 				// Make sure our w components are set properly
 				vec4 pos  = vec4(vPosition, 1.0);
 				vec4 norm = vec4(vNormal, 0.0);
 
-				vec3 posInWorld    = (modelMatrix * pos).xyz;
+				vec4 posInWorld_XYZA = (modelMatrix * pos);
+				vec3 posInWorld    = posInWorld_XYZA.xyz;
 				vec3 normalInWorld = (normalMat * norm).xyz;
 				vec3 lightInWorld  = lightPosition; // Light already in world coordinates
 
 				// We ignore specular highlights
 				N = normalize(normalInWorld);
 				L = normalize(lightInWorld - posInWorld);
-				E = normalize(-posInWorld);
+
+				//Position in veiwer Coords
+				V = normalize((normalMat * posInWorld_XYZA).xyz);
 
 				fUV = texCoord;
-				gl_Position = projViewMatrix * vec4(posInWorld, 1.0);
+				gl_Position = projMatrix * viewMatrix * vec4(posInWorld, 1.0);
 			}
 		</script>
 
@@ -62,15 +66,24 @@
 			uniform vec4 ambientProduct;
 			uniform vec4 diffuseProduct;
 			uniform sampler2D uSampler;
+			uniform sampler2D nSampler;
 			uniform int enableLighting;
 
-			varying vec3 N, L, E;
+			varying vec3 N, L, V;
 			varying vec2 fUV;
 			void main() {
-				float Kd = max(dot(L, N), 0.0);
+				vec3 bumpNormal = 2.0*(texture2D(nSampler, fUV)).xyz-vec3(1.0, 1.0, 1.0);
+//				bumpNormal = vec3(0.0, 0.0, 0.0);
+//I think my error has to do with some Normals pointing Negative...
+					bumpNormal = bumpNormal + N;
+
+				float Kd = max(dot(L, bumpNormal), 0.0);
+//				float Kv = max(dot(V, bumpNormal), 0.0);
+				//skip using the tangent space by
+				//Kv = 1.0;
 
 				vec4 ambient  = ambientProduct;
-				vec4 diffuse  = Kd * diffuseProduct;
+				vec4 diffuse  =  Kd * diffuseProduct;
 
 				vec4 fColor;
 

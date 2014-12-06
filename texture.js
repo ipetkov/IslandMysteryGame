@@ -7,11 +7,18 @@ var Texture = (function() {
 		255, 255, 255, 255,  255, 255, 255, 255,
 		255, 255, 255, 255,  255, 255, 255, 255,
 	];
+	//If no bump data will be provided should be a bump map
+	//with zero 
+	var defaultBumpTextureData = [
+		128, 128, 128, 128,  128 ,128, 128, 128,
+		128, 128, 128, 128,  128 ,128, 128, 128,
+	];
+	
 
-	function init() {
-		if(defaultTexture) {
-			return;
-		}
+	function init(TextureData) {
+//		if(defaultTexture) {
+//			return;
+//		}
 
 		if(!gl) {
 			throw "Unable to init texture data, gl not defined";
@@ -22,7 +29,7 @@ var Texture = (function() {
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 		defaultTexture = textureFromData(
-			new Uint8Array(defaultTextureData),
+			new Uint8Array(TextureData),
 			gl.UNSIGNED_BYTE,
 			2, 2,
 			gl.REPEAT, gl.REPEAT,
@@ -84,18 +91,23 @@ var Texture = (function() {
 	}
 
 	var constructor = function() {
-		init();
+		init(defaultTextureData);
 		return defaultTexture;
 	}
 
 	constructor.fromImageSrc = function(src, wrapS, wrapT, magFilter, minFilter) {
-		init();
+		init(defaultTextureData);
 		return textureFromImageSrc(src, wrapS, wrapT, magFilter, minFilter);
 	}
 
 	constructor.fromData = function(data, type, width, height, wrapS, wrapT, magFilter, minFilter) {
-		init();
+		init(defaultTextureData);
 		return textureFromData(data, type, width, height, wrapS, wrapT, magFilter, minFilter);
+	}
+
+	constructor.defaultBump = function() {
+		init(defaultBumpTextureData);
+		return defaultTexture;
 	}
 
 	return constructor;

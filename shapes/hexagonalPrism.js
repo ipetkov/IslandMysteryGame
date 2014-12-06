@@ -202,7 +202,7 @@ var HexagonalPrism = (function() {
 	};
 
 	//remove "texture" parameter when constant texture is found
-	var hexagonalPrismConstructor = function(material, texture, flatLighting, invertNormals) {
+	var hexagonalPrismConstructor = function(material, texture, flatLighting, invertNormals, bumpTexture) {
 		if(!vbo || !nbo || !tbo) {
 			initVertexData();
 		}
@@ -218,7 +218,7 @@ var HexagonalPrism = (function() {
 			normalBuffer = vbo;
 		}
 
-		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, null, vertices.length / 3, material, texture);
+		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, null, vertices.length / 3, material, texture, bumpTexture);
 	};
 
 	return hexagonalPrismConstructor;

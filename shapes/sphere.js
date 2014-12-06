@@ -74,13 +74,13 @@ var Sphere = (function() {
 		numElements = elements.length;
 	}
 
-	function constructor(material, texture, invertNormals) {
+	function constructor(material, texture, invertNormals, bumpTexture) {
 		if(!vbo || !nbo || !tbo || !ebo || !invertedNbo) {
 			init();
 		}
 
 		this.radius = 1;
-		Shape.call(this, vbo, (invertNormals ? invertedNbo : nbo), tbo, ebo, numElements, material, texture);
+		Shape.call(this, vbo, (invertNormals ? invertedNbo : nbo), tbo, ebo, numElements, material, texture, bumpTexture);
 	}
 
 	return constructor;
