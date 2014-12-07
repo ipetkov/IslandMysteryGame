@@ -70,12 +70,14 @@ function Camera(glCanvas) {
 		var proj = perspective(fovyDegree, canvas.width / canvas.height, .001, 500);
 		var leanRad = radians(lean);
 
+		// Set pitch
+		var orientation = rotate(pitch, vec3(1, 0, 0));
+
 		// Set lean
-		var orientation = translate(-Math.sin(leanRad), -Math.cos(leanRad), 0);
+		orientation = mult(orientation, translate(-Math.sin(leanRad), -Math.cos(leanRad), 0));
 
 		// Set heading
 		orientation = mult(orientation, rotate(roll,  vec3(0, 0, 1)));
-		orientation = mult(orientation, rotate(pitch, vec3(1, 0, 0)));
 		orientation = mult(orientation, rotate(yaw,   vec3(0, 1, 0)));
 
 		// Set position
