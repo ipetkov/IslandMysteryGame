@@ -8,15 +8,17 @@ function Player(glCanvas, pos, speed) {
 	this.rightVelocity = 0.0;
 	this.movementSpeed = speed;
 
-	this.yVelocity = 0.0;
-	this.yAcceleration = -0.010;
-
 	this.leanLeft = false;
 	this.leanRight = false;
 	this.leanAngle = 0.0;
 	
 	this.isRunning = false;
-	this.isAirborne = false;
+	
+	this.physical = new Physical(	pos,					//position
+									vec3(0.0, 0.0, 0.0),	//velocity
+									vec3(0.0, -0.01, 0.0),	//acceleration
+									0.0,					//bounce
+									0.0);					//friction
 
 	this.position = function()
 	{
@@ -29,20 +31,22 @@ function Player(glCanvas, pos, speed) {
 		this.camera.moveBy(testX, testY, testZ);
 		var testHeight = heightOf(this.position()[0], this.position()[2]);
 		this.camera.moveBy(-testX, -testY, -testZ);
-		return (testHeight - curHeight <= 0.3);
+		
+		//EDIT to accomodate collision?
+		return (testHeight - curHeight <= 0.2);
 	}
 
 	this.move = function()
 	{
 		var xV = this.rightVelocity - this.leftVelocity;
-		var yV = this.yVelocity;
+		var yV = this.physical.velocity()[1];
 		var zV = this.forwardVelocity - this.backVelocity;
 
 		// Adjust velocities and lean based on player's state
-		if (this.isAirborne)
+		if (this.physical.isAirborne())
 		{
 			if (this.isRunning && zV > 0)
-				zV *= 2.5;
+				zV *= 1.5;
 			// Adjust camera back to normal
 			if (this.leanAngle < 5.0 && this.leanAngle > -5.0)
 				this.leanAngle = 0.0;
@@ -53,7 +57,7 @@ function Player(glCanvas, pos, speed) {
 		{
 			if (this.isRunning && zV > 0)
 			{
-				zV *= 2.5;
+				zV *= 1.5;
 				this.leanAngle = nextLeanAngle(this.leanAngle);
 			}
 			else
@@ -75,8 +79,6 @@ function Player(glCanvas, pos, speed) {
 
 		this.camera.setLean(this.leanAngle);
 		
-
-		var curPosition = this.position()[1];
 
 		if (this.testMove(xV, 0.0, 0.0))
 			this.camera.moveBy(xV, 0.0, 0.0);
@@ -106,18 +108,19 @@ function Player(glCanvas, pos, speed) {
 		
 		
 		var terrainHeight = heightOf(this.position()[0], this.position()[2]);
+		
 		if ((this.position())[1] > terrainHeight)
 		{
-			this.isAirborne = true;
-			this.yVelocity += this.yAcceleration;
-			if (this.yVelocity < -5.0) // Terminal velocity
-				this.yVelocity = -5.0;
+			this.physical.setFlight(true);
+			this.physical.accelerate(this.physical.acceleration());
+			if (this.physical.velocity()[1] < -5.0) // Terminal velocity
+				this.physical.setYVelocity(-5.0);
 		}
 		else
 		{
 			this.camera.moveBy(0.0, terrainHeight - this.position()[1], 0.0);
-			this.isAirborne = false;
-			this.yVelocity = 0.0;
+			this.physical.setFlight(false);
+			this.physical.setYVelocity(0.0);
 		}
 	}
 
@@ -170,8 +173,6 @@ function Player(glCanvas, pos, speed) {
 	this.rightArm.draw         = this.leftArm.draw;
 }
 
-
-
 function nextLeanAngle(curAngle)
 {
 	if (!nextLeanAngle.isInitialized)
@@ -179,14 +180,14 @@ function nextLeanAngle(curAngle)
 	nextLeanAngle.isInitialized = true;
 	
 	var newAngle = curAngle;
-	if (curAngle >= 30.0)
+	if (curAngle >= 7.0)
 		nextLeanAngle.isLeft = 0;
-	else if (curAngle <= -30.0)
+	else if (curAngle <= -7.0)
 		nextLeanAngle.isLeft = 1;
 	if (nextLeanAngle.isLeft)
-		newAngle += 4.0;
+		newAngle += 1.0;
 	else
-		newAngle -= 4.0;
+		newAngle -= 1.0;
 	return newAngle;
 }
 
@@ -230,10 +231,10 @@ Player.prototype.handleKeyDown = function(e) {
 			this.isRunning = true;
 			break;
 		case 32: // SPACE - jump
-			if (!this.isAirborne)
+			if (!this.physical.isAirborne())
 			{
-				this.isAirborne = true;
-				this.yVelocity = 0.20;
+				this.physical.setFlight(true);
+				this.physical.setYVelocity(0.20);
 			}
 			break;
     }
