@@ -164,6 +164,9 @@ window.onload = function() {
 		));
 	}
 
+	var newplane = new Plane(null, null);
+	shapes.push(newplane);
+
 	// Attach our keyboard listener to the canvas
 	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
 	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
