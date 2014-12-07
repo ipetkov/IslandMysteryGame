@@ -9,7 +9,7 @@ function Player(glCanvas, pos, speed) {
 	this.movementSpeed = speed;
 
 	this.yVelocity = 0.0;
-	this.yAcceleration = -0.015;
+	this.yAcceleration = -0.010;
 
 	this.leanLeft = false;
 	this.leanRight = false;
@@ -21,6 +21,15 @@ function Player(glCanvas, pos, speed) {
 	this.position = function()
 	{
 		return this.camera.position();
+	}
+
+	this.testMove = function(testX, testY, testZ)
+	{
+		var curHeight = this.position()[1];
+		this.camera.moveBy(testX, testY, testZ);
+		var testHeight = heightOf(this.position()[0], this.position()[2]);
+		this.camera.moveBy(-testX, -testY, -testZ);
+		return (testHeight - curHeight <= 0.3);
 	}
 
 	this.move = function()
@@ -65,7 +74,37 @@ function Player(glCanvas, pos, speed) {
 		}
 
 		this.camera.setLean(this.leanAngle);
-		this.camera.moveBy(	xV, yV, zV );
+		
+
+		var curPosition = this.position()[1];
+
+		if (this.testMove(xV, 0.0, 0.0))
+			this.camera.moveBy(xV, 0.0, 0.0);
+		else if (this.testMove(xV * Math.sqrt(3) / 2, 0.0, xV / 2))
+			this.camera.moveBy(xV * Math.sqrt(3) / 2, 0.0, xV / 2);
+		else if (this.testMove(xV * Math.sqrt(3) / 2, 0.0, -xV / 2))
+			this.camera.moveBy(xV * Math.sqrt(3) / 2, 0.0, -xV / 2);
+		else if (this.testMove(xV / 2, 0.0, xV * Math.sqrt(3) / 2))
+			this.camera.moveBy(xV / 2, 0.0, xV * Math.sqrt(3) / 2);
+		else if (this.testMove(xV / 2, 0.0, -xV * Math.sqrt(3) / 2))
+			this.camera.moveBy(xV / 2, 0.0, -xV * Math.sqrt(3) / 2);
+
+		if (this.testMove(0.0, 0.0, zV))
+			this.camera.moveBy(0.0, 0.0, zV);
+		else if (this.testMove(zV / 2, 0.0, zV * Math.sqrt(3) / 2))
+			this.camera.moveBy(zV / 2, 0.0, zV * Math.sqrt(3) / 2);
+		else if (this.testMove(-zV / 2, 0.0, zV * Math.sqrt(3) / 2))
+			this.camera.moveBy(-zV / 2, 0.0, zV * Math.sqrt(3) / 2);
+		else if (this.testMove(zV * Math.sqrt(3) / 2, 0.0, zV / 2))
+			this.camera.moveBy(zV * Math.sqrt(3) / 2, 0.0, zV / 2);
+		else if (this.testMove(-zV * Math.sqrt(3) / 2, 0.0, zV / 2))
+			this.camera.moveBy(-zV * Math.sqrt(3) / 2, 0.0, zV / 2);
+
+		this.camera.moveBy( 0.0, yV, 0.0);
+
+		
+		
+		
 		var terrainHeight = heightOf(this.position()[0], this.position()[2]);
 		if ((this.position())[1] > terrainHeight)
 		{
@@ -81,6 +120,8 @@ function Player(glCanvas, pos, speed) {
 			this.yVelocity = 0.0;
 		}
 	}
+
+	
 
 	var blackMaterial = new Material(
 		vec4(0.0, 0.0, 0.0, 1.0),
@@ -128,6 +169,7 @@ function Player(glCanvas, pos, speed) {
 	this.rightArm.yaw          = -this.leftArm.yaw;
 	this.rightArm.draw         = this.leftArm.draw;
 }
+
 
 
 function nextLeanAngle(curAngle)
@@ -191,7 +233,7 @@ Player.prototype.handleKeyDown = function(e) {
 			if (!this.isAirborne)
 			{
 				this.isAirborne = true;
-				this.yVelocity = 0.45;
+				this.yVelocity = 0.20;
 			}
 			break;
     }
