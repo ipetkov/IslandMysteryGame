@@ -14,11 +14,12 @@ function Material(ambient, diffuse) {
 }
 
 // FIXME: implement clipping
-function Shape(verticesBuffer, normalsBuffer, texCoordBufffer, elementBuffer, numVertices, material, texture, bumpTexture) {
+function Shape(verticesBuffer, normalsBuffer, tangentBuffer, texCoordBufffer, elementBuffer, numVertices, material, texture, bumpTexture) {
 	this.vbo = verticesBuffer;
 	this.nbo = normalsBuffer;
 	this.tbo = texCoordBufffer;
 	this.ebo = elementBuffer;
+	this.tanbo = tangentBuffer;
 	this.numVertices = numVertices;
 
 	this.material = material || new Material();
@@ -47,6 +48,7 @@ Shape.prototype.draw = function(dt, mat) {
 	mat = mult(mat, this.getModelMatrix());
 	glHelper.setPositionAttrib(this.vbo);
 	glHelper.setNormalAttrib(this.nbo);
+	glHelper.setTangentAttrib(this.tanbo);
 	glHelper.setTexCoordAttrib(this.tbo);
 
 	// If this object has no elements buffer, the previously

@@ -5,6 +5,7 @@ var Cube = (function() {
 	var vbo = null;
 	var nbo = null;
 	var tbo = null;
+	var tanbo = null;
 	var invertedFlatNormalsBuffer = null;
 	var invertedVerticesBuffer = null;
 
@@ -176,6 +177,63 @@ var Cube = (function() {
 		 0.0, 1.0, // back upper left
 	];
 
+var tangents = [
+		// Front face
+		// X    Y     Z
+		 1.0,  0.0,  0.0, // front lower left
+		 1.0,  0.0,  0.0, // front lower right
+		 1.0,  0.0,  0.0, // front upper right
+		 1.0,  0.0,  0.0, // front upper right
+		 1.0,  0.0,  0.0, // front upper left
+		 1.0,  0.0,  0.0, // front lower left
+
+		// Back face
+		// X    Y     Z
+		 1.0,  0.0, 0.0, // back lower left
+		 1.0,  0.0, 0.0, // back lower right
+		 1.0,  0.0, 0.0, // back upper right
+		 1.0,  0.0, 0.0, // back upper right
+		 1.0,  0.0, 0.0, // back upper left
+		 1.0,  0.0, 0.0, // back lower left
+
+		// Left face
+		// X    Y     Z
+		0.0,  1.0,  0.0, // front upper left
+		0.0,  1.0,  0.0, // back upper left
+		0.0,  1.0,  0.0, // back lower left
+		0.0,  1.0,  0.0, // back lower left
+		0.0,  1.0,  0.0, // front lower left
+		0.0,  1.0,  0.0, // front upper left
+
+		// Right face
+		// X    Y     Z
+		 0.0,  1.0,  0.0, // front upper right
+		 0.0,  1.0,  0.0, // back upper right
+		 0.0,  1.0,  0.0, // back lower right
+		 0.0,  1.0,  0.0, // back lower right
+		 0.0,  1.0,  0.0, // front lower right
+		 0.0,  1.0,  0.0, // front upper right
+
+		// Bottom face
+		// X    Y     Z
+		 -1.0, 0.0,  0.0, // back lower left
+		 -1.0, 0.0,  0.0, // back lower right
+		 -1.0, 0.0,  0.0, // front lower right
+		 -1.0, 0.0,  0.0, // front lower right
+		 -1.0, 0.0,  0.0, // front lower left
+		 -1.0, 0.0,  0.0, // back lower left
+
+		// Top face
+		// X    Y     Z
+		 0.0,  1.0,  0.0, // back upper left;
+		 0.0,  1.0,  0.0, // back upper right
+		 0.0,  1.0,  0.0, // front upper right
+		 0.0,  1.0,  0.0, // front upper right
+		 0.0,  1.0,  0.0, // front upper left
+		 0.0,  1.0,  0.0, // back upper left
+	];
+
+
 	// Method for sending vertex data to GPU a single time
 	var initVertexData = function() {
 		if(!gl) {
@@ -193,6 +251,10 @@ var Cube = (function() {
 		tbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, tbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordinates), gl.STATIC_DRAW);
+
+		tanbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, tanbo);
+		gl.bufferData(gl.ARRAY_BUFFER, flatten(tangents), gl.STATIC_DRAW);
 
 		var invertedFlatNormals = flatNormals.map(function(p) {
 			return -p;
@@ -229,7 +291,7 @@ var Cube = (function() {
 			normalBuffer = vbo;
 		}
 
-		Shape.call(this, vbo, normalBuffer, tbo, null, vertices.length / 3, material, texture, bumpTexture);
+		Shape.call(this, vbo, normalBuffer, tanbo, tbo, null, vertices.length / 3, material, texture, bumpTexture);
 	};
 
 	return cubeConstructor;

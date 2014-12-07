@@ -8,6 +8,7 @@ var fragmentSourceId = 'shader-fragment';
 var attrPosition           = 'vPosition';
 var attrNormal             = 'vNormal';
 var attrTexCoord           = 'texCoord';
+var attrTangent            = 'objTangent';
 var uniformModelMatrix     = 'modelMatrix';
 var uniformProjMatrix      = 'projMatrix';
 var uniformViewMatrix      = 'viewMatrix';
@@ -62,6 +63,10 @@ var glHelper = (function() {
 
 	helper.setNormalAttrib = function(vbo) {
 		setAttrib(attrNormal, vbo);
+	}
+
+	helper.setTangentAttrib = function(vbo) {
+		setAttrib(attrTangent, vbo);
 	}
 
 	helper.setTexCoordAttrib = function(vbo) {
@@ -175,8 +180,10 @@ window.onload = function() {
 		));
 	}
 
-	var barkBumpMap = new Texture.fromImageSrc('./images/balls.png',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
-	shapes.push(new Cube(null, null, true, false, barkBumpMap));
+	var bumpMap = new Texture.fromImageSrc('./images/balls.png',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
+	var newcube = new Cube(null, null, true, false, bumpMap);
+	newcube.position = vec3(0.0, 1.0, 0.0);
+	shapes.push(newcube);
 
 	// Attach our keyboard listener to the canvas
 	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
@@ -203,12 +210,12 @@ function draw() {
 	glHelper.setViewMatrix(ProjAndView[1]);
 
 	var identMat = mat4();
-	var dt = 0;// 4*timer.getElapsedTime();
+	var dt = 6*timer.getElapsedTime();
 
 	sun.draw(dt);  // This will set our light position and material
 
 	shapes.forEach(function(e) {
-//		dt += timer.getElapsedTime();
+		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
 

@@ -106,7 +106,7 @@ var Texture = (function() {
 	}
 
 	constructor.defaultBump = function() {
-		init(defaultBumpTextureData);
+		init(defaultTextureData);
 		return defaultTexture;
 	}
 

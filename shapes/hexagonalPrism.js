@@ -164,7 +164,64 @@ var HexagonalPrism = (function() {
 		0.0, 0.0
 	];
 
+	var tangents = [
+		/* 2D base
+		(1.0, 0.0)
+		(0.5, 0.87)
+		(-0.5, 0.87)
+		(-1.0, 0.0)
+		(-0.5, -0.87)
+		(0.5, -0.87)
+		*/
 
+		//0-60˚
+		0.75, 0.0, 0.433,
+		0.75, 0.0, 0.433,
+		0.75, 0.0, 0.433,
+		0.75, 0.0, 0.433,
+		0.75, 0.0, 0.433,
+		0.75, 0.0, 0.433,
+
+		//60-120˚
+		0.0, 0.0, -1.0,
+		0.0, 0.0, -1.0,
+		0.0, 0.0, -1.0,
+		0.0, 0.0, -1.0,
+		0.0, 0.0, -1.0,
+		0.0, 0.0, -1.0,
+
+		//120-180˚
+		-0.75, 0.0, 0.433,
+		-0.75, 0.0, 0.433,
+		-0.75, 0.0, 0.433,
+		-0.75, 0.0, 0.433,
+		-0.75, 0.0, 0.433,
+		-0.75, 0.0, 0.433,
+
+		//180-240˚
+		-0.75, 0.0, -0.433,
+		-0.75, 0.0, -0.433,
+		-0.75, 0.0, -0.433,
+		-0.75, 0.0, -0.433,
+		-0.75, 0.0, -0.433,
+		-0.75, 0.0, -0.433,
+
+		//240-300˚
+		0.0, 0.0, 1.0,
+		0.0, 0.0, 1.0,
+		0.0, 0.0, 1.0,
+		0.0, 0.0, 1.0,
+		0.0, 0.0, 1.0,
+		0.0, 0.0, 1.0,
+		
+		//300-360˚
+		0.75, 0.0, 0.433,
+		0.75, 0.0, 0.433,
+		0.75, 0.0, 0.433,
+		0.75, 0.0, 0.433,
+		0.75, 0.0, 0.433,
+		0.75, 0.0, 0.433
+	];
 
 
 	var initVertexData = function() {
@@ -183,6 +240,11 @@ var HexagonalPrism = (function() {
 		tbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, tbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordinates), gl.STATIC_DRAW);
+
+		tanbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, tanbo);
+		gl.bufferData(gl.ARRAY_BUFFER, flatten(tangents), gl.STATIC_DRAW);
+
 		
 		var invertedFlatNormals = flatNormals.map(function(p) {
 			return -p;
@@ -218,7 +280,7 @@ var HexagonalPrism = (function() {
 			normalBuffer = vbo;
 		}
 
-		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, null, vertices.length / 3, material, texture, bumpTexture);
+		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, tanbo, null, vertices.length / 3, material, texture, bumpTexture);
 	};
 
 	return hexagonalPrismConstructor;

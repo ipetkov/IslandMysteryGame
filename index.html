@@ -28,6 +28,7 @@
 			// Position attributes and uniforms
 			attribute vec3 vPosition;
 			attribute vec3 vNormal;
+			attribute vec3 objTangent;
 			attribute vec2 texCoord;
 			uniform mat4 modelMatrix;
 			uniform mat4 projMatrix;
@@ -37,23 +38,35 @@
 			uniform vec3 lightPosition;
 
 			varying vec2 fUV;
-			varying vec3 N, L, V;
+			varying vec3 N, L, posToLight;
 			void main() {
+
 				// Make sure our w components are set properly
 				vec4 pos  = vec4(vPosition, 1.0);
 				vec4 norm = vec4(vNormal, 0.0);
+				vec4 tan  = vec4(objTangent, 0.0);
 
-				vec4 posInWorld_XYZA = (modelMatrix * pos);
-				vec3 posInWorld    = posInWorld_XYZA.xyz;
+				vec3 posInWorld    = (modelMatrix * pos).xyz;
 				vec3 normalInWorld = (normalMat * norm).xyz;
 				vec3 lightInWorld  = lightPosition; // Light already in world coordinates
 
-				// We ignore specular highlights
+				//Calculate the tangent space
 				N = normalize(normalInWorld);
-				L = normalize(lightInWorld - posInWorld);
+				vec3 T = normalize((viewMatrix * tan).xyz);
+				vec3 B = cross(T, N);
 
-				//Position in veiwer Coords
-				V = normalize((normalMat * posInWorld_XYZA).xyz);
+				posToLight = normalize(lightInWorld - posInWorld);
+
+				//convert the light vector into the tangent space
+				L.x = dot(T, posToLight);
+				L.y = dot(B, posToLight);
+				L.z = dot(N, posToLight);
+
+				L = normalize(L);
+
+				//by convention objTangent is set to (0.0, 0.0, 0.0) for surfaces
+				//we do not want to bump map, so we set L to zero vector in this case
+				if(dot(tan, tan) == 0.0 ) L = vec3(0.0, 0.0, 0.0);
 
 				fUV = texCoord;
 				gl_Position = projMatrix * viewMatrix * vec4(posInWorld, 1.0);
@@ -69,18 +82,17 @@
 			uniform sampler2D nSampler;
 			uniform int enableLighting;
 
-			varying vec3 N, L, V;
+			varying vec3 N, L, posToLight;
 			varying vec2 fUV;
 			void main() {
 				vec3 bumpNormal = 2.0*(texture2D(nSampler, fUV)).xyz-vec3(1.0, 1.0, 1.0);
-//				bumpNormal = vec3(0.0, 0.0, 0.0);
-//I think my error has to do with some Normals pointing Negative...
-					bumpNormal = bumpNormal + N;
+				bumpNormal = bumpNormal + vec3(0.0, 1.0, 0.0);
 
-				float Kd = max(dot(L, bumpNormal), 0.0);
-//				float Kv = max(dot(V, bumpNormal), 0.0);
-				//skip using the tangent space by
-				//Kv = 1.0;
+				// We ignore specular highlights
+				float Kd = 0.0;
+				//for surface we dont want to bumpmap we intentionally set L to the zero vector
+				if(dot(L, L) == 0.0 ) Kd = max(dot(N, posToLight), 0.0);
+				else Kd = max(dot(L, bumpNormal), 0.0);
 
 				vec4 ambient  = ambientProduct;
 				vec4 diffuse  =  Kd * diffuseProduct;
