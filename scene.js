@@ -129,26 +129,19 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(0.0, 0.0, 0.0), moveUnit);
+	player = new Player(canvas, vec3(1.0, 0.0, -1.0), moveUnit);
+    player.camera.yawBy(-135);
 
 	pointerLock(canvas, function(x, y) {
 		player.camera.yawBy(-x * mouseSensitivity);
 		player.camera.pitchBy(-y * mouseSensitivity);
 	}, null);
-
-
-	var groundMaterial = new Material(
-		vec4(0.8, 0.9, 0.5, 1.0),
-		vec4(0.8, 0.7, 0.7, 1.0)
-	);
-
-	var ground = new Cube(groundMaterial, null, true, false);
-	ground.position = vec3(0.0, -0.1, 0.0);
-	ground.scale = vec3(150.0, 0.1, 150.0);
+    
+    var theIsland = new Island();
 
 	sun = new Sun(100, 1/dayDuration);
 
-	shapes = [ground, sun];
+	shapes = [theIsland, sun];
 
 	for (var i = 0; i < 3; i++)
 	{
