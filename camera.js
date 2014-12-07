@@ -70,6 +70,7 @@ function Camera(glCanvas) {
 		var proj = perspective(fovyDegree, canvas.width / canvas.height, .001, 500);
 		var leanRad = radians(lean);
 
+		// Set pitch
 		var orientation = rotate(pitch, vec3(1, 0, 0));
 
 		// Set lean
