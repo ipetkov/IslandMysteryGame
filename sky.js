@@ -67,7 +67,7 @@ Sun.prototype.draw = function(dt) {
 	// jumping in/out when it is around the horizon.
 	if(this.angle > 180 - epsilon || this.angle < epsilon ) {
 		// Sun's light position already set
-		this.moon.position = vec3(-posCos, -posSin, 0);
+		this.moon.position = vec3(-posCos * 0.75, -posSin * 0.75, 0);
 		this.moon.draw(dt, mat4());
 	}
 

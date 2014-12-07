@@ -160,7 +160,7 @@ window.onload = function() {
     
     var theIsland = new Island();
 
-	sun = new Sun(100, 1/dayDuration);
+	sun = new Sun(300, 1/dayDuration);
 
 	shapes = [water, theIsland, sun];
 
