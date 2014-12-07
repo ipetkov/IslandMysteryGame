@@ -10,8 +10,7 @@ var attrNormal             = 'vNormal';
 var attrTexCoord           = 'texCoord';
 var attrTangent            = 'objTangent';
 var uniformModelMatrix     = 'modelMatrix';
-var uniformProjMatrix      = 'projMatrix';
-var uniformViewMatrix      = 'viewMatrix';
+var uniformProjViewMatrix  = 'projViewMatrix';
 var uniformAmbientProduct  = 'ambientProduct';
 var uniformDiffuseProduct  = 'diffuseProduct';
 var uniformNormalMat       = 'normalMat';
@@ -84,12 +83,8 @@ var glHelper = (function() {
 		setUniformMat(uniformModelMatrix, mat);
 	}
 
-	helper.setViewMatrix = function(mat) {
-		setUniformMat(uniformViewMatrix, mat);
-	}
-
-	helper.setProjMatrix = function(mat) {
-		setUniformMat(uniformProjMatrix, mat);
+	helper.setProjViewMatrix = function(mat) {
+		setUniformMat(uniformProjViewMatrix, mat);
 	}
 
 	helper.setTexSampler = function(arg) {
@@ -208,12 +203,10 @@ function draw() {
 
 	glHelper.enableLighting(true);
 	player.move(); // This will set our camera in the world
-	var ProjAndView = player.camera.getProjViewMatrix();
-	glHelper.setProjMatrix(ProjAndView[0]);
-	glHelper.setViewMatrix(ProjAndView[1]);
+	glHelper.setProjViewMatrix(player.camera.getProjViewMatrix());
 
 	var identMat = mat4();
-	var dt = 6*timer.getElapsedTime();
+	var dt = timer.getElapsedTime();
 
 	sun.draw(dt);  // This will set our light position and material
 

@@ -35,8 +35,7 @@
 			attribute vec3 objTangent;
 			attribute vec2 texCoord;
 			uniform mat4 modelMatrix;
-			uniform mat4 projMatrix;
-			uniform mat4 viewMatrix;
+			uniform mat4 projViewMatrix;
 			uniform mat4 normalMat;
 
 			uniform vec3 lightPosition;
@@ -73,7 +72,7 @@
 				if(dot(tan, tan) == 0.0 ) L = vec3(0.0, 0.0, 0.0);
 
 				fUV = texCoord;
-				gl_Position = projMatrix * viewMatrix * vec4(posInWorld, 1.0);
+				gl_Position = projViewMatrix * vec4(posInWorld, 1.0);
 			}
 		</script>
 
