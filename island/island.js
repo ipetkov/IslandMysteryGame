@@ -8,10 +8,6 @@ var Island = (function() {
     var invertedVerticesBuffer = null;
     
     
-    var tempSize = size;
-    var quarterSize = Math.trunc(size*.5);
-    var eighthSize = Math.trunc(size*.75);
-    
     var vertices = [];
     var normals = [];
     var texCoordinates = [];
@@ -27,8 +23,8 @@ var Island = (function() {
     }
     
     //init vertices and normals
-    for(var x=0; x<size; x++) {
-        for(var z=0; z<size; z++) {
+    for(var x=0; x<islandSize; x++) {
+        for(var z=0; z<islandSize; z++) {
             var ll = [x, heights[x][z], z];
             var ul = [x, heights[x][z+1], z+1];
             var lr = [x+1, heights[x+1][z], z];

@@ -129,8 +129,8 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(1.0, 0.0, -1.0), moveUnit);
-    player.camera.yawBy(-135);
+	player = new Player(canvas, vec3(quarterSize+10, 0.0, -quarterSize+10), moveUnit);
+    player.camera.yawBy(135);
 
 	pointerLock(canvas, function(x, y) {
 		player.camera.yawBy(-x * mouseSensitivity);
@@ -138,22 +138,22 @@ window.onload = function() {
 	}, null);
 
 
-	var groundMaterial = new Material(
-		vec4(0.8, 0.9, 0.5, 1.0),
-		vec4(0.8, 0.7, 0.7, 1.0)
+	var waterMaterial = new Material(
+		vec4(0.2, 0.2, 0.5, 0.8),
+		vec4(0.2, 0.2, 0.7, 0.8)
 	);
 
-    /*
-	var ground = new Cube(groundMaterial, null, true, false);
-	ground.position = vec3(0.0, -0.1, 0.0);
-	ground.scale = vec3(150.0, 0.1, 150.0);
-    */
     
-    var theIsland = new Island(groundMaterial, new Texture.fromImageSrc('images/sand.jpg'), true, false);
+	var water = new Cube(waterMaterial, null, true, false);
+	water.position = vec3(islandSize/2, -0.01, islandSize/2);
+	water.scale = vec3(islandSize+50, 0.1, islandSize+50);
+    
+    
+    var theIsland = new Island(null, new Texture.fromImageSrc('images/sand.jpg'), true, false);
 
 	sun = new Sun(100, 1/dayDuration);
 
-	shapes = [theIsland, sun];
+	shapes = [water, theIsland, sun];
 
 	for (var i = 0; i < 3; i++)
 	{
