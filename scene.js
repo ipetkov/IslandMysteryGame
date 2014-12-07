@@ -137,7 +137,6 @@ window.onload = function() {
 		player.camera.pitchBy(-y * mouseSensitivity);
 	}, null);
 
-
 	var waterMaterial = new Material(
 		vec4(0.2, 0.2, 0.5, 0.8),
 		vec4(0.2, 0.2, 0.7, 0.8)
@@ -148,8 +147,7 @@ window.onload = function() {
 	water.position = vec3(islandSize/2, -0.01, islandSize/2);
 	water.scale = vec3(islandSize+50, 0.1, islandSize+50);
     
-    
-    var theIsland = new Island(null, new Texture.fromImageSrc('images/sand.jpg'), true, false);
+    var theIsland = new Island();
 
 	sun = new Sun(100, 1/dayDuration);
 

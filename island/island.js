@@ -4,18 +4,17 @@ var Island = (function() {
     var vbo = null;
     var nbo = null;
     var tbo = null;
-    var invertedFlatNormalsBuffer = null;
-    var invertedVerticesBuffer = null;
-    
+
+    var groundTexture;
+    var groundMaterial = new Material(
+        vec4(0.8, 0.9, 0.5, 1.0),
+        vec4(0.8, 0.7, 0.7, 1.0)
+    );
     
     var vertices = [];
     var normals = [];
     var texCoordinates = [];
-    
-        
-    
-    
-    
+
     var plane = function(a, b, c) {
         var ab = subtract(b,a);
         var ac = subtract(c,a);
@@ -59,8 +58,10 @@ var Island = (function() {
     // Method for sending vertex data to GPU a single time
 	var initVertexData = function() {
 		if(!gl) {
-			throw "Unable to init Cube data, gl not defined";
+			throw "Unable to init Island data, gl not defined";
 		}
+
+        groundTexture = new Texture.fromImageSrc('images/sand.jpg')
 
 		vbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
@@ -73,45 +74,16 @@ var Island = (function() {
 		tbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, tbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordinates), gl.STATIC_DRAW);
-
-		var invertedFlatNormals = normals.map(function(p) {
-			return -p;
-		});
-
-		invertedFlatNormalsBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, invertedFlatNormalsBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, flatten(invertedFlatNormals), gl.STATIC_DRAW);
-
-		var invertedVertices = vertices.map(function(p) {
-			return -p;
-		});
-
-		invertedVerticesBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, invertedVerticesBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, flatten(invertedVertices), gl.STATIC_DRAW);
 	};
     
     //first four args are corners of square
-    var islandConstructor = function(material, texture, flatLighting, invertNormals) {
+    var islandConstructor = function() {
     
         if(!vbo || !nbo || !tbo) {
 			initVertexData();
 		}
 
-		// For non-flat lighting, the cube's vertices are conveniently
-		// also its normal vectors, if we approximate it as a sphere.
-		var normalBuffer = vbo;
-		if(flatLighting && invertNormals) {
-			normalBuffer = invertedFlatNormalsBuffer;
-		} else if(flatLighting) {
-			normalBuffer = nbo;
-		} else if(invertNormals) {
-			normalBuffer = invertedVerticesBuffer;
-		} else {
-			normalBuffer = vbo;
-		}
-
-		Shape.call(this, vbo, normalBuffer, tbo, null, vertices.length, material, texture);
+		Shape.call(this, vbo, nbo, tbo, null, vertices.length, groundMaterial, groundTexture);
     };
     
     return islandConstructor;
