@@ -145,19 +145,29 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(1.0, 0.0, -1.0), moveUnit);
-    player.camera.yawBy(-135);
+	player = new Player(canvas, vec3(quarterSize+10, 0.0, -quarterSize+10), moveUnit);
+    player.camera.yawBy(135);
 
 	pointerLock(canvas, function(x, y) {
 		player.camera.yawBy(-x * mouseSensitivity);
 		player.camera.pitchBy(-y * mouseSensitivity);
 	}, null);
+
+	var waterMaterial = new Material(
+		vec4(0.2, 0.2, 0.5, 0.8),
+		vec4(0.2, 0.2, 0.7, 0.8)
+	);
+
+    
+	var water = new Cube(waterMaterial, null, true, false);
+	water.position = vec3(islandSize/2, -0.01, islandSize/2);
+	water.scale = vec3(islandSize+50, 0.1, islandSize+50);
     
     var theIsland = new Island();
 
 	sun = new Sun(100, 1/dayDuration);
 
-	shapes = [theIsland, sun];
+	shapes = [water, theIsland, sun];
 
 	for (var i = 0; i < 1; i++)
 	{
