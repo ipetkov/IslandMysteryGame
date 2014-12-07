@@ -23,24 +23,39 @@ var Physical = function(position, velocity, acceleration, bounce, friction)
 	this.isAirborne = function() { return m_isAirborne; }
 	this.setFlight = function(fly) { m_isAirborne = fly; }
 
-	this.physics = function(position)
+	this.physics = function(startPosition, attemptPosition)
 	{
-		if (this.isAirborne)
-			this.velocity[1] += this.acceleration[1];
+		var x1 = startPosition[0];
+		var y1 = startPosition[1];
+		var z1 = startPosition[2];
 
-		var xPos = this.position[0];
-		var yPos = this.position[1];
-		var zPos = this.position[2];
+		var x2 = attemptPosition[0];
+		var y2 = attemptPosition[1];
+		var z2 = attemptPosition[2];
 
-		var groundHeight = heightOf(xPos, zPos);
-		
-		if (yPos > groundHeight)
-			this.isAirborne = true;
+		// Kinematics
+		if (this.isAirborne())
+			m_velocity[1] += m_acceleration[1];
+
+		var finalX = x2 + this.velocity()[0];
+		var finalY = y2 + this.velocity()[1];
+		var finalZ = z2 + this.velocity()[2];
+
+		// Terrain collision
+		var groundHeight = heightOf(x2, z2);
+		if (y2 > groundHeight)
+		{
+			this.setFlight(true);
+		}
 		else
 		{	
-			yPos = groundHeight;
-			this.isAirborne = false;
+			if (true)
+			{
+				finalY = groundHeight;
+				this.setFlight(false);
+				m_velocity[1] = 0.0;
+			}	
 		}
-		
+		return vec3( finalX - x2, finalY - y2, finalZ - z2 );
 	}
 }

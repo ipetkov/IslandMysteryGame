@@ -38,6 +38,9 @@ function Player(glCanvas, pos, speed) {
 
 	this.move = function()
 	{
+		var startPosition = this.position();
+
+		// Movement based on keyboard keys
 		var xV = this.rightVelocity - this.leftVelocity;
 		var yV = this.physical.velocity()[1];
 		var zV = this.forwardVelocity - this.backVelocity;
@@ -79,7 +82,6 @@ function Player(glCanvas, pos, speed) {
 
 		this.camera.setLean(this.leanAngle);
 		
-
 		if (this.testMove(xV, 0.0, 0.0))
 			this.camera.moveBy(xV, 0.0, 0.0);
 		else if (this.testMove(xV * Math.sqrt(3) / 2, 0.0, xV / 2))
@@ -104,24 +106,11 @@ function Player(glCanvas, pos, speed) {
 
 		this.camera.moveBy( 0.0, yV, 0.0);
 
+		var attemptPosition = this.position();
 		
-		
-		
-		var terrainHeight = heightOf(this.position()[0], this.position()[2]);
-		
-		if ((this.position())[1] > terrainHeight)
-		{
-			this.physical.setFlight(true);
-			this.physical.accelerate(this.physical.acceleration());
-			if (this.physical.velocity()[1] < -5.0) // Terminal velocity
-				this.physical.setYVelocity(-5.0);
-		}
-		else
-		{
-			this.camera.moveBy(0.0, terrainHeight - this.position()[1], 0.0);
-			this.physical.setFlight(false);
-			this.physical.setYVelocity(0.0);
-		}
+		//Movement adjustment according to physics
+		var finalMove = this.physical.physics(startPosition, attemptPosition);
+		this.camera.moveBy(finalMove[0], finalMove[1], finalMove[2]);
 	}
 
 	
