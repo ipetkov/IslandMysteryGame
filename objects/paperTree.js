@@ -78,7 +78,7 @@ var PaperFoliage = (function() {
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordinates), gl.STATIC_DRAW);
 	};
 
-	var paperFoliageConstructor = function(material, texture, flatLighting, invertNormals) {
+	var paperFoliageConstructor = function(material, texture, flatLighting, invertNormals, bumpTexture) {
 		if(!vbo || !nbo || !tbo) {
 			initVertexData();
 		}
@@ -97,7 +97,7 @@ var PaperFoliage = (function() {
 		}
 
 
-		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, null, vertices.length / 3, material, texture);
+		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, null, vertices.length / 3, material, texture, bumpTexture);
 	};
 
 	return paperFoliageConstructor;

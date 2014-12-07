@@ -2,6 +2,7 @@ var Sphere = (function() {
 	var vbo = null;
 	var nbo = null;
 	var tbo = null;
+	var tanbo = null;
 	var ebo = null;
 	var invertedNbo = null;
 
@@ -9,6 +10,7 @@ var Sphere = (function() {
 
 	var vertices  = [];
 	var normals   = [];
+	var tangents  = [];
 	var texCoords = [];
 	var elements  = [];
 	var invertedNormals = [];
@@ -36,6 +38,7 @@ var Sphere = (function() {
 				var u = 1 - (lon / numLon);
 
 				normals.push(x, y, z);
+				tangents.push(0.0, 0.0, 0.0);
 				invertedNormals.push(-x, -y, -z);
 				texCoords.push(u, v);
 				vertices.push(x, y, z); // Assuming radius is 1
@@ -59,6 +62,11 @@ var Sphere = (function() {
 		gl.bindBuffer(gl.ARRAY_BUFFER, nbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW);
 
+		tanbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, tanbo);
+		gl.bufferData(gl.ARRAY_BUFFER, flatten(tangents), gl.STATIC_DRAW);
+		
+
 		tbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, tbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoords), gl.STATIC_DRAW);
@@ -74,13 +82,13 @@ var Sphere = (function() {
 		numElements = elements.length;
 	}
 
-	function constructor(material, texture, invertNormals) {
+	function constructor(material, texture, invertNormals, bumpTexture) {
 		if(!vbo || !nbo || !tbo || !ebo || !invertedNbo) {
 			init();
 		}
 
 		this.radius = 1;
-		Shape.call(this, vbo, (invertNormals ? invertedNbo : nbo), tbo, ebo, numElements, material, texture);
+		Shape.call(this, vbo, (invertNormals ? invertedNbo : nbo), tanbo, tbo, ebo, numElements, material, texture, bumpTexture);
 	}
 
 	return constructor;

@@ -32,6 +32,7 @@
 			// Position attributes and uniforms
 			attribute vec3 vPosition;
 			attribute vec3 vNormal;
+			attribute vec3 objTangent;
 			attribute vec2 texCoord;
 			uniform mat4 modelMatrix;
 			uniform mat4 projViewMatrix;
@@ -40,20 +41,35 @@
 			uniform vec3 lightPosition;
 
 			varying vec2 fUV;
-			varying vec3 N, L, E;
+			varying vec3 N, L, posToLight;
 			void main() {
+
 				// Make sure our w components are set properly
 				vec4 pos  = vec4(vPosition, 1.0);
 				vec4 norm = vec4(vNormal, 0.0);
+				vec4 tan  = vec4(objTangent, 0.0);
 
 				vec3 posInWorld    = (modelMatrix * pos).xyz;
 				vec3 normalInWorld = (normalMat * norm).xyz;
 				vec3 lightInWorld  = lightPosition; // Light already in world coordinates
 
-				// We ignore specular highlights
+				//Calculate the tangent space
 				N = normalize(normalInWorld);
-				L = normalize(lightInWorld - posInWorld);
-				E = normalize(-posInWorld);
+				vec3 T = normalize((normalMat * tan).xyz);
+				vec3 B = cross(N, T);
+
+				posToLight = normalize(lightInWorld - posInWorld);
+
+				//convert the light vector into the tangent space
+				L.x = dot(T, posToLight);
+				L.y = dot(N, posToLight);
+				L.z = dot(B, posToLight);
+
+				L = normalize(L);
+
+				//by convention objTangent is set to (0.0, 0.0, 0.0) for surfaces
+				//we do not want to bump map, so we set L to zero vector in this case
+				if(dot(tan, tan) == 0.0 ) L = vec3(0.0, 0.0, 0.0);
 
 				fUV = texCoord;
 				gl_Position = projViewMatrix * vec4(posInWorld, 1.0);
@@ -66,15 +82,23 @@
 			uniform vec4 ambientProduct;
 			uniform vec4 diffuseProduct;
 			uniform sampler2D uSampler;
+			uniform sampler2D nSampler;
 			uniform int enableLighting;
 
-			varying vec3 N, L, E;
+			varying vec3 N, L, posToLight;
 			varying vec2 fUV;
 			void main() {
-				float Kd = max(dot(L, N), 0.0);
+				vec3 bumpNormal = 2.0*(texture2D(nSampler, fUV)).xyz-vec3(1.0, 1.0, 1.0);
+				bumpNormal = bumpNormal + vec3(0.0, 1.0, 0.0);
+
+				// We ignore specular highlights
+				float Kd = 0.0;
+				//for surface we dont want to bumpmap we intentionally set L to the zero vector
+				if(dot(L, L) == 0.0 ) Kd = max(dot(N, posToLight), 0.0);
+				else Kd = max(dot(L, bumpNormal), 0.0);
 
 				vec4 ambient  = ambientProduct;
-				vec4 diffuse  = Kd * diffuseProduct;
+				vec4 diffuse  =  Kd * diffuseProduct;
 
 				vec4 fColor;
 

@@ -8,6 +8,7 @@ var fragmentSourceId = 'shader-fragment';
 var attrPosition           = 'vPosition';
 var attrNormal             = 'vNormal';
 var attrTexCoord           = 'texCoord';
+var attrTangent            = 'objTangent';
 var uniformModelMatrix     = 'modelMatrix';
 var uniformProjViewMatrix  = 'projViewMatrix';
 var uniformAmbientProduct  = 'ambientProduct';
@@ -15,6 +16,7 @@ var uniformDiffuseProduct  = 'diffuseProduct';
 var uniformNormalMat       = 'normalMat';
 var uniformLightPosition   = 'lightPosition';
 var uniformTexSampler      = 'uSampler';
+var uniformBumpTexSampler  = 'nSampler';
 var uniformEnableLighting  = 'enableLighting';
 
 var shapes = [];
@@ -62,6 +64,10 @@ var glHelper = (function() {
 		setAttrib(attrNormal, vbo);
 	}
 
+	helper.setTangentAttrib = function(vbo) {
+		setAttrib(attrTangent, vbo);
+	}
+
 	helper.setTexCoordAttrib = function(vbo) {
 		var loc = gl.getAttribLocation(program, attrTexCoord);
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
@@ -83,6 +89,11 @@ var glHelper = (function() {
 
 	helper.setTexSampler = function(arg) {
 		var loc = gl.getUniformLocation(program, uniformTexSampler);
+		gl.uniform1i(loc, arg);
+	}
+	
+	helper.setBumpTexSampler = function(arg) {
+		var loc = gl.getUniformLocation(program, uniformBumpTexSampler);
 		gl.uniform1i(loc, arg);
 	}
 
@@ -153,7 +164,7 @@ window.onload = function() {
 
 	shapes = [water, theIsland, sun];
 
-	for (var i = 0; i < 3; i++)
+	for (var i = 0; i < 1; i++)
 	{
 		var posX = Math.random() * 10.0 - 5.0;
 		var posZ = Math.random() * 10.0 - 5.0;
@@ -166,6 +177,11 @@ window.onload = function() {
 			age
 		));
 	}
+
+	var bumpMap = new Texture.fromImageSrc('./images/balls.png',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
+	var newcube = new Cube(null, null, true, false, bumpMap);
+	newcube.position = vec3(1.0, 1.0, 0.0);
+	shapes.push(newcube);
 
 	// Attach our keyboard listener to the canvas
 	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }

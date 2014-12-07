@@ -1,5 +1,6 @@
 var Texture = (function() {
 	var defaultTexture = null;
+	var defaultBumpTexture = null;
 
 	// If no texture is specified, use a white texture,
 	// thus only the object's material colors will dominate
@@ -7,9 +8,16 @@ var Texture = (function() {
 		255, 255, 255, 255,  255, 255, 255, 255,
 		255, 255, 255, 255,  255, 255, 255, 255,
 	];
+	//If no bump data will be provided should be a bump map
+	//with zero 
+	var defaultBumpTextureData = [
+		128, 128, 128, 128,  128 ,128, 128, 128,
+		128, 128, 128, 128,  128 ,128, 128, 128,
+	];
+	
 
 	function init() {
-		if(defaultTexture) {
+		if(defaultTexture && defaultBumpTextureData) {
 			return;
 		}
 
@@ -23,6 +31,14 @@ var Texture = (function() {
 
 		defaultTexture = textureFromData(
 			new Uint8Array(defaultTextureData),
+			gl.UNSIGNED_BYTE,
+			2, 2,
+			gl.REPEAT, gl.REPEAT,
+			gl.NEAREST, gl.NEAREST
+		);
+
+		defaultBumpTexture = textureFromData(
+			new Uint8Array(defaultBumpTextureData),
 			gl.UNSIGNED_BYTE,
 			2, 2,
 			gl.REPEAT, gl.REPEAT,
@@ -96,6 +112,11 @@ var Texture = (function() {
 	constructor.fromData = function(data, type, width, height, wrapS, wrapT, magFilter, minFilter) {
 		init();
 		return textureFromData(data, type, width, height, wrapS, wrapT, magFilter, minFilter);
+	}
+
+	constructor.defaultBump = function() {
+		init();
+		return defaultBumpTexture;
 	}
 
 	return constructor;

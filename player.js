@@ -103,10 +103,11 @@ function Player(glCanvas, pos, speed) {
 	this.crosshairs = [top, bottom, left, right];
 
 	var orthoMat = ortho( -.5,  .5, -.5, .5, -.5, .5);
+	var identMat = mat4();
 	var leftTex  = new Texture.fromImageSrc('./images/arm-left.png',  gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
 	var rightTex = new Texture.fromImageSrc('./images/arm-right.png', gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
 
-	this.leftArm          = new Cube(null, leftTex, false, false);
+	this.leftArm          = new Cube(null, leftTex, false, false, null);
 	this.leftArm.scale    = vec3(0.0625, 0.75, 0.0625);
 	this.leftArm.position = vec3(-0.35, -0.45, 0);
 	this.leftArm.pitch    = -70;
@@ -120,7 +121,7 @@ function Player(glCanvas, pos, speed) {
 		glHelper.enableLighting(true);
 	}
 
-	this.rightArm              = new Cube(null, rightTex, false, false);
+	this.rightArm              = new Cube(null, rightTex, false, false, false);
 	this.rightArm.scale        = this.leftArm.scale;
 	this.rightArm.position     = scaleVec(-1, this.leftArm.position);
 	this.rightArm.position[1] *= -1;
