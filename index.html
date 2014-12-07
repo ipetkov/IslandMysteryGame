@@ -55,14 +55,14 @@
 				//Calculate the tangent space
 				N = normalize(normalInWorld);
 				vec3 T = normalize((normalMat * tan).xyz);
-				vec3 B = cross(T, N);
+				vec3 B = cross(N, T);
 
 				posToLight = normalize(lightInWorld - posInWorld);
 
 				//convert the light vector into the tangent space
 				L.x = dot(T, posToLight);
-				L.y = dot(B, posToLight);
-				L.z = dot(N, posToLight);
+				L.y = dot(N, posToLight);
+				L.z = dot(B, posToLight);
 
 				L = normalize(L);
 

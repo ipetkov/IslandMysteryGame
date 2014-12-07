@@ -20,7 +20,7 @@ function Sun(distFromOrigin, omega) {
 	// The material the glHelper will use for calculating light products
 	this.lightMaterial = this.daylight;
 
-	this.angle = 0;      // Stores the time of day
+	this.angle = 45;      // Stores the time of day
 	this.omega = omega;  // Determines how fast the day is
 	this.distFromOrigin = distFromOrigin;
 
@@ -44,7 +44,7 @@ function Sun(distFromOrigin, omega) {
 }
 
 Sun.prototype.draw = function(dt) {
-	this.angle = (this.angle + dt * this.omega) % 360;
+//	this.angle = (this.angle + dt * this.omega) % 360;
 	this.sun.position = this.moon.position = vec3(this.distFromOrigin, 0.0, 0.0);
 
 	var rad = radians(this.angle);

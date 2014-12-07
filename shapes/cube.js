@@ -189,39 +189,39 @@ var tangents = [
 
 		// Back face
 		// X    Y     Z
-		 1.0,  0.0, 0.0, // back lower left
-		 1.0,  0.0, 0.0, // back lower right
-		 1.0,  0.0, 0.0, // back upper right
-		 1.0,  0.0, 0.0, // back upper right
-		 1.0,  0.0, 0.0, // back upper left
-		 1.0,  0.0, 0.0, // back lower left
+		 -1.0,  0.0, 0.0, // back lower left
+		 -1.0,  0.0, 0.0, // back lower right
+		 -1.0,  0.0, 0.0, // back upper right
+		 -1.0,  0.0, 0.0, // back upper right
+		 -1.0,  0.0, 0.0, // back upper left
+		 -1.0,  0.0, 0.0, // back lower left
 
 		// Left face
 		// X    Y     Z
-		0.0,  1.0,  0.0, // front upper left
-		0.0,  1.0,  0.0, // back upper left
-		0.0,  1.0,  0.0, // back lower left
-		0.0,  1.0,  0.0, // back lower left
-		0.0,  1.0,  0.0, // front lower left
-		0.0,  1.0,  0.0, // front upper left
+		0.0,  0.0,  1.0, // front upper left
+		0.0,  0.0,  1.0, // back upper left
+		0.0,  0.0,  1.0, // back lower left
+		0.0,  0.0,  1.0, // back lower left
+		0.0,  0.0,  1.0, // front lower left
+		0.0,  0.0,  1.0, // front upper left
 
 		// Right face
 		// X    Y     Z
-		 0.0,  1.0,  0.0, // front upper right
-		 0.0,  1.0,  0.0, // back upper right
-		 0.0,  1.0,  0.0, // back lower right
-		 0.0,  1.0,  0.0, // back lower right
-		 0.0,  1.0,  0.0, // front lower right
-		 0.0,  1.0,  0.0, // front upper right
+		 0.0,  0.0,  -1.0, // front upper right
+		 0.0,  0.0,  -1.0, // back upper right
+		 0.0,  0.0,  -1.0, // back lower right
+		 0.0,  0.0,  -1.0, // back lower right
+		 0.0,  0.0,  -1.0, // front lower right
+		 0.0,  0.0,  -1.0, // front upper right
 
 		// Bottom face
 		// X    Y     Z
-		 -1.0, 0.0,  0.0, // back lower left
-		 -1.0, 0.0,  0.0, // back lower right
-		 -1.0, 0.0,  0.0, // front lower right
-		 -1.0, 0.0,  0.0, // front lower right
-		 -1.0, 0.0,  0.0, // front lower left
-		 -1.0, 0.0,  0.0, // back lower left
+		 0.0, -1.0,  0.0, // back lower left
+		 0.0, -1.0,  0.0, // back lower right
+		 0.0, -1.0,  0.0, // front lower right
+		 0.0, -1.0,  0.0, // front lower right
+		 0.0, -1.0,  0.0, // front lower left
+		 0.0, -1.0,  0.0, // back lower left
 
 		// Top face
 		// X    Y     Z

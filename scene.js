@@ -175,7 +175,7 @@ window.onload = function() {
 
 	var bumpMap = new Texture.fromImageSrc('./images/balls.png',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
 	var newcube = new Cube(null, null, true, false, bumpMap);
-	newcube.position = vec3(0.0, 1.0, 0.0);
+	newcube.position = vec3(1.0, 1.0, 0.0);
 	shapes.push(newcube);
 
 	// Attach our keyboard listener to the canvas

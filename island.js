@@ -4,6 +4,7 @@ var Island = (function() {
     var vbo = null;
     var nbo = null;
     var tbo = null;
+	var tanbo = null;
 
     var groundTexture;
     var groundMaterial = new Material(
@@ -14,6 +15,7 @@ var Island = (function() {
     var vertices = [];
     var normals = [];
     var texCoordinates = [];
+	var tangents = [];
 
     var plane = function(a, b, c) {
         var ab = subtract(b,a);
@@ -52,6 +54,13 @@ var Island = (function() {
             texCoordinates.push(1.0, 0.0);
             texCoordinates.push(0.0, 0.0);
             texCoordinates.push(0.0, 1.0);
+			
+			tangents.push(0.0, 0.0, 0.0);
+			tangents.push(0.0, 0.0, 0.0);
+			tangents.push(0.0, 0.0, 0.0);
+			tangents.push(0.0, 0.0, 0.0);
+			tangents.push(0.0, 0.0, 0.0);
+			tangents.push(0.0, 0.0, 0.0);
         }
     }
     
@@ -74,6 +83,10 @@ var Island = (function() {
 		tbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, tbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordinates), gl.STATIC_DRAW);
+
+		tanbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, tanbo);
+		gl.bufferData(gl.ARRAY_BUFFER, flatten(tangents), gl.STATIC_DRAW);
 	};
     
     //first four args are corners of square
@@ -83,7 +96,7 @@ var Island = (function() {
 			initVertexData();
 		}
 
-		Shape.call(this, vbo, nbo, tbo, null, vertices.length, groundMaterial, groundTexture);
+		Shape.call(this, vbo, nbo, tanbo, tbo, null, vertices.length, groundMaterial, groundTexture);
     };
     
     return islandConstructor;
