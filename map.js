@@ -1,17 +1,20 @@
 var heightOf = function(xPos, zPos)
 {
 	// EDIT when we add varying elevation
-    var mixX = xPos - Math.trunc(xPos);
-	var mixZ = zPos - Math.trunc(zPos);
-	var a = vec2(Math.trunc(xPos), Math.trunc(zPos));
-	var b = vec2(Math.trunc(xPos) + 1, Math.trunc(zPos));
-	var c = vec2(Math.trunc(xPos), Math.trunc(zPos) + 1);
-	var d = vec2(Math.trunc(xPos) + 1, Math.trunc(zPos) + 1);
+    var truncX = Math.trunc(xPos);
+    var truncZ = Math.trunc(zPos);
 
-    if(		heights[Math.trunc(xPos)]!=null
-    	&& 	heights[Math.trunc(xPos)][Math.trunc(zPos)]!=null
-    	&&	heights[Math.trunc(xPos) + 1]!=null
-    	&&	heights[Math.trunc(xPos) + 1][Math.trunc(zPos) + 1]!=null)
+    var mixX = xPos - truncX;
+	var mixZ = zPos - truncZ;
+	var a = vec2(truncX, truncZ);
+	var b = vec2(truncX + 1, truncZ);
+	var c = vec2(truncX, truncZ + 1);
+	var d = vec2(truncX + 1, truncZ + 1);
+
+    if(		heights[truncX]!=null
+    	&& 	heights[truncX][truncZ]!=null
+    	&&	heights[truncX + 1]!=null
+    	&&	heights[truncX + 1][truncZ + 1]!=null)
     {
         return 		heights[a[0]][a[1]] * (1.0 - mixX) * (1.0 - mixZ)
 				+	heights[b[0]][b[1]] * mixX * (1.0 - mixZ)

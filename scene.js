@@ -136,20 +136,8 @@ window.onload = function() {
 		player.camera.yawBy(-x * mouseSensitivity);
 		player.camera.pitchBy(-y * mouseSensitivity);
 	}, null);
-
-
-	var groundMaterial = new Material(
-		vec4(0.8, 0.9, 0.5, 1.0),
-		vec4(0.8, 0.7, 0.7, 1.0)
-	);
-
-    /*
-	var ground = new Cube(groundMaterial, null, true, false);
-	ground.position = vec3(0.0, -0.1, 0.0);
-	ground.scale = vec3(150.0, 0.1, 150.0);
-    */
     
-    var theIsland = new Island(groundMaterial, new Texture.fromImageSrc('images/sand.jpg'), true, false);
+    var theIsland = new Island();
 
 	sun = new Sun(100, 1/dayDuration);
 
