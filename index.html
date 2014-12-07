@@ -52,7 +52,7 @@
 
 				//Calculate the tangent space
 				N = normalize(normalInWorld);
-				vec3 T = normalize((viewMatrix * tan).xyz);
+				vec3 T = normalize((normalMat * tan).xyz);
 				vec3 B = cross(T, N);
 
 				posToLight = normalize(lightInWorld - posInWorld);

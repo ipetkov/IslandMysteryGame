@@ -1,8 +1,11 @@
+"use strict"
+
 var HexagonalPyramid = (function() {
 
 	var vbo = null;
 	var nbo = null;
 	var tbo = null;
+	var tanbo = null;
 	var vertices = [
 		/* 2D base
 		(1.0, 0.0)
@@ -170,41 +173,15 @@ var HexagonalPyramid = (function() {
 		gl.bindBuffer(gl.ARRAY_BUFFER, tanbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(tangents), gl.STATIC_DRAW);
 	
-		var invertedFlatNormals = flatNormals.map(function(p) {
-			return -p;
-		});
-
-		invertedFlatNormalsBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, invertedFlatNormalsBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, flatten(invertedFlatNormals), gl.STATIC_DRAW);
-
-		var invertedVertices = vertices.map(function(p) {
-			return -p;
-		});
-
-		invertedVerticesBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, invertedVerticesBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, flatten(invertedVertices), gl.STATIC_DRAW);
 	};
 
 	//remove "texture" parameter when constant texture is found
-	var hexagonalPyramidConstructor = function(material, texture, flatLighting, invertNormals, bumpTexture) {
+	var hexagonalPyramidConstructor = function(material, texture,bumpTexture) {
 		if(!vbo || !nbo || !tbo) {
 			initVertexData();
 		}
 
-		var normalBuffer = vbo;
-		if(flatLighting && invertNormals) {
-			normalBuffer = invertedFlatNormalsBuffer;
-		} else if(flatLighting) {
-			normalBuffer = nbo;
-		} else if(invertNormals) {
-			normalBuffer = invertedVerticesBuffer;
-		} else {
-			normalBuffer = vbo;
-		}
-
-		Shape.call(this, vbo, (flatLighting ? nbo : vbo), tbo, null, vertices.length / 3, material, texture, bumpTexture);
+		Shape.call(this, vbo, nbo, tanbo, tbo, null, vertices.length / 3, material, texture, bumpTexture);
 	};
 
 	return hexagonalPyramidConstructor;

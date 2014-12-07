@@ -43,19 +43,19 @@ var Tree = (function() {
 
 		var barkBumpMap = new Texture.fromImageSrc('./images/waves.jpg',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
 
-		this.trunk = new HexagonalPrism(trunkMaterial, null, false, false, barkBumpMap);
+		this.trunk = new HexagonalPrism(trunkMaterial, null, barkBumpMap);
 		this.trunk.position = vec3(posX, posY, posZ);
 		this.trunk.scale = vec3(kX * 0.15, 2.0 * kY, kZ * 0.15);
 
-		this.foliageTop          = new HexagonalPyramid(foliageMaterial, foliageTex, true, false, null);
+		this.foliageTop          = new HexagonalPyramid(foliageMaterial, foliageTex, null);
 		this.foliageTop.position = vec3(posX, posY + 2.5 * kY, posZ);
 		this.foliageTop.scale    = vec3(0.7 * kX, 1.5 * kY, 0.7 * kZ);
 		
-		this.foliageMiddle          = new HexagonalPrism(foliageMaterial, foliageTex, false, false, null);
+		this.foliageMiddle          = new HexagonalPrism(foliageMaterial, foliageTex, null);
 		this.foliageMiddle.position = vec3(posX, posY + 2.0 * kY, posZ);
 		this.foliageMiddle.scale    = vec3(0.7 * kX, 0.5 * kY, 0.7 * kZ);
 
-		this.foliageBottom          = new HexagonalPyramid(foliageMaterial, foliageTex, false, false, null);
+		this.foliageBottom          = new HexagonalPyramid(foliageMaterial, foliageTex, null);
 		this.foliageBottom.position = vec3(posX, posY + 2.0 * kY, posZ);
 		this.foliageBottom.scale    = vec3(0.7 * kX, -0.3 * kY, 0.7 * kZ);
 	}

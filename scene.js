@@ -166,7 +166,7 @@ window.onload = function() {
 
 	shapes = [ground, sun];
 
-	for (var i = 0; i < 0; i++)
+	for (var i = 0; i < 1; i++)
 	{
 		var posX = Math.random() * 10.0 - 5.0;
 		var posZ = Math.random() * 10.0 - 5.0;
