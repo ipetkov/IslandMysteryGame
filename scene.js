@@ -166,6 +166,8 @@ window.onload = function() {
 
 	var newplane = new Plane(null, null);
 	shapes.push(newplane);
+	var sticky = new Stick(vec3(0.0, 0.30, 0.0), 0.0, 0.0);
+	shapes.push(sticky);
 
 	// Attach our keyboard listener to the canvas
 	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
