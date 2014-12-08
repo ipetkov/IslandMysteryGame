@@ -88,9 +88,9 @@ Campfire.prototype.draw = function(dt, mat) {
 		this.fireplane4.draw(dt, mat);
 
 
-		var tau = dt/1000;
+		var tau = dt/10000;
 		for(var i = 0; i < 4; i++){
-			tau = tau + timer.getElapsedTime() / 1000;
+			tau = tau + timer.getElapsedTime() / 10000;
 			this.smokeplane[i].position[1] = this.smokeplane[i].position[1] + tau;
 			if(this.smokeplane[i].position[1] > 0.6 + this.position[1]) this.smokeplane[i].position[1] = 0.4 + this.position[1];
 		
@@ -99,7 +99,7 @@ Campfire.prototype.draw = function(dt, mat) {
 			this.smokeplane[i].scale = vec3(scaler, scaler, scaler);
 			this.smokeplane[i].position[2] = z_displacer + this.position[2];
 	
-			tau = tau + timer.getElapsedTime() / 1000;
+			tau = tau + timer.getElapsedTime() / 10000;
 			this.smokeplane[i].draw(dt,mat);
 		}
 		glHelper.enableLighting(true);

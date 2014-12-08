@@ -6,6 +6,7 @@ var Plane = (function() {
 	var nbo = null;
 	var tbo = null;
 	var tanbo = null;
+	var tanbo = null;
 
 	var vertices = [
 		// Front face
@@ -79,7 +80,7 @@ var Plane = (function() {
 			initVertexData();
 		}
 
-		Shape.call(this, vbo, nbo, tbo, null, vertices.length / 3, material, texture);
+		Shape.call(this, vbo, nbo, tanbo, tbo, null, vertices.length / 3, material, texture);
 	};
 
 	return planeConstructor;

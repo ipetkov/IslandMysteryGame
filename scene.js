@@ -203,7 +203,7 @@ window.onload = function() {
 	bumpCube = new Cube(null, null, true, false, bumpMap);
 	bumpCube.position = vec3(20.0, 0.8, 70.0);
 
-	var fire = new Campfire(vec3(5.0, 0.0, 5.0));
+	var fire = new Campfire(vec3(100.0, heights[100][100], 100.0));
 	fire.numSticks = 4.0;
 	shapes.push(fire);
 
