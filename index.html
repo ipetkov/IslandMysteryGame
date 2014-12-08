@@ -48,7 +48,6 @@
 				// Make sure our w components are set properly
 				vec4 pos  = vec4(vPosition, 1.0);
 				vec4 norm = vec4(vNormal, 0.0);
-				vec4 tan  = vec4(objTangent, 0.0);
 
 				vec3 posInWorld    = (modelMatrix * pos).xyz;
 				vec3 normalInWorld = (normalMat * norm).xyz;
@@ -60,6 +59,8 @@
 
 
 			if(enableBumping == 1){
+				vec4 tan  = vec4(objTangent, 0.0);
+
 				//Calculate the tangent space
 				vec3 T = normalize((normalMat * tan).xyz);
 				vec3 B = cross(N, T);
