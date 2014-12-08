@@ -4,6 +4,9 @@ var Campfire = (function() {
 	function constructor(position)
 	{
 		this.numSticks = 0.0;
+		this.fireOn = false;
+		this.burningTime = 0.0;
+		this.timeToBurnOut = 40000;
 
 		this.position = new vec3;
 		this.position[0] = position[0];
@@ -59,12 +62,35 @@ var Campfire = (function() {
 	return constructor;
 })();
 
+Campfire.prototype.addStick = function() {
+	if(this.numSticks < 4.0){
+		this.numSticks++;
+		if(this.fireOn)
+			this.burningTime = this.burningTime - this.timeToBurnOut / 4;}
+}
+
 Campfire.prototype.draw = function(dt, mat) {
-//	this.fireplane1.pitch = this.fireplane1.pitch + dt/10;
 	var height = this.position[1];
 	var x_dis = this.position[0];
 	var z_dis = this.position[2];
-	
+
+	if(this.numSticks > 3.0)
+		this.fireOn = true;
+	else if(this.numSticks < 1.0)
+		this.fireOn = false;
+
+	if(this.fireOn){
+		glHelper.enableLighting(false);
+		this.burningTime = this.burningTime + dt;
+		var timeRatio = (this.burningTime / (this.timeToBurnOut/4.0)) % 1;
+		if(timeRatio > 0.99){
+			this.numSticks = this.numSticks - 1.0;
+			this.burningTime = this.burningTime + 0.02*this.timeToBurnOut/4;}
+		if(this.burningTime >= this.timeToBurnOut){
+			this.numSticks = 0.0;
+			this.burningTime = 0.0;}
+	}
+
 	if(this.numSticks > 0.0)
 		this.stick1.draw(dt, mat);
 	if(this.numSticks > 1.0)
@@ -78,10 +104,9 @@ Campfire.prototype.draw = function(dt, mat) {
 	
 		this.stick1.draw(dt, rotMat);
 	}
-	if(this.numSticks > 3.0){
+	if(this.numSticks > 3.0)
 		this.stick2.draw(dt, rotMat);
-
-		glHelper.enableLighting(false);
+	if(this.fireOn){
 		this.fireplane1.draw(dt, mat);
 		this.fireplane2.draw(dt, mat);
 		this.fireplane3.draw(dt, mat);
@@ -102,6 +127,6 @@ Campfire.prototype.draw = function(dt, mat) {
 			tau = tau + timer.getElapsedTime() / 10000;
 			this.smokeplane[i].draw(dt,mat);
 		}
-		glHelper.enableLighting(true);
 	}
+	glHelper.enableLighting(true);
 }

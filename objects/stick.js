@@ -1,37 +1,34 @@
 var Stick = (function() {
 
-	var sticks = [];
-
 	var trunkMaterial = new Material(
-		vec4(0.8, 0.6, 0.6, 1.0),
+		vec4(0.55, 0.27, 0.07, 1.0),
 		vec4(0.8, 0.4, 0.2, 1.0)
 	);
 
-	var barkTex    = null;
+	var woodTex = null;
 
 	function constructor(position, yaw, pitch, roll)
 	{
+		if(!woodTex) {
+			woodTex = new Texture.fromImageSrc('./images/wood.jpg', gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
+		}
+
 		this.position = position;
 		this.yaw = yaw;
 		this.roll = roll;
 		this.pitch = pitch;
-		this.mainbody = new Cube(trunkMaterial, barkTex, false, false);
+	
+		this.mainbody = new Cube(trunkMaterial, woodTex, false, false);
 		this.mainbody.position = position;
 		this.mainbody.scale = vec3(0.5, 0.05, 0.05);
 		this.mainbody.yaw = yaw;
 		this.mainbody.roll = roll;
 
-		this.sidebranch = new Cube(trunkMaterial, barkTex, false, false);
+		this.sidebranch = new Cube(trunkMaterial, woodTex, false, false);
 		this.sidebranch.position = add(position, vec3(0.15, 0, -0.05));
 		this.sidebranch.scale = vec3(0.15, 0.05, 0.05);
 		this.sidebranch.yaw = 40.0;
 		this.tree = null;
-
-		sticks.push(this);
-	}
-
-	constructor.getSticks = function() {
-		return sticks;
 	}
 
 	return constructor;

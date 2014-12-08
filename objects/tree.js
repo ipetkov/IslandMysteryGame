@@ -1,25 +1,17 @@
 var Tree = (function() {
 	var trees = [];
-	var groundMaterial = new Material(
-		vec4(0.8, 0.9, 0.5, 1.0),
-		vec4(0.8, 0.7, 0.7, 1.0)
-	);
+	var sticks = [];
 
 	var trunkMaterial = new Material(
 		vec4(0.5, 0.4, 0.1, 1.0),
 		vec4(0.6, 0.3, 0.1, 1.0)
 	);
 
-	var barkTex    = null;
 	var foliageTex = null;
 	var barkBumpMap = null;
 
 	function constructor(position, radius, height, age)
 	{
-		if(!barkTex) {
-			barkTex = new Texture.fromImageSrc('./images/treebark.jpg');
-		}
-
 		if(!foliageTex) {
 			foliageTex = new Texture.fromImageSrc('./images/foliage.png');
 		}
@@ -49,6 +41,10 @@ var Tree = (function() {
 
 	constructor.getTrees = function() {
 		return trees;
+	}
+
+	constructor.getSticks = function() {
+		return sticks;
 	}
 
 	constructor.drawTrees = function(dt) {
@@ -131,4 +127,6 @@ Tree.prototype.addStick = function() {
 	var roll = Math.floor((Math.random() * 90) - 45);
 	this.stick = new Stick(add(this.position, pos), yaw, 0, roll);
 	this.stick.tree = this;
+
+	Tree.getSticks().push(this.stick);
 }

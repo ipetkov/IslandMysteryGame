@@ -22,6 +22,7 @@
 		<script type="text/javascript" src="shapes/hexagonalPrism.js"></script>
 		<script type="text/javascript" src="shapes/hexagonalPyramid.js"></script>
 		<script type="text/javascript" src="objects/tree.js"></script>
+		<script type="text/javascript" src="objects/camprock.js"></script>
 		<script type="text/javascript" src="objects/stick.js"></script>
 		<script type="text/javascript" src="objects/campfire.js"></script>
 		<script type="text/javascript" src="objects/paperTree.js"></script>
@@ -42,7 +43,7 @@
 			uniform mat4 normalMat;
 
 			uniform vec3 lightPosition;
-			uniform int enableBumping;
+			uniform int enableBumpingV;
 
 			varying vec2 fUV;
 			varying vec3 N, L, posToLight;
@@ -61,7 +62,7 @@
 				L = vec3(0.0, 0.0, 0.0);
 
 
-			if(enableBumping == 1){
+			if(enableBumpingV == 1){
 				vec4 tan  = vec4(objTangent, 0.0);
 
 				//Calculate the tangent space
@@ -96,7 +97,7 @@
 			uniform sampler2D uSampler;
 			uniform sampler2D nSampler;
 
-			uniform int enableBumping;
+			uniform int enableBumpingF;
 			uniform int enableLighting;
 			uniform int uniformLighting;
 
@@ -107,7 +108,7 @@
 				// We ignore specular highlights
 				float Kd = 0.0;
 
-				if(enableBumping == 1){
+				if(enableBumpingF == 1){
 					vec3 bumpNormal = 2.0*(texture2D(nSampler, fUV)).xyz-vec3(1.0, 1.0, 1.0);
 					bumpNormal = bumpNormal + vec3(0.0, 1.0, 0.0);
 					
@@ -176,6 +177,7 @@
 				<li>Jump with <strong>SPACE</strong></li>
 				<li>Look around with <strong>the mouse</strong></li>
 				<li>Run by holding <strong>SHIFT</strong> while moving forward</li>
+				<li>Add stick to fire with <strong>T</strong> while at firepit</li>
 			</ul>
 		</div>
 	</body>

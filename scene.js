@@ -19,11 +19,14 @@ var uniformTexSampler      = 'uSampler';
 var uniformBumpTexSampler  = 'nSampler';
 var uniformEnableLighting  = 'enableLighting';
 var uniformUniformLighting = 'uniformLighting';
-var uniformEnableBumping   = 'enableBumping';
+var uniformEnableBumpingV   = 'enableBumpingV';
+var uniformEnableBumpingF   = 'enableBumpingF';
 
 var stickCountId = 'stickCount';
 
 var shapes = [];
+var campRocks = [];
+var fire;
 var bumpCube;
 var sun;
 
@@ -115,7 +118,9 @@ var glHelper = (function() {
 	}
 
 	helper.enableBumping = function(arg) {
-		var loc = gl.getUniformLocation(program, uniformEnableBumping);
+		var loc = gl.getUniformLocation(program, uniformEnableBumpingF);
+		gl.uniform1i(loc, (arg ? 1 : 0));
+		loc = gl.getUniformLocation(program, uniformEnableBumpingV);
 		gl.uniform1i(loc, (arg ? 1 : 0));
 	}
 
@@ -157,7 +162,7 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(8, 0.0, -islandSize+10), moveUnit);
+	player = new Player(canvas, vec3(50, 0.0, -30), moveUnit);
     player.camera.yawBy(-45);
 
 	pointerLock(canvas, function(x, y) {
@@ -171,6 +176,12 @@ window.onload = function() {
 		vec4(0.2, 0.2, 0.7, 0.8)
 	);
 
+	var rockMaterial = new Material(
+		vec4(0.9, 0.9, 0.9, 1.0),
+		vec4(0.9, 0.9, 0.9, 1.0)
+	);
+
+
     
 	var water = new Cube(waterMaterial, null, true, false);
 	water.position = vec3(islandSize/2, 0.0, islandSize/2);
@@ -183,15 +194,15 @@ window.onload = function() {
 	shapes = [water, theIsland];
 
     
-	for (var x=1; x<quarterSize; x+=5)
+	for (var x=1; x<quarterSize; x+=2)
 	{
-        for(var z=1; z<quarterSize; z+=5)
+        for(var z=1; z<quarterSize; z+=2)
         {
             var kXZ = 2.5 * (Math.random() + 1.5);
             var kY = 4.0 * (Math.random() * 0.3 + 1.0);
             var age = Math.random();
             var rand = Math.random();
-            if(heights[x][z]>0.21 && rand<=0.09) {
+            if(heights[x][z]>0.21 && rand<=0.02 && (x < 49 || x > 51 || z < 29 || z > 31)) {
                 new Tree(
                     vec3(x, heights[x][z]-0.5, z),
 				    kXZ, kY,
@@ -200,13 +211,20 @@ window.onload = function() {
         }
 	}
 
+	//This object is created as a test object
 	var bumpMap = new Texture.fromImageSrc('./images/balls.png',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
 	bumpCube = new Cube(null, null, true, false, bumpMap);
 	bumpCube.position = vec3(20.0, 0.8, 70.0);
 
-	var fire = new Campfire(vec3(100.0, heights[100][100], 100.0));
-	fire.numSticks = 4.0;
-	shapes.push(fire);
+	//create rocks in a circle to signify campsite
+	for(var i = 0; i < 10; i++){
+		campRocks.push(new CampRock(rockMaterial, new Texture.fromImageSrc('./images/rockTex.png'), gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST));
+		campRocks[i].position = vec3(50.0 + Math.cos(i*Math.PI/5), heights[50][30] + 0.1, 30.0 + Math.sin(i*Math.PI/5));
+		campRocks[i].scale = vec3(0.5, 0.5, 0.5);
+		}
+
+	fire = new Campfire(vec3(50.0, heights[50][30]+0.1, 30.0));
+	fire.numSticks = 0.0;
 
 	// Attach our keyboard listener to the canvas
 	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
@@ -239,7 +257,7 @@ function draw() {
 
 	// Quick and dirty way to generate more sticks in the scene
 	var trees = Tree.getTrees();
-	var stickDiff = trees.length - (Stick.getSticks().length + player.sticks.length);
+	var stickDiff = trees.length - (Tree.getSticks().length + player.sticks.length);
 	for(var i = 0; i < stickDiff; i++) {
 		var index = Math.floor(Math.random * trees.length);
 		trees[i].addStick();
@@ -247,12 +265,18 @@ function draw() {
 
 	dt += timer.getElapsedTime();
 	Tree.drawTrees(dt);
+	
+	fire.draw(dt, identMat);
 
 	shapes.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
 
+	campRocks.forEach(function(e) {
+		dt += timer.getElapsedTime();
+		e.draw(dt, identMat);
+	});
 
 //This commented cube draws a test cube that clearly shows the sucesfull
 //implemintation of bump mapping
