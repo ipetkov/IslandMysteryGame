@@ -83,7 +83,6 @@ Campfire.prototype.draw = function(dt, mat) {
 		glHelper.enableLighting(false);
 		this.burningTime = this.burningTime + dt;
 		var timeRatio = (this.burningTime / (this.timeToBurnOut/4.0)) % 1;
-//		document.getElementById("test").innerHTML = timeRatio;	
 		if(timeRatio > 0.99){
 			this.numSticks = this.numSticks - 1.0;
 			this.burningTime = this.burningTime + 0.02*this.timeToBurnOut/4;}

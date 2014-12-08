@@ -24,7 +24,7 @@ var uniformEnableBumpingF   = 'enableBumpingF';
 
 
 var shapes = [];
-var rocks = [];
+var campRocks = [];
 var fire;
 var bumpCube;
 var sun;
@@ -217,9 +217,9 @@ window.onload = function() {
 
 	//create rocks in a circle to signify campsite
 	for(var i = 0; i < 10; i++){
-		rocks.push(new Rock(rockMaterial, new Texture.fromImageSrc('./images/rockTex.png'), gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST));
-		rocks[i].position = vec3(50.0 + Math.cos(i*Math.PI/5), heights[50][30] + 0.1, 30.0 + Math.sin(i*Math.PI/5));
-		rocks[i].scale = vec3(0.5, 0.5, 0.5);
+		campRocks.push(new CampRock(rockMaterial, new Texture.fromImageSrc('./images/rockTex.png'), gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST));
+		campRocks[i].position = vec3(50.0 + Math.cos(i*Math.PI/5), heights[50][30] + 0.1, 30.0 + Math.sin(i*Math.PI/5));
+		campRocks[i].scale = vec3(0.5, 0.5, 0.5);
 		}
 
 	fire = new Campfire(vec3(50.0, heights[50][30]+0.1, 30.0));
@@ -262,7 +262,7 @@ function draw() {
 		e.draw(dt, identMat);
 	});
 
-	rocks.forEach(function(e) {
+	campRocks.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});

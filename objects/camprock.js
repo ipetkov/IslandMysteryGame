@@ -7,7 +7,7 @@ var plane = function(a, b, c)
 	return cross(ab, ac);
 }
 
-var Rock = (function() {
+var CampRock = (function() {
 	// Vertices used by each cube instance
 	var vbo = null;
 	var nbo = null;
@@ -96,7 +96,7 @@ var Rock = (function() {
 	// Method for sending vertex data to GPU a single time
 	var initVertexData = function() {
 		if(!gl) {
-			throw "Unable to init Rock data, gl not defined";
+			throw "Unable to init CampRock data, gl not defined";
 		}
 
 		vbo = gl.createBuffer();
@@ -128,4 +128,4 @@ var Rock = (function() {
 	return constructor;
 })();
 
-inheritPrototype(Rock, Shape);
+inheritPrototype(CampRock, Shape);
