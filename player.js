@@ -286,12 +286,18 @@ Player.prototype.handleMouseDown = function() {
 }
 
 Player.prototype.handleMouseUp = function() {
-	rock.figure.position = this.position();
-	rock.figure.position[1] += 1.0;
-
 	var yaw = radians(this.camera.yaw());
 	var pitch = radians(this.camera.pitch());
 	var armPower = 0.5;
+	var throwSpeed = armPower / rock.physical.radius();
+
+
+	rock.figure.position = this.position();
+	rock.figure.position[0] += 0.5 * Math.cos(-yaw) * Math.cos(-pitch);
+	rock.figure.position[1] += 0.7;
+	rock.figure.position[2] += 0.5 * Math.sin(-yaw) * Math.cos(-pitch);
+
+	
 
 
 	rock.physical.setVelocity(vec3(

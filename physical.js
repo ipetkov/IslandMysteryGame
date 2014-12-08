@@ -11,6 +11,7 @@ var Physical = (function()
 
 		this.impactVelocity = 0.0;
 
+		this.radius = function() { return m_radius; }
 		this.velocity = function() { return m_velocity; }
 		this.setVelocity = function(newVelocity)
 		{
@@ -55,12 +56,25 @@ var Physical = (function()
 			else
 			{	
 				finalY = groundHeight + m_radius + 0.001;
-				m_velocity[1] = -m_bounce * m_velocity[1];
-				if (m_velocity[1] < 0.05)
+				// Bounce
+				m_velocity[1] *= -m_bounce;
+				if (m_velocity[1] < 0.02)
 				{
 					finalY = groundHeight + m_radius;
 					this.setFlight(false);
 					m_velocity[1] = 0.0;
+				}
+
+				// Friction
+				m_velocity[0] *= (1.0 - m_friction);
+				m_velocity[2] *= (1.0 - m_friction);
+
+				var xVel = m_velocity[0];
+				var zVel = m_velocity[2];
+				if (Math.sqrt(xVel * xVel + zVel * zVel) < 0.02)
+				{
+					m_velocity[0] = 0.0;
+					m_velocity[2] = 0.0;
 				}
 			}
 			return vec3( finalX - x2, finalY - y2, finalZ - z2 );
