@@ -167,12 +167,6 @@ window.onload = function() {
     player.camera.yawBy(-45);
     player.camera.rollBy(-80);
 
-	pointerLock(canvas, function(x, y) {
-		player.camera.yawBy(-x * mouseSensitivity);
-		player.camera.pitchBy(-y * mouseSensitivity);
-	}, null);
-
-
 	var waterMaterial = new Material(
 		vec4(0.2, 0.2, 0.5, 0.8),
 		vec4(0.2, 0.2, 0.7, 0.8)
@@ -182,8 +176,6 @@ window.onload = function() {
 		vec4(0.9, 0.9, 0.9, 1.0),
 		vec4(0.9, 0.9, 0.9, 1.0)
 	);
-
-
     
 	var water = new Cube(waterMaterial, null, true, false);
 	water.position = vec3(islandSize/2, 0.0, islandSize/2);
@@ -200,8 +192,8 @@ window.onload = function() {
 	{
         for(var z=1; z<quarterSize; z+=2)
         {
-            var kXZ = 2.0 * (Math.random() + 1.5);
-            var kY = 1.5 * (Math.random() * 0.3 +1.0);
+            var kXZ = 2.5 * (Math.random() + 1.5);
+            var kY = 4.0 * (Math.random() * 0.3 +1.0);
             var age = Math.random();
             var rand = Math.random();
             if(heights[x][z]>0.21 && rand<=0.04 && (x < 49 || x > 51 || z < 29 || z > 31)) {
@@ -240,23 +232,25 @@ window.onload = function() {
     setTimeout(function() {
         // Attach our keyboard listener to the canvas
         cutscene=true;
-    }, 3000);
+    }, 2000);
     
     setTimeout(function() {
-        // Attach our keyboard listener to the canvas
+        // Attach our keyboard and mouse listeners to the canvas
+	pointerLock(canvas, function(x, y) {
+		player.camera.yawBy(-x * mouseSensitivity);
+		player.camera.pitchBy(-y * mouseSensitivity);
+	}, null);
+
         var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
         var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
         window.addEventListener('keydown', playerHandleKeyDown);
         window.addEventListener('keyup', playerHandleKeyUp);
-    }, 6000);
+    }, 2500);
 }
 
 
 // Draws the data in the vertex buffer on the canvas repeatedly
 function draw() {
-
-    
-    
 	var skyColor = sun.skyColor;
 	gl.clearColor(skyColor[0], skyColor[1], skyColor[2], 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
