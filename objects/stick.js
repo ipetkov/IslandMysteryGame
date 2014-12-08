@@ -25,6 +25,7 @@ var Stick = (function() {
 		this.sidebranch.position = add(position, vec3(0.15, 0, -0.05));
 		this.sidebranch.scale = vec3(0.15, 0.05, 0.05);
 		this.sidebranch.yaw = 40.0;
+		this.tree = null;
 
 		sticks.push(this);
 	}
@@ -57,4 +58,19 @@ Stick.prototype.draw = function(dt, mat) {
 //	rotMat = mult(rotMat, translate(-x_dis, 0.0, 0.0)); 
 
 	this.sidebranch.draw(dt, rotMat);
+}
+
+Stick.prototype.checkCollision = function(pos, radius) {
+	var stickRadius = this.mainbody.scale[0] * 1.5;
+
+	var dist = subtract(pos, this.mainbody.position);
+	var distSq = 0;
+	dist.forEach(function(d) {
+		distSq += d*d;
+	});
+
+	var radiusSq = radius + stickRadius;
+	radiusSq *= radiusSq;
+
+	return distSq <= radiusSq;
 }

@@ -64,7 +64,7 @@ var Tree = (function() {
 	return constructor;
 })();
 
-Tree.prototype.checkCollide = function(pos, otherRadius) {
+Tree.prototype.checkCollision = function(pos, otherRadius) {
 	var treeRadius = 0.17 * this.radius;
 	var treeHeight = 4 * this.height;
 
@@ -130,4 +130,5 @@ Tree.prototype.addStick = function() {
 
 	var roll = Math.floor((Math.random() * 90) - 45);
 	this.stick = new Stick(add(this.position, pos), yaw, 0, roll);
+	this.stick.tree = this;
 }

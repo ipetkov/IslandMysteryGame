@@ -21,6 +21,8 @@ var uniformEnableLighting  = 'enableLighting';
 var uniformUniformLighting = 'uniformLighting';
 var uniformEnableBumping   = 'enableBumping';
 
+var stickCountId = 'stickCount';
+
 var shapes = [];
 var bumpCube;
 var sun;

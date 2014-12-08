@@ -34,6 +34,7 @@ function Player(glCanvas, pos, speed) {
 
 		var newPos = add(thisPos, vec3(xV, yV, zV));
 		var trees = Tree.getTrees();
+		var sticks = Stick.getSticks();
 
 		var rad = radians(this.camera.yaw());
 		var sin = Math.sin(rad);
@@ -46,7 +47,7 @@ function Player(glCanvas, pos, speed) {
 		);
 
 		for(var i = 0; i < trees.length; i++) {
-			if(trees[i].checkCollide(newPos, this.movementSpeed)) {
+			if(trees[i].checkCollision(newPos, this.movementSpeed)) {
 				var d = dot(subtract(trees[i].position, thisPos), heading);
 				if(d > 0) {
 					continue;
@@ -54,6 +55,18 @@ function Player(glCanvas, pos, speed) {
 
 				zV = 0;
 				xV = 0;
+				break;
+			}
+		}
+
+		for(var i = 0; i < sticks.length; i++) {
+			if(sticks[i].checkCollision(newPos, this.movementSpeed)) {
+				var s = sticks[i];
+				this.sticks.push(s);
+				s.tree.stick = null;
+				sticks.splice(i, 1);
+				document.getElementById(stickCountId).textContent = 'Sticks: ' + this.sticks.length;
+
 				break;
 			}
 		}
