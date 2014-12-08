@@ -25,9 +25,38 @@ function Player(glCanvas, pos, speed) {
 
 	this.move = function()
 	{
+		var thisPos = this.position();
 		var xV = this.rightVelocity - this.leftVelocity;
 		var yV = this.yVelocity;
 		var zV = this.forwardVelocity - this.backVelocity;
+
+		var newPos = add(thisPos, vec3(xV, yV, zV));
+		var trees = Tree.getTrees();
+
+		var rad = radians(this.camera.yaw());
+		var sin = Math.sin(rad);
+		var cos = Math.cos(rad);
+
+		var heading = vec3(
+			(zV * sin) - (xV * cos),
+			0,
+			(zV * cos) + (xV * sin)
+		);
+
+		//console.log(heading[0], heading[1], heading[2]);
+
+		for(var i = 0; i < trees.length; i++) {
+			if(trees[i].checkCollide(newPos, this.movementSpeed)) {
+				var d = dot(subtract(trees[i].position, thisPos), heading);
+				if(d > 0) {
+					continue;
+				}
+
+				zV = 0;
+				xV = 0;
+				break;
+			}
+		}
 
 		// Adjust velocities and lean based on player's state
 		if (this.isAirborne)
@@ -65,9 +94,11 @@ function Player(glCanvas, pos, speed) {
 		}
 
 		this.camera.setLean(this.leanAngle);
-		this.camera.moveBy(	xV, yV, zV );
-		var terrainHeight = heightOf(this.position()[0], this.position()[2]);
-		if ((this.position())[1] > terrainHeight)
+
+		this.camera.moveBy(xV, yV, zV );
+		thisPos = this.position();
+		var terrainHeight = heightOf(thisPos[0], thisPos[2]);
+		if (thisPos[1] > terrainHeight)
 		{
 			this.isAirborne = true;
 			this.yVelocity += this.yAcceleration;
@@ -76,7 +107,7 @@ function Player(glCanvas, pos, speed) {
 		}
 		else
 		{
-			this.camera.moveBy(0.0, terrainHeight - this.position()[1], 0.0);
+			this.camera.moveBy(0.0, terrainHeight - thisPos[1], 0.0);
 			this.isAirborne = false;
 			this.yVelocity = 0.0;
 		}

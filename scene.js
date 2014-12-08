@@ -173,7 +173,7 @@ window.onload = function() {
 		var age = Math.random();
 		shapes.push(new Tree(
 			vec3(posX, 0.0, posZ),
-			vec3(kXZ, kY, kXZ),
+			kXZ, kY,
 			age
 		));
 	}
@@ -209,6 +209,7 @@ function draw() {
 	var dt = timer.getElapsedTime();
 
 	sun.draw(dt);  // This will set our light position and material
+	Tree.drawTrees(dt);
 
 	shapes.forEach(function(e) {
 		dt += timer.getElapsedTime();

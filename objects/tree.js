@@ -1,4 +1,5 @@
 var Tree = (function() {
+	var trees = [];
 	var groundMaterial = new Material(
 		vec4(0.8, 0.9, 0.5, 1.0),
 		vec4(0.8, 0.7, 0.7, 1.0)
@@ -13,7 +14,7 @@ var Tree = (function() {
 	var foliageTex = null;
 	var barkBumpMap = null;
 
-	function constructor(position, scale, age)
+	function constructor(position, radius, height, age)
 	{
 		if(!barkTex) {
 			barkTex = new Texture.fromImageSrc('./images/treebark.jpg');
@@ -33,24 +34,55 @@ var Tree = (function() {
 		);
 
 		this.position = position;
-		this.scale    = scale;
+		this.radius   = radius;
+		this.height   = height;
 
 		this.trunk         = new HexagonalPrism(trunkMaterial, null, barkBumpMap);
 		this.foliageTop    = new HexagonalPyramid(foliageMaterial, foliageTex, null);
 		this.foliageMiddle = new HexagonalPrism(foliageMaterial, foliageTex, null);
 		this.foliageBottom = new HexagonalPyramid(foliageMaterial, foliageTex, null);
 
+		trees.push(this);
+	}
+
+	constructor.getTrees = function() {
+		return trees;
+	}
+
+	constructor.drawTrees = function(dt) {
+		var identMat = mat4();
+		trees.forEach(function(e) {
+			e.draw(dt, mat4());
+		});
 	}
 
 	return constructor;
 })();
 
+Tree.prototype.checkCollide = function(pos, otherRadius) {
+	var treeRadius = 0.17 * this.radius;
+	var treeHeight = 4 * this.height;
+
+	if(pos[1] > treeHeight) {
+		return false;
+	}
+
+	var dist = subtract(pos, this.trunk.position);
+
+	// Ignore y-component, approximate using cylinder
+	var distSq = (dist[0] * dist[0]) + (dist[2] * dist[2]);
+	var radiusSq = otherRadius + treeRadius;
+	radiusSq *= radiusSq;
+
+	return distSq <= radiusSq;
+}
+
 Tree.prototype.draw = function(dt, mat) {
 	var pos = this.position;
 
-	var kX = this.scale[0];
-	var kY = this.scale[1];
-	var kZ = this.scale[2];
+	var kX = this.radius;
+	var kY = this.height;
+	var kZ = this.radius;
 
 	this.trunk.position = pos;
 	this.trunk.scale = vec3(kX * 0.15, 2.0 * kY, kZ * 0.15);
