@@ -150,7 +150,7 @@ window.onload = function() {
 
 	shapes = [ground, sun];
 
-	for (var i = 0; i < 0; i++)
+	for (var i = 0; i < 3; i++)
 	{
 		var posX = Math.random() * 10.0 - 5.0;
 		var posZ = Math.random() * 10.0 - 5.0;
@@ -164,10 +164,6 @@ window.onload = function() {
 		));
 	}
 
-	var fireTex = new Texture.fromImageSrc('./images/fire.jpg', gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
-
-//	var newplane = new Plane(null, fireTex);
-//	shapes.push(newplane);
 	var fire = new Campfire(vec3(5.0, 0.0, 5.0));
 	shapes.push(fire);
 
