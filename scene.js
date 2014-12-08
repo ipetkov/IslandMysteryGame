@@ -8,6 +8,7 @@ var fragmentSourceId = 'shader-fragment';
 var attrPosition           = 'vPosition';
 var attrNormal             = 'vNormal';
 var attrTexCoord           = 'texCoord';
+var attrTangent            = 'objTangent';
 var uniformModelMatrix     = 'modelMatrix';
 var uniformProjViewMatrix  = 'projViewMatrix';
 var uniformAmbientProduct  = 'ambientProduct';
@@ -15,6 +16,7 @@ var uniformDiffuseProduct  = 'diffuseProduct';
 var uniformNormalMat       = 'normalMat';
 var uniformLightPosition   = 'lightPosition';
 var uniformTexSampler      = 'uSampler';
+var uniformBumpTexSampler  = 'nSampler';
 var uniformEnableLighting  = 'enableLighting';
 
 var shapes = [];
@@ -63,6 +65,10 @@ var glHelper = (function() {
 		setAttrib(attrNormal, vbo);
 	}
 
+	helper.setTangentAttrib = function(vbo) {
+		setAttrib(attrTangent, vbo);
+	}
+
 	helper.setTexCoordAttrib = function(vbo) {
 		var loc = gl.getAttribLocation(program, attrTexCoord);
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
@@ -84,6 +90,11 @@ var glHelper = (function() {
 
 	helper.setTexSampler = function(arg) {
 		var loc = gl.getUniformLocation(program, uniformTexSampler);
+		gl.uniform1i(loc, arg);
+	}
+	
+	helper.setBumpTexSampler = function(arg) {
+		var loc = gl.getUniformLocation(program, uniformBumpTexSampler);
 		gl.uniform1i(loc, arg);
 	}
 
@@ -130,13 +141,14 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(quarterSize+10, 0.0, -quarterSize+10), moveUnit);
-    player.camera.yawBy(135);
+	player = new Player(canvas, vec3(10.0, 0.0, -10.0), moveUnit);
+    player.camera.yawBy(-45);
 
 	pointerLock(canvas, function(x, y) {
 		player.camera.yawBy(-x * mouseSensitivity);
 		player.camera.pitchBy(-y * mouseSensitivity);
 	}, null);
+
 
 	var waterMaterial = new Material(
 		vec4(0.2, 0.2, 0.5, 0.8),
@@ -145,37 +157,51 @@ window.onload = function() {
 
     
 	var water = new Cube(waterMaterial, null, true, false);
-	water.position = vec3(islandSize/2, -0.01, islandSize/2);
-	water.scale = vec3(islandSize+50, 0.1, islandSize+50);
+	water.position = vec3(islandSize/2, 0.0, islandSize/2);
+	water.scale = vec3(islandSize*2, 0.1, islandSize*2);
     
     var theIsland = new Island();
 
-	sun = new Sun(100, 1/dayDuration);
+	sun = new Sun(300, 1/dayDuration);
 
 	rock = new Rock(vec3(50.0, 5.0, 50.0), 0.3);
 	rock.physical.accelerate(vec3(0.0, 0.5, 0.0));
 
 	shapes = [water, theIsland, sun, rock];
 
-	for (var i = 0; i < 3; i++)
+    
+	for (var x=1; x<quarterSize; x+=5)
 	{
-		var posX = Math.random() * 10.0 - 5.0;
-		var posZ = Math.random() * 10.0 - 5.0;
-		var kXZ = 2.5 * (Math.random() + 1.5);
-		var kY = 4.0 * (Math.random() * 0.3 + 1.0);
-		var age = Math.random();
-		shapes.push(new Tree(
-			vec3(posX, 0.0, posZ),
-			vec3(kXZ, kY, kXZ),
-			age
-		));
+        for(var z=1; z<quarterSize; z+=5)
+        {
+            var kXZ = 2.5 * (Math.random() + 1.5);
+            var kY = 4.0 * (Math.random() * 0.3 + 1.0);
+            var age = Math.random();
+            var rand = Math.random();
+            if(heights[x][z]>0.21 && rand<=0.09) {
+                shapes.push(new Tree(
+                    vec3(x, heights[x][z]-0.5, z),
+		    kXZ, kY,
+                    age));
+            }
+        }
 	}
+
+	var bumpMap = new Texture.fromImageSrc('./images/balls.png',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
+	var newcube = new Cube(null, null, true, false, bumpMap);
+	newcube.position = vec3(1.0, 1.0, 0.0);
+	shapes.push(newcube);
 
 	// Attach our keyboard listener to the canvas
 	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
 	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
+	var playerHandleMouseDown = function(){ return player.handleMouseDown(); }
+	var playerHandleMouseUp = function(){ return player.handleMouseUp(); }
+	
 	window.addEventListener('keydown', playerHandleKeyDown);
 	window.addEventListener('keyup', playerHandleKeyUp);
+	window.addEventListener('mousedown', playerHandleMouseDown);
+	window.addEventListener('mouseup', playerHandleMouseUp);
 
 
 	// Set off the draw loop
@@ -198,6 +224,7 @@ function draw() {
 	var dt = timer.getElapsedTime();
 
 	sun.draw(dt);  // This will set our light position and material
+	Tree.drawTrees(dt);
 
 	shapes.forEach(function(e) {
 		dt += timer.getElapsedTime();

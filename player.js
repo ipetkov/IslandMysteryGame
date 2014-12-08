@@ -1,3 +1,5 @@
+"use strict";
+
 function Player(glCanvas, pos, speed) {
 	this.camera = new Camera(glCanvas);
 	this.camera.moveBy(pos[0], pos[1], pos[2]);
@@ -30,7 +32,6 @@ function Player(glCanvas, pos, speed) {
 		var testHeight = heightOf(this.position()[0], this.position()[2]);
 		this.camera.moveBy(-testX, -testY, -testZ);
 		
-		//EDIT to accomodate collision?
 		return (testHeight - curHeight <= 0.2);
 	}
 
@@ -42,6 +43,32 @@ function Player(glCanvas, pos, speed) {
 		var xV = this.rightVelocity - this.leftVelocity;
 		var yV = this.physical.velocity()[1];
 		var zV = this.forwardVelocity - this.backVelocity;
+
+		var newPos = add(startPosition, vec3(xV, yV, zV));
+		var trees = Tree.getTrees();
+
+		var rad = radians(this.camera.yaw());
+		var sin = Math.sin(rad);
+		var cos = Math.cos(rad);
+
+		var heading = vec3(
+			(zV * sin) - (xV * cos),
+			0,
+			(zV * cos) + (xV * sin)
+		);
+
+		for(var i = 0; i < trees.length; i++) {
+			if(trees[i].checkCollide(newPos, this.movementSpeed)) {
+				var d = dot(subtract(trees[i].position, startPosition), heading);
+				if(d > 0) {
+					continue;
+				}
+
+				zV = 0;
+				xV = 0;
+				break;
+			}
+		}
 
 		// Adjust velocities and lean based on player's state
 		if (this.physical.isAirborne())
@@ -134,10 +161,11 @@ function Player(glCanvas, pos, speed) {
 	this.crosshairs = [top, bottom, left, right];
 
 	var orthoMat = ortho( -.5,  .5, -.5, .5, -.5, .5);
+	var identMat = mat4();
 	var leftTex  = new Texture.fromImageSrc('./images/arm-left.png',  gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
 	var rightTex = new Texture.fromImageSrc('./images/arm-right.png', gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
 
-	this.leftArm          = new Cube(null, leftTex, false, false);
+	this.leftArm          = new Cube(null, leftTex, false, false, null);
 	this.leftArm.scale    = vec3(0.0625, 0.75, 0.0625);
 	this.leftArm.position = vec3(-0.35, -0.45, 0);
 	this.leftArm.pitch    = -70;
@@ -151,7 +179,7 @@ function Player(glCanvas, pos, speed) {
 		glHelper.enableLighting(true);
 	}
 
-	this.rightArm              = new Cube(null, rightTex, false, false);
+	this.rightArm              = new Cube(null, rightTex, false, false, false);
 	this.rightArm.scale        = this.leftArm.scale;
 	this.rightArm.position     = scaleVec(-1, this.leftArm.position);
 	this.rightArm.position[1] *= -1;
@@ -252,4 +280,31 @@ Player.prototype.handleKeyUp = function(e) {
 			break;
     }
 }
+
+Player.prototype.handleMouseDown = function() {
+	
+}
+
+Player.prototype.handleMouseUp = function() {
+	rock.figure.position = this.position();
+	rock.figure.position[1] += 1.0;
+
+	var yaw = radians(this.camera.yaw());
+	var pitch = radians(this.camera.pitch());
+	var armPower = 0.5;
+
+
+	rock.physical.setVelocity(vec3(
+		armPower * Math.sin(-yaw) * Math.cos(-pitch),
+		armPower * Math.sin(-pitch),
+		armPower * -Math.cos(-yaw) * Math.cos(-pitch)
+		));
+}
+
+
+
+
+
+
+
 

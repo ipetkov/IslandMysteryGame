@@ -12,9 +12,11 @@ var Physical = (function()
 		this.impactVelocity = 0.0;
 
 		this.velocity = function() { return m_velocity; }
-		this.setYVelocity = function(newYVelocity)
+		this.setVelocity = function(newVelocity)
 		{
-			m_velocity[1] = newYVelocity;
+			m_velocity[0] = newVelocity[0];
+			m_velocity[1] = newVelocity[1];
+			m_velocity[2] = newVelocity[2];
 		}
 		this.accelerate = function(acceleration)
 		{

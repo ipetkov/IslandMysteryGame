@@ -30,7 +30,7 @@ function Sun(distFromOrigin, omega) {
 
 	this.skyColor = this.daySky;
 
-	this.sun = new Sphere(new Material(vec4(1.0, 1.0, 0.0, 1.0), vec4(1.0, 1.0, 0.0, 1.0)), null, true);
+	this.sun = new Sphere(new Material(vec4(1.0, 1.0, 0.0, 1.0), vec4(1.0, 1.0, 0.0, 1.0)), null, true, null);
 	this.sun.radius = 4;
 
 	var moonTex = new Texture.fromImageSrc(
@@ -39,7 +39,7 @@ function Sun(distFromOrigin, omega) {
 		gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR
 	);
 
-	this.moon = new Sphere(new Material(vec4(0.3, 0.3, 0.3, 1.0), vec4(0.65, 0.65, 0.65, 1.0)), moonTex, false);
+	this.moon = new Sphere(new Material(vec4(0.3, 0.3, 0.3, 1.0), vec4(0.65, 0.65, 0.65, 1.0)), moonTex, false, null);
 	this.moon.radius = 7;
 }
 
@@ -67,7 +67,7 @@ Sun.prototype.draw = function(dt) {
 	// jumping in/out when it is around the horizon.
 	if(this.angle > 180 - epsilon || this.angle < epsilon ) {
 		// Sun's light position already set
-		this.moon.position = vec3(-posCos, -posSin, 0);
+		this.moon.position = vec3(-posCos * 0.75, -posSin * 0.75, 0);
 		this.moon.draw(dt, mat4());
 	}
 
