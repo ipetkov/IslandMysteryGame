@@ -1,6 +1,6 @@
 "use strict"
 
-var islandSize = 150;
+var islandSize = 100;
 var tempSize = islandSize;
 var quarterSize = Math.trunc(islandSize*.5);
 var heights = [];

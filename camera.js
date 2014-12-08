@@ -62,6 +62,10 @@ function Camera(glCanvas) {
 	this.rollBy = function(angle) {
 		roll = (roll - angle) % 360;
 	}
+    
+    this.getRoll = function() {
+        return roll;
+    }
 
 	this.getProjViewMatrix = function() {
 		var hwRatio = canvas.height / canvas.width;

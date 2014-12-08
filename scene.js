@@ -30,6 +30,8 @@ var player;
 
 var timer = new Timer();
 
+var cutscene=false;
+
 // Steps in for moving camera
 var rotateDegree = 1;
 var moveUnit = 0.125;
@@ -140,8 +142,9 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(8, 0.0, -islandSize+10), moveUnit);
+	player = new Player(canvas, vec3(quarterSize, 0, -quarterSize+20), moveUnit);
     player.camera.yawBy(-45);
+    player.camera.rollBy(-80);
 
 	pointerLock(canvas, function(x, y) {
 		player.camera.yawBy(-x * mouseSensitivity);
@@ -157,7 +160,7 @@ window.onload = function() {
     
 	var water = new Cube(waterMaterial, null, true, false);
 	water.position = vec3(islandSize/2, 0.0, islandSize/2);
-	water.scale = vec3(islandSize*2, 0.1, islandSize*2);
+	water.scale = vec3(islandSize*10, 0.1, islandSize*10);
     
     var theIsland = new Island();
 
@@ -170,11 +173,11 @@ window.onload = function() {
 	{
         for(var z=1; z<quarterSize; z+=5)
         {
-            var kXZ = 2.5 * (Math.random() + 1.5);
-            var kY = 4.0 * (Math.random() * 0.3 + 1.0);
+            var kXZ = 2.0 * (Math.random() + 1.5);
+            var kY = 1.5 * (Math.random() * 0.3 +1.0);
             var age = Math.random();
             var rand = Math.random();
-            if(heights[x][z]>0.21 && rand<=0.09) {
+            if(heights[x][z]>0.21 && rand<=0.15) {
                 shapes.push(new Tree(
                     vec3(x, heights[x][z]-0.5, z),
                     vec3(kXZ, kY, kXZ),
@@ -187,20 +190,30 @@ window.onload = function() {
 	var newcube = new Cube(null, null, true, false, bumpMap);
 	newcube.position = vec3(1.0, 1.0, 0.0);
 	shapes.push(newcube);
-
-	// Attach our keyboard listener to the canvas
-	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
-	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
-	window.addEventListener('keydown', playerHandleKeyDown);
-	window.addEventListener('keyup', playerHandleKeyUp);
-
+    
 	// Set off the draw loop
 	draw();
+    
+    setTimeout(function() {
+        // Attach our keyboard listener to the canvas
+        cutscene=true;
+    }, 3000);
+    
+    setTimeout(function() {
+        // Attach our keyboard listener to the canvas
+        var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
+        var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
+        window.addEventListener('keydown', playerHandleKeyDown);
+        window.addEventListener('keyup', playerHandleKeyUp);
+    }, 6000);
 }
 
 
 // Draws the data in the vertex buffer on the canvas repeatedly
 function draw() {
+
+    
+    
 	var skyColor = sun.skyColor;
 	gl.clearColor(skyColor[0], skyColor[1], skyColor[2], 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -219,7 +232,12 @@ function draw() {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
-
+    
 	player.draw(); // This will draw the crosshairs and arms on the screen
+    if(cutscene) {
+        if(player.camera.getRoll()!=0) {
+            player.camera.rollBy(1);
+        }
+    }
 	window.requestAnimFrame(draw);
 }
