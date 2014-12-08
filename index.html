@@ -6,6 +6,9 @@
 		<script type="text/javascript" src="MV.js"></script>
 		<script type="text/javascript" src="webgl-utils.js"></script>
 		<script type="text/javascript" src="initShaders.js"></script>
+        <script type="text/javascript" src="island/heightMap.js"></script>
+        <script type="text/javascript" src="island/mountain.js"></script>
+        <script type="text/javascript" src="island/bay.js"></script>
 		<script type="text/javascript" src="camera.js"></script>
 		<script type="text/javascript" src="map.js"></script>
 		<script type="text/javascript" src="player.js"></script>
@@ -14,12 +17,16 @@
 		<script type="text/javascript" src="shapes/cube.js"></script>
 		<script type="text/javascript" src="shapes/multiTexCube.js"></script>
 		<script type="text/javascript" src="shapes/sphere.js"></script>
+		<script type="text/javascript" src="shapes/plane.js"></script>
 		<script type="text/javascript" src="sky.js"></script>
 		<script type="text/javascript" src="shapes/hexagonalPrism.js"></script>
 		<script type="text/javascript" src="shapes/hexagonalPyramid.js"></script>
 		<script type="text/javascript" src="objects/tree.js"></script>
 		<script type="text/javascript" src="objects/rock.js"></script>
+		<script type="text/javascript" src="objects/stick.js"></script>
+		<script type="text/javascript" src="objects/campfire.js"></script>
 		<script type="text/javascript" src="objects/paperTree.js"></script>
+		<script type="text/javascript" src="island/island.js"></script>
 
 		<script type="text/javascript" src="scene.js"></script>
 
@@ -29,16 +36,19 @@
 			// Position attributes and uniforms
 			attribute vec3 vPosition;
 			attribute vec3 vNormal;
+			attribute vec3 objTangent;
 			attribute vec2 texCoord;
 			uniform mat4 modelMatrix;
 			uniform mat4 projViewMatrix;
 			uniform mat4 normalMat;
 
 			uniform vec3 lightPosition;
+			uniform int enableBumping;
 
 			varying vec2 fUV;
-			varying vec3 N, L, E;
+			varying vec3 N, L, posToLight;
 			void main() {
+
 				// Make sure our w components are set properly
 				vec4 pos  = vec4(vPosition, 1.0);
 				vec4 norm = vec4(vNormal, 0.0);
@@ -47,10 +57,32 @@
 				vec3 normalInWorld = (normalMat * norm).xyz;
 				vec3 lightInWorld  = lightPosition; // Light already in world coordinates
 
-				// We ignore specular highlights
+				posToLight = normalize(lightInWorld - posInWorld);
 				N = normalize(normalInWorld);
-				L = normalize(lightInWorld - posInWorld);
-				E = normalize(-posInWorld);
+				L = vec3(0.0, 0.0, 0.0);
+
+
+			if(enableBumping == 1){
+				vec4 tan  = vec4(objTangent, 0.0);
+
+				//Calculate the tangent space
+				vec3 T = normalize((normalMat * tan).xyz);
+				vec3 B = cross(N, T);
+
+				//convert the light vector into the tangent space
+				L.x = dot(T, posToLight);
+
+				//This switch is to fix the order of lighting on the top and bottom faces of
+				//the cube
+				if(norm.y == 1.0 || norm.y == -1.0) {
+					L.y = dot(B, posToLight);
+					L.z = dot(N, posToLight);}
+				else {
+					L.y = dot(N, posToLight);
+					L.z = dot(B, posToLight);}
+					
+				L = normalize(L);
+			}
 
 				fUV = texCoord;
 				gl_Position = projViewMatrix * vec4(posInWorld, 1.0);
@@ -63,25 +95,53 @@
 			uniform vec4 ambientProduct;
 			uniform vec4 diffuseProduct;
 			uniform sampler2D uSampler;
-			uniform int enableLighting;
+			uniform sampler2D nSampler;
 
-			varying vec3 N, L, E;
+			uniform int enableBumping;
+			uniform int enableLighting;
+			uniform int uniformLighting;
+
+			varying vec3 N, L, posToLight;
 			varying vec2 fUV;
 			void main() {
-				float Kd = max(dot(L, N), 0.0);
 
-				vec4 ambient  = ambientProduct;
-				vec4 diffuse  = Kd * diffuseProduct;
+				// We ignore specular highlights
+				float Kd = 0.0;
 
-				vec4 fColor;
-
-				fColor = ambient + diffuse;
-				fColor.a = 1.0;
-
-				if(enableLighting == 0) {
-					fColor = (0.25 * ambient) + (0.75 * diffuseProduct);
+				if(enableBumping == 1){
+					vec3 bumpNormal = 2.0*(texture2D(nSampler, fUV)).xyz-vec3(1.0, 1.0, 1.0);
+					bumpNormal = bumpNormal + vec3(0.0, 1.0, 0.0);
+					
+					float max_tex_dot = max(dot(L, bumpNormal), 0.0);
+					float NL_dot = dot(N, posToLight);
+					//if the light source can be seen by the face bump map normally
+					if(NL_dot > -0.1) 
+						Kd = max_tex_dot;
+					//in the transition between when light can be seen by the face and not, use a 
+					//linear smoother so the transition is not abrupt
+					else if (NL_dot > -0.2){
+						float lin_smoother = 1.0 + (NL_dot + 0.1)/0.1;
+						Kd = max_tex_dot * lin_smoother;}
 				}
+				else{
+					Kd = max(dot(N, posToLight), 0.0);
+				}
+				
+			vec4 fColor;
 
+				if(enableLighting == 0)
+					fColor = vec4(1.0, 1.0, 1.0, 1.0);
+				else{
+					vec4 ambient  = ambientProduct;
+					vec4 diffuse  =  Kd * diffuseProduct;
+	
+					fColor = ambient + diffuse;
+					fColor.a = 1.0;
+	
+					if(uniformLighting == 0) {
+						fColor = (0.25 * ambient) + (0.75 * diffuseProduct);
+					}
+				}
 				gl_FragColor = fColor * texture2D(uSampler, fUV);
 			}
 		</script>
@@ -113,6 +173,7 @@
 				<li>Look around with <strong>the mouse</strong></li>
 				<li>Run by holding <strong>SHIFT</strong> while moving forward</li>
 			</ul>
+			<p id="test"></p>
 		</div>
 	</body>
 </html>

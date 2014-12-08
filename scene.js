@@ -8,6 +8,7 @@ var fragmentSourceId = 'shader-fragment';
 var attrPosition           = 'vPosition';
 var attrNormal             = 'vNormal';
 var attrTexCoord           = 'texCoord';
+var attrTangent            = 'objTangent';
 var uniformModelMatrix     = 'modelMatrix';
 var uniformProjViewMatrix  = 'projViewMatrix';
 var uniformAmbientProduct  = 'ambientProduct';
@@ -15,9 +16,16 @@ var uniformDiffuseProduct  = 'diffuseProduct';
 var uniformNormalMat       = 'normalMat';
 var uniformLightPosition   = 'lightPosition';
 var uniformTexSampler      = 'uSampler';
+var uniformBumpTexSampler  = 'nSampler';
 var uniformEnableLighting  = 'enableLighting';
+var uniformUniformLighting = 'uniformLighting';
+var uniformEnableBumping   = 'enableBumping';
+
 
 var shapes = [];
+var rocks = [];
+var fire;
+var bumpCube;
 var sun;
 
 var gl;	     // WebGL object for the canvas
@@ -62,6 +70,10 @@ var glHelper = (function() {
 		setAttrib(attrNormal, vbo);
 	}
 
+	helper.setTangentAttrib = function(vbo) {
+		setAttrib(attrTangent, vbo);
+	}
+
 	helper.setTexCoordAttrib = function(vbo) {
 		var loc = gl.getAttribLocation(program, attrTexCoord);
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
@@ -85,9 +97,26 @@ var glHelper = (function() {
 		var loc = gl.getUniformLocation(program, uniformTexSampler);
 		gl.uniform1i(loc, arg);
 	}
+	
+	helper.setBumpTexSampler = function(arg) {
+		var loc = gl.getUniformLocation(program, uniformBumpTexSampler);
+		gl.uniform1i(loc, arg);
+	}
 
+	helper.uniformLighting = function(arg) {
+		var loc = gl.getUniformLocation(program, uniformUniformLighting);
+		gl.uniform1i(loc, (arg ? 1 : 0));
+	}
+
+	//enable lighting will only work as expected when the object has a texture
+	//it is intended only for the fire so that it is always full lit.
 	helper.enableLighting = function(arg) {
 		var loc = gl.getUniformLocation(program, uniformEnableLighting);
+		gl.uniform1i(loc, (arg ? 1 : 0));
+	}
+
+	helper.enableBumping = function(arg) {
+		var loc = gl.getUniformLocation(program, uniformEnableBumping);
 		gl.uniform1i(loc, (arg ? 1 : 0));
 	}
 
@@ -129,7 +158,8 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(0.0, 0.0, 0.0), moveUnit);
+	player = new Player(canvas, vec3(50, 0.0, -30), moveUnit);
+    player.camera.yawBy(-45);
 
 	pointerLock(canvas, function(x, y) {
 		player.camera.yawBy(-x * mouseSensitivity);
@@ -137,9 +167,9 @@ window.onload = function() {
 	}, null);
 
 
-	var groundMaterial = new Material(
-		vec4(0.8, 0.9, 0.5, 1.0),
-		vec4(0.8, 0.7, 0.7, 1.0)
+	var waterMaterial = new Material(
+		vec4(0.2, 0.2, 0.5, 0.8),
+		vec4(0.2, 0.2, 0.7, 0.8)
 	);
 
 	var rockMaterial = new Material(
@@ -147,33 +177,50 @@ window.onload = function() {
 		vec4(0.9, 0.9, 0.9, 1.0)
 	);
 
-	var ground = new Cube(groundMaterial, null, true, false);
-	ground.position = vec3(0.0, -0.1, 0.0);
-	ground.scale = vec3(150.0, 0.1, 150.0);
 
-	var rock = new Rock(rockMaterial, new Texture.fromImageSrc('./images/rock.jpg'), false, false);
-	rock.position = vec3(0.0, 0.0, 0.0);
-	rock.scale = vec3(2.0, 2.0, 2.0);
+    
+	var water = new Cube(waterMaterial, null, true, false);
+	water.position = vec3(islandSize/2, 0.0, islandSize/2);
+	water.scale = vec3(islandSize*2, 0.1, islandSize*2);
+    
+    var theIsland = new Island();
 
+	sun = new Sun(300, 1/dayDuration);
 
+	shapes = [water, theIsland];
 
-	sun = new Sun(100, 1/dayDuration);
-
-	shapes = [ground, rock, sun];
-
-	for (var i = 0; i < 3; i++)
+    
+	for (var x=1; x<quarterSize; x+=2)
 	{
-		var posX = Math.random() * 10.0 - 5.0;
-		var posZ = Math.random() * 10.0 - 5.0;
-		var kXZ = 2.5 * (Math.random() + 1.5);
-		var kY = 4.0 * (Math.random() * 0.3 + 1.0);
-		var age = Math.random();
-		shapes.push(new Tree(
-			vec3(posX, 0.0, posZ),
-			vec3(kXZ, kY, kXZ),
-			age
-		));
+        for(var z=1; z<quarterSize; z+=2)
+        {
+            var kXZ = 2.5 * (Math.random() + 1.5);
+            var kY = 4.0 * (Math.random() * 0.3 + 1.0);
+            var age = Math.random();
+            var rand = Math.random();
+            if(heights[x][z]>0.21 && rand<=0.04 && (x < 49 || x > 51 || z < 29 || z > 31)) {
+                new Tree(
+                    vec3(x, heights[x][z]-0.5, z),
+				    kXZ, kY,
+                    age);
+            }
+        }
 	}
+
+	//This object is created as a test object
+	var bumpMap = new Texture.fromImageSrc('./images/balls.png',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
+	bumpCube = new Cube(null, null, true, false, bumpMap);
+	bumpCube.position = vec3(20.0, 0.8, 70.0);
+
+	//create rocks in a circle to signify campsite
+	for(var i = 0; i < 10; i++){
+		rocks.push(new Rock(rockMaterial, new Texture.fromImageSrc('./images/rockTex.png'), gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST));
+		rocks[i].position = vec3(50.0 + Math.cos(i*Math.PI/5), heights[50][30] + 0.1, 30.0 + Math.sin(i*Math.PI/5));
+		rocks[i].scale = vec3(0.5, 0.5, 0.5);
+		}
+
+	fire = new Campfire(vec3(50.0, heights[50][30]+0.1, 30.0));
+	fire.numSticks = 0.0;
 
 	// Attach our keyboard listener to the canvas
 	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
@@ -193,7 +240,9 @@ function draw() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
 
+	glHelper.uniformLighting(true);
 	glHelper.enableLighting(true);
+	glHelper.enableBumping(false);
 	player.move(); // This will set our camera in the world
 	glHelper.setProjViewMatrix(player.camera.getProjViewMatrix());
 
@@ -201,11 +250,26 @@ function draw() {
 	var dt = timer.getElapsedTime();
 
 	sun.draw(dt);  // This will set our light position and material
+	Tree.drawTrees(dt);
+	
+	fire.draw(dt, identMat);
 
 	shapes.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
+
+	rocks.forEach(function(e) {
+		dt += timer.getElapsedTime();
+		e.draw(dt, identMat);
+	});
+
+//This commented cube draws a test cube that clearly shows the sucesfull
+//implemintation of bump mapping
+//	glHelper.enableBumping(true);
+//	dt += timer.getElapsedTime();
+//	bumpCube.draw(dt, identMat);
+//	glHelper.enableBumping(false);
 
 	player.draw(); // This will draw the crosshairs and arms on the screen
 	window.requestAnimFrame(draw);

@@ -14,15 +14,17 @@ function Material(ambient, diffuse) {
 }
 
 // FIXME: implement clipping
-function Shape(verticesBuffer, normalsBuffer, texCoordBufffer, elementBuffer, numVertices, material, texture) {
+function Shape(verticesBuffer, normalsBuffer, tangentBuffer, texCoordBufffer, elementBuffer, numVertices, material, texture, bumpTexture) {
 	this.vbo = verticesBuffer;
 	this.nbo = normalsBuffer;
 	this.tbo = texCoordBufffer;
 	this.ebo = elementBuffer;
+	this.tanbo = tangentBuffer;
 	this.numVertices = numVertices;
 
 	this.material = material || new Material();
 	this.texture  = texture || new Texture();
+	this.bumpTexture = bumpTexture || new Texture.defaultBump();
 	this.position = vec3(0.0, 0.0, 0.0);
 	this.scale    = vec3(1.0, 1.0, 1.0);
 	this.yaw      = 0;
@@ -46,15 +48,20 @@ Shape.prototype.draw = function(dt, mat) {
 	mat = mult(mat, this.getModelMatrix());
 	glHelper.setPositionAttrib(this.vbo);
 	glHelper.setNormalAttrib(this.nbo);
+	glHelper.setTangentAttrib(this.tanbo);
 	glHelper.setTexCoordAttrib(this.tbo);
 
 	// If this object has no elements buffer, the previously
 	// used buffer will be unbound, which is what we want.
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ebo);
 
-	gl.bindTexture(gl.TEXTURE_2D, this.texture);
 	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, this.texture);
 	glHelper.setTexSampler(0);
+
+	gl.activeTexture(gl.TEXTURE1);
+	gl.bindTexture(gl.TEXTURE_2D, this.bumpTexture);
+	glHelper.setBumpTexSampler(1);
 
 	glHelper.setModelMatrix(mat);
 

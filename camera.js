@@ -42,6 +42,10 @@ function Camera(glCanvas) {
 		position = add(position, translation);
 	};
 
+	this.yaw = function() {
+		return -yaw;
+	}
+
 	this.position = function()
 	{
 		return vec3(position[0], position[1], -position[2]);
@@ -67,15 +71,17 @@ function Camera(glCanvas) {
 		var hwRatio = canvas.height / canvas.width;
 		var fovy = 2 * Math.atan(hwRatio * Math.tan(radians(fovx) / 2));
 		var fovyDegree = fovy * 180 / Math.PI;
-		var proj = perspective(fovyDegree, canvas.width / canvas.height, .001, 500);
+		var proj = perspective(fovyDegree, canvas.width / canvas.height, .05, 500);
 		var leanRad = radians(lean);
 
+		// Set pitch
+		var orientation = rotate(pitch, vec3(1, 0, 0));
+
 		// Set lean
-		var orientation = translate(-Math.sin(leanRad), -Math.cos(leanRad), 0);
+		orientation = mult(orientation, translate(-Math.sin(leanRad), -Math.cos(leanRad), 0));
 
 		// Set heading
 		orientation = mult(orientation, rotate(roll,  vec3(0, 0, 1)));
-		orientation = mult(orientation, rotate(pitch, vec3(1, 0, 0)));
 		orientation = mult(orientation, rotate(yaw,   vec3(0, 1, 0)));
 
 		// Set position

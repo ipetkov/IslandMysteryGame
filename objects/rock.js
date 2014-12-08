@@ -12,6 +12,7 @@ var Rock = (function() {
 	var vbo = null;
 	var nbo = null;
 	var tbo = null;
+	var tanbo = null;
 	var invertedFlatNormalsBuffer = null;
 	var invertedVerticesBuffer = null;
 
@@ -75,6 +76,12 @@ var Rock = (function() {
 		flatNormals = flatNormals.concat(norm, norm, norm);
 	}
 
+	var tangents = [];
+	for (var i = 0; i < vertices.length; i += 1)
+	{
+		tangents.push(0.0);
+	}
+
 	var texCoordinates = [];
 	for (var i = 0; i < vertices.length; i += 9)
 	{
@@ -104,42 +111,18 @@ var Rock = (function() {
 		gl.bindBuffer(gl.ARRAY_BUFFER, tbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordinates), gl.STATIC_DRAW);
 
-		var invertedFlatNormals = flatNormals.map(function(p) {
-			return -p;
-		});
+		tanbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, tanbo);
+		gl.bufferData(gl.ARRAY_BUFFER, flatten(tangents), gl.STATIC_DRAW);
 
-		invertedFlatNormalsBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, invertedFlatNormalsBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, flatten(invertedFlatNormals), gl.STATIC_DRAW);
-
-		var invertedVertices = vertices.map(function(p) {
-			return -p;
-		});
-
-		invertedVerticesBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, invertedVerticesBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, flatten(invertedVertices), gl.STATIC_DRAW);
-	};
+		};
 
 	var constructor = function(material, texture, flatLighting, invertNormals) {
 		if(!vbo || !nbo || !tbo) {
 			initVertexData();
 		}
 
-		// For non-flat lighting, the cube's vertices are conveniently
-		// also its normal vectors, if we approximate it as a sphere.
-		var normalBuffer = vbo;
-		if(flatLighting && invertNormals) {
-			normalBuffer = invertedFlatNormalsBuffer;
-		} else if(flatLighting) {
-			normalBuffer = nbo;
-		} else if(invertNormals) {
-			normalBuffer = invertedVerticesBuffer;
-		} else {
-			normalBuffer = vbo;
-		}
-
-		Shape.call(this, vbo, normalBuffer, tbo, null, vertices.length / 3, material, texture);
+		Shape.call(this, vbo, nbo,tanbo, tbo, null, vertices.length / 3, material, texture);
 	};
 
 	return constructor;

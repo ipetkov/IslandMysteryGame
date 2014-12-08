@@ -25,9 +25,36 @@ function Player(glCanvas, pos, speed) {
 
 	this.move = function()
 	{
+		var thisPos = this.position();
 		var xV = this.rightVelocity - this.leftVelocity;
 		var yV = this.yVelocity;
 		var zV = this.forwardVelocity - this.backVelocity;
+
+		var newPos = add(thisPos, vec3(xV, yV, zV));
+		var trees = Tree.getTrees();
+
+		var rad = radians(this.camera.yaw());
+		var sin = Math.sin(rad);
+		var cos = Math.cos(rad);
+
+		var heading = vec3(
+			(zV * sin) - (xV * cos),
+			0,
+			(zV * cos) + (xV * sin)
+		);
+
+		for(var i = 0; i < trees.length; i++) {
+			if(trees[i].checkCollide(newPos, this.movementSpeed)) {
+				var d = dot(subtract(trees[i].position, thisPos), heading);
+				if(d > 0) {
+					continue;
+				}
+
+				zV = 0;
+				xV = 0;
+				break;
+			}
+		}
 
 		// Adjust velocities and lean based on player's state
 		if (this.isAirborne)
@@ -65,9 +92,11 @@ function Player(glCanvas, pos, speed) {
 		}
 
 		this.camera.setLean(this.leanAngle);
-		this.camera.moveBy(	xV, yV, zV );
-		var terrainHeight = heightOf(this.position()[0], this.position()[2]);
-		if ((this.position())[1] > terrainHeight)
+
+		this.camera.moveBy(xV, yV, zV );
+		thisPos = this.position();
+		var terrainHeight = heightOf(thisPos[0], thisPos[2]);
+		if (thisPos[1] > terrainHeight)
 		{
 			this.isAirborne = true;
 			this.yVelocity += this.yAcceleration;
@@ -76,7 +105,7 @@ function Player(glCanvas, pos, speed) {
 		}
 		else
 		{
-			this.camera.moveBy(0.0, terrainHeight - this.position()[1], 0.0);
+			this.camera.moveBy(0.0, terrainHeight - thisPos[1], 0.0);
 			this.isAirborne = false;
 			this.yVelocity = 0.0;
 		}
@@ -103,24 +132,25 @@ function Player(glCanvas, pos, speed) {
 	this.crosshairs = [top, bottom, left, right];
 
 	var orthoMat = ortho( -.5,  .5, -.5, .5, -.5, .5);
+	var identMat = mat4();
 	var leftTex  = new Texture.fromImageSrc('./images/arm-left.png',  gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
 	var rightTex = new Texture.fromImageSrc('./images/arm-right.png', gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
 
-	this.leftArm          = new Cube(null, leftTex, false, false);
+	this.leftArm          = new Cube(null, leftTex, false, false, null);
 	this.leftArm.scale    = vec3(0.0625, 0.75, 0.0625);
 	this.leftArm.position = vec3(-0.35, -0.45, 0);
 	this.leftArm.pitch    = -70;
 	this.leftArm.yaw      = -10;
 
 	this.leftArm.draw = function(dt, mat) {
-		glHelper.enableLighting(false);
+		glHelper.uniformLighting(false);
 		glHelper.setProjViewMatrix(orthoMat);
 		Cube.prototype.draw.call(this, dt, mat);
 		glHelper.setProjViewMatrix(player.camera.getProjViewMatrix()); // Reset the proj matrix
-		glHelper.enableLighting(true);
+		glHelper.uniformLighting(true);
 	}
 
-	this.rightArm              = new Cube(null, rightTex, false, false);
+	this.rightArm              = new Cube(null, rightTex, false, false, false);
 	this.rightArm.scale        = this.leftArm.scale;
 	this.rightArm.position     = scaleVec(-1, this.leftArm.position);
 	this.rightArm.position[1] *= -1;
@@ -186,6 +216,12 @@ Player.prototype.handleKeyDown = function(e) {
 			break;
 		case 16: // SHIFT - run
 			this.isRunning = true;
+			break;
+		case 84: //T - add a stick to the fire if you are at camp
+			var x = this.position()[0];
+			var z = this.position()[2];
+			if(x > 49 && x < 51 && z > 29 && z <31)
+				fire.addStick();
 			break;
 		case 32: // SPACE - jump
 			if (!this.isAirborne)
