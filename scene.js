@@ -140,13 +140,14 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(quarterSize+10, 0.0, -quarterSize+10), moveUnit);
-    player.camera.yawBy(135);
+	player = new Player(canvas, vec3(8, 0.0, -islandSize+10), moveUnit);
+    player.camera.yawBy(-45);
 
 	pointerLock(canvas, function(x, y) {
 		player.camera.yawBy(-x * mouseSensitivity);
 		player.camera.pitchBy(-y * mouseSensitivity);
 	}, null);
+
 
 	var waterMaterial = new Material(
 		vec4(0.2, 0.2, 0.5, 0.8),
@@ -155,8 +156,8 @@ window.onload = function() {
 
     
 	var water = new Cube(waterMaterial, null, true, false);
-	water.position = vec3(islandSize/2, -0.01, islandSize/2);
-	water.scale = vec3(islandSize+50, 0.1, islandSize+50);
+	water.position = vec3(islandSize/2, 0.0, islandSize/2);
+	water.scale = vec3(islandSize*2, 0.1, islandSize*2);
     
     var theIsland = new Island();
 
@@ -164,18 +165,22 @@ window.onload = function() {
 
 	shapes = [water, theIsland, sun];
 
-	for (var i = 0; i < 1; i++)
+    
+	for (var x=1; x<quarterSize; x+=5)
 	{
-		var posX = Math.random() * 10.0 - 5.0;
-		var posZ = Math.random() * 10.0 - 5.0;
-		var kXZ = 2.5 * (Math.random() + 1.5);
-		var kY = 4.0 * (Math.random() * 0.3 + 1.0);
-		var age = Math.random();
-		shapes.push(new Tree(
-			vec3(posX, 0.0, posZ),
-			kXZ, kY,
-			age
-		));
+        for(var z=1; z<quarterSize; z+=5)
+        {
+            var kXZ = 2.5 * (Math.random() + 1.5);
+            var kY = 4.0 * (Math.random() * 0.3 + 1.0);
+            var age = Math.random();
+            var rand = Math.random();
+            if(heights[x][z]>0.21 && rand<=0.09) {
+                shapes.push(new Tree(
+                    vec3(x, heights[x][z]-0.5, z),
+		    kXZ, kY,
+                    age));
+            }
+        }
 	}
 
 	var bumpMap = new Texture.fromImageSrc('./images/balls.png',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);

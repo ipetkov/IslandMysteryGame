@@ -62,9 +62,16 @@
 
 				//convert the light vector into the tangent space
 				L.x = dot(T, posToLight);
-				L.y = dot(N, posToLight);
-				L.z = dot(B, posToLight);
 
+				//This switch is to fix the order of lighting on the top and bottom faces of
+				//the cube
+				if(norm.y == 1.0 || norm.y == -1.0) {
+					L.y = dot(B, posToLight);
+					L.z = dot(N, posToLight);}
+				else {
+					L.y = dot(N, posToLight);
+					L.z = dot(B, posToLight);}
+					
 				L = normalize(L);
 
 				//by convention objTangent is set to (0.0, 0.0, 0.0) for surfaces
@@ -93,9 +100,21 @@
 
 				// We ignore specular highlights
 				float Kd = 0.0;
+				float max_tex_dot = max(dot(L, bumpNormal), 0.0);
+				float NL_dot = dot(N, posToLight);
 				//for surface we dont want to bumpmap we intentionally set L to the zero vector
-				if(dot(L, L) == 0.0 ) Kd = max(dot(N, posToLight), 0.0);
-				else Kd = max(dot(L, bumpNormal), 0.0);
+				if(dot(L, L) == 0.0) 
+					Kd = max(NL_dot, 0.0);
+				//if the light source can be seen by the face bump map normally
+				else if(NL_dot > -0.1) 
+					Kd = max_tex_dot;
+				//in the transition between when light can be seen by the face and not, use a 
+				//linear smoother so the transition is not abrupt
+				else if (NL_dot > -0.2){
+					float lin_smoother = 1.0 + (NL_dot + 0.1)/0.1;
+					Kd = max_tex_dot * lin_smoother;}
+				
+				
 
 				vec4 ambient  = ambientProduct;
 				vec4 diffuse  =  Kd * diffuseProduct;

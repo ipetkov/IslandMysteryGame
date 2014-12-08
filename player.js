@@ -43,8 +43,6 @@ function Player(glCanvas, pos, speed) {
 			(zV * cos) + (xV * sin)
 		);
 
-		//console.log(heading[0], heading[1], heading[2]);
-
 		for(var i = 0; i < trees.length; i++) {
 			if(trees[i].checkCollide(newPos, this.movementSpeed)) {
 				var d = dot(subtract(trees[i].position, thisPos), heading);
