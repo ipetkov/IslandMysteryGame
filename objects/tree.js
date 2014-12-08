@@ -58,7 +58,8 @@ var Tree = (function() {
 				glHelper.enableBumping(true);
 				e.draw(dt, mat4());
 				glHelper.enableBumping(false);}
-			e.draw(dt, mat4());
+			else
+				e.draw(dt, mat4());
 		});
 	}
 

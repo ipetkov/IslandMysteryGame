@@ -23,7 +23,6 @@ var uniformEnableBumping   = 'enableBumping';
 
 
 var shapes = [];
-var trees = [];
 var bumpCube;
 var sun;
 
@@ -192,10 +191,10 @@ window.onload = function() {
             var age = Math.random();
             var rand = Math.random();
             if(heights[x][z]>0.21 && rand<=0.09) {
-                trees.push(new Tree(
+                new Tree(
                     vec3(x, heights[x][z]-0.5, z),
 				    kXZ, kY,
-                    age));
+                    age);
             }
         }
 	}
