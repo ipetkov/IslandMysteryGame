@@ -19,6 +19,7 @@ var uniformEnableLighting  = 'enableLighting';
 
 var shapes = [];
 var sun;
+var rock;
 
 var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
@@ -151,7 +152,9 @@ window.onload = function() {
 
 	sun = new Sun(100, 1/dayDuration);
 
-	shapes = [water, theIsland, sun];
+	rock = new Rock(vec3(50.0, 30.0, 50.0), 1.0);
+
+	shapes = [water, theIsland, sun, rock];
 
 	for (var i = 0; i < 3; i++)
 	{
@@ -172,6 +175,7 @@ window.onload = function() {
 	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
 	window.addEventListener('keydown', playerHandleKeyDown);
 	window.addEventListener('keyup', playerHandleKeyUp);
+
 
 	// Set off the draw loop
 	draw();

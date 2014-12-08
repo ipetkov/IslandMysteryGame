@@ -1,10 +1,11 @@
-var Physical = function(position, velocity, acceleration, bounce, friction)
+var Physical = function(acceleration, bounce, friction, objectRadius)
 {
-	var m_velocity = velocity;
+	var m_velocity = vec3(0.0, 0.0, 0.0);
 	var m_acceleration = acceleration;
 	var m_bounce = bounce;
 	var m_friction = friction;
 	var m_isAirborne = false;
+	var m_radius = objectRadius;
 
 	this.impactVelocity = 0.0;
 
@@ -43,18 +44,19 @@ var Physical = function(position, velocity, acceleration, bounce, friction)
 
 		// Terrain collision
 		var groundHeight = heightOf(x2, z2);
-		if (y2 > groundHeight)
+		if (y2 > groundHeight + m_radius)
 		{
 			this.setFlight(true);
 		}
 		else
 		{	
-			if (true)
+			finalY = groundHeight + m_radius;
+			m_velocity[1] = -m_bounce * m_velocity[1];
+			if (m_velocity[1] < 0.05)
 			{
-				finalY = groundHeight;
 				this.setFlight(false);
 				m_velocity[1] = 0.0;
-			}	
+			}
 		}
 		return vec3( finalX - x2, finalY - y2, finalZ - z2 );
 	}

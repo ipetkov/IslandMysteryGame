@@ -14,12 +14,10 @@ function Player(glCanvas, pos, speed) {
 	
 	this.isRunning = false;
 	
-	this.physical = new Physical(	pos,					//position
-									vec3(0.0, 0.0, 0.0),	//velocity
-									vec3(0.0, -0.01, 0.0),	//acceleration
-									0.0,					//bounce
-									0.0);					//friction
-
+	this.physical = new Physical(	vec3(0.0, -0.01, 0.0),	//acceleration
+									0.7,					//bounce
+									0.0,					//friction
+									0.0);					//radius
 	this.position = function()
 	{
 		return this.camera.position();
@@ -223,7 +221,7 @@ Player.prototype.handleKeyDown = function(e) {
 			if (!this.physical.isAirborne())
 			{
 				this.physical.setFlight(true);
-				this.physical.setYVelocity(0.20);
+				this.physical.accelerate(vec3(0.0, 0.20, 0.0));
 			}
 			break;
     }
