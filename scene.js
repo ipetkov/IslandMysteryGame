@@ -18,8 +18,12 @@ var uniformLightPosition   = 'lightPosition';
 var uniformTexSampler      = 'uSampler';
 var uniformBumpTexSampler  = 'nSampler';
 var uniformEnableLighting  = 'enableLighting';
+var uniformUniformLighting = 'uniformLighting';
+var uniformEnableBumping   = 'enableBumping';
+
 
 var shapes = [];
+var bumpCube;
 var sun;
 
 var gl;	     // WebGL object for the canvas
@@ -97,8 +101,20 @@ var glHelper = (function() {
 		gl.uniform1i(loc, arg);
 	}
 
+	helper.uniformLighting = function(arg) {
+		var loc = gl.getUniformLocation(program, uniformUniformLighting);
+		gl.uniform1i(loc, (arg ? 1 : 0));
+	}
+
+	//enable lighting will only work as expected when the object has a texture
+	//it is intended only for the fire so that it is always full lit.
 	helper.enableLighting = function(arg) {
 		var loc = gl.getUniformLocation(program, uniformEnableLighting);
+		gl.uniform1i(loc, (arg ? 1 : 0));
+	}
+
+	helper.enableBumping = function(arg) {
+		var loc = gl.getUniformLocation(program, uniformEnableBumping);
 		gl.uniform1i(loc, (arg ? 1 : 0));
 	}
 
@@ -163,7 +179,7 @@ window.onload = function() {
 
 	sun = new Sun(300, 1/dayDuration);
 
-	shapes = [water, theIsland, sun];
+	shapes = [water, theIsland];
 
     
 	for (var x=1; x<quarterSize; x+=5)
@@ -175,18 +191,17 @@ window.onload = function() {
             var age = Math.random();
             var rand = Math.random();
             if(heights[x][z]>0.21 && rand<=0.09) {
-                shapes.push(new Tree(
+                new Tree(
                     vec3(x, heights[x][z]-0.5, z),
-		    kXZ, kY,
-                    age));
+				    kXZ, kY,
+                    age);
             }
         }
 	}
 
 	var bumpMap = new Texture.fromImageSrc('./images/balls.png',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
-	var newcube = new Cube(null, null, true, false, bumpMap);
-	newcube.position = vec3(1.0, 1.0, 0.0);
-	shapes.push(newcube);
+	bumpCube = new Cube(null, null, true, false, bumpMap);
+	bumpCube.position = vec3(20.0, 0.8, 70.0);
 
 	// Attach our keyboard listener to the canvas
 	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
@@ -206,7 +221,9 @@ function draw() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
 
+	glHelper.uniformLighting(true);
 	glHelper.enableLighting(true);
+	glHelper.enableBumping(false);
 	player.move(); // This will set our camera in the world
 	glHelper.setProjViewMatrix(player.camera.getProjViewMatrix());
 
@@ -220,6 +237,14 @@ function draw() {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
+
+
+//This commented cube draws a test cube that clearly shows the sucesfull
+//implemintation of bump mapping
+//	glHelper.enableBumping(true);
+//	dt += timer.getElapsedTime();
+//	bumpCube.draw(dt, identMat);
+//	glHelper.enableBumping(false);
 
 	player.draw(); // This will draw the crosshairs and arms on the screen
 	window.requestAnimFrame(draw);

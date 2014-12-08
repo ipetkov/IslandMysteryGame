@@ -143,11 +143,11 @@ function Player(glCanvas, pos, speed) {
 	this.leftArm.yaw      = -10;
 
 	this.leftArm.draw = function(dt, mat) {
-		glHelper.enableLighting(false);
+		glHelper.uniformLighting(false);
 		glHelper.setProjViewMatrix(orthoMat);
 		Cube.prototype.draw.call(this, dt, mat);
 		glHelper.setProjViewMatrix(player.camera.getProjViewMatrix()); // Reset the proj matrix
-		glHelper.enableLighting(true);
+		glHelper.uniformLighting(true);
 	}
 
 	this.rightArm              = new Cube(null, rightTex, false, false, false);
