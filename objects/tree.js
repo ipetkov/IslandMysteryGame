@@ -1,25 +1,16 @@
 var Tree = (function() {
 	var trees = [];
-	var groundMaterial = new Material(
-		vec4(0.8, 0.9, 0.5, 1.0),
-		vec4(0.8, 0.7, 0.7, 1.0)
-	);
 
 	var trunkMaterial = new Material(
 		vec4(0.5, 0.4, 0.1, 1.0),
 		vec4(0.6, 0.3, 0.1, 1.0)
 	);
 
-	var barkTex    = null;
 	var foliageTex = null;
 	var barkBumpMap = null;
 
 	function constructor(position, radius, height, age)
 	{
-		if(!barkTex) {
-			barkTex = new Texture.fromImageSrc('./images/treebark.jpg');
-		}
-
 		if(!foliageTex) {
 			foliageTex = new Texture.fromImageSrc('./images/foliage.png');
 		}
@@ -51,9 +42,12 @@ var Tree = (function() {
 
 	constructor.drawTrees = function(dt) {
 		var identMat = mat4();
+
+		glHelper.enableBumping(true);
 		trees.forEach(function(e) {
-			e.draw(dt, mat4());
+				e.draw(dt, mat4());
 		});
+		glHelper.enableBumping(false);
 	}
 
 	return constructor;

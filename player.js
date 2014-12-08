@@ -172,11 +172,11 @@ function Player(glCanvas, pos, speed) {
 	this.leftArm.yaw      = -10;
 
 	this.leftArm.draw = function(dt, mat) {
-		glHelper.enableLighting(false);
+		glHelper.uniformLighting(false);
 		glHelper.setProjViewMatrix(orthoMat);
 		Cube.prototype.draw.call(this, dt, mat);
 		glHelper.setProjViewMatrix(player.camera.getProjViewMatrix()); // Reset the proj matrix
-		glHelper.enableLighting(true);
+		glHelper.uniformLighting(true);
 	}
 
 	this.rightArm              = new Cube(null, rightTex, false, false, false);
@@ -244,6 +244,12 @@ Player.prototype.handleKeyDown = function(e) {
 			break;
 		case 16: // SHIFT - run
 			this.isRunning = true;
+			break;
+		case 84: //T - add a stick to the fire if you are at camp
+			var x = this.position()[0];
+			var z = this.position()[2];
+			if(x > 49 && x < 51 && z > 29 && z <31)
+				fire.addStick();
 			break;
 		case 32: // SPACE - jump
 			if (!this.physical.isAirborne())

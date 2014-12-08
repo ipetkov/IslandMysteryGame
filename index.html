@@ -19,11 +19,15 @@
 		<script type="text/javascript" src="shapes/cube.js"></script>
 		<script type="text/javascript" src="shapes/multiTexCube.js"></script>
 		<script type="text/javascript" src="shapes/sphere.js"></script>
+		<script type="text/javascript" src="shapes/plane.js"></script>
 		<script type="text/javascript" src="sky.js"></script>
 		<script type="text/javascript" src="shapes/hexagonalPrism.js"></script>
 		<script type="text/javascript" src="shapes/hexagonalPyramid.js"></script>
 		<script type="text/javascript" src="objects/rock.js"></script>
 		<script type="text/javascript" src="objects/tree.js"></script>
+		<script type="text/javascript" src="objects/camprock.js"></script>
+		<script type="text/javascript" src="objects/stick.js"></script>
+		<script type="text/javascript" src="objects/campfire.js"></script>
 		<script type="text/javascript" src="objects/paperTree.js"></script>
 		<script type="text/javascript" src="island/island.js"></script>
 
@@ -42,6 +46,7 @@
 			uniform mat4 normalMat;
 
 			uniform vec3 lightPosition;
+			uniform int enableBumpingV;
 
 			varying vec2 fUV;
 			varying vec3 N, L, posToLight;
@@ -50,18 +55,22 @@
 				// Make sure our w components are set properly
 				vec4 pos  = vec4(vPosition, 1.0);
 				vec4 norm = vec4(vNormal, 0.0);
-				vec4 tan  = vec4(objTangent, 0.0);
 
 				vec3 posInWorld    = (modelMatrix * pos).xyz;
 				vec3 normalInWorld = (normalMat * norm).xyz;
 				vec3 lightInWorld  = lightPosition; // Light already in world coordinates
 
-				//Calculate the tangent space
+				posToLight = normalize(lightInWorld - posInWorld);
 				N = normalize(normalInWorld);
+				L = vec3(0.0, 0.0, 0.0);
+
+
+			if(enableBumpingV == 1){
+				vec4 tan  = vec4(objTangent, 0.0);
+
+				//Calculate the tangent space
 				vec3 T = normalize((normalMat * tan).xyz);
 				vec3 B = cross(N, T);
-
-				posToLight = normalize(lightInWorld - posInWorld);
 
 				//convert the light vector into the tangent space
 				L.x = dot(T, posToLight);
@@ -76,10 +85,7 @@
 					L.z = dot(B, posToLight);}
 					
 				L = normalize(L);
-
-				//by convention objTangent is set to (0.0, 0.0, 0.0) for surfaces
-				//we do not want to bump map, so we set L to zero vector in this case
-				if(dot(tan, tan) == 0.0 ) L = vec3(0.0, 0.0, 0.0);
+			}
 
 				fUV = texCoord;
 				gl_Position = projViewMatrix * vec4(posInWorld, 1.0);
@@ -93,44 +99,52 @@
 			uniform vec4 diffuseProduct;
 			uniform sampler2D uSampler;
 			uniform sampler2D nSampler;
+
+			uniform int enableBumpingF;
 			uniform int enableLighting;
+			uniform int uniformLighting;
 
 			varying vec3 N, L, posToLight;
 			varying vec2 fUV;
 			void main() {
-				vec3 bumpNormal = 2.0*(texture2D(nSampler, fUV)).xyz-vec3(1.0, 1.0, 1.0);
-				bumpNormal = bumpNormal + vec3(0.0, 1.0, 0.0);
 
 				// We ignore specular highlights
 				float Kd = 0.0;
-				float max_tex_dot = max(dot(L, bumpNormal), 0.0);
-				float NL_dot = dot(N, posToLight);
-				//for surface we dont want to bumpmap we intentionally set L to the zero vector
-				if(dot(L, L) == 0.0) 
-					Kd = max(NL_dot, 0.0);
-				//if the light source can be seen by the face bump map normally
-				else if(NL_dot > -0.1) 
-					Kd = max_tex_dot;
-				//in the transition between when light can be seen by the face and not, use a 
-				//linear smoother so the transition is not abrupt
-				else if (NL_dot > -0.2){
-					float lin_smoother = 1.0 + (NL_dot + 0.1)/0.1;
-					Kd = max_tex_dot * lin_smoother;}
-				
-				
 
-				vec4 ambient  = ambientProduct;
-				vec4 diffuse  =  Kd * diffuseProduct;
-
-				vec4 fColor;
-
-				fColor = ambient + diffuse;
-				fColor.a = 1.0;
-
-				if(enableLighting == 0) {
-					fColor = (0.25 * ambient) + (0.75 * diffuseProduct);
+				if(enableBumpingF == 1){
+					vec3 bumpNormal = 2.0*(texture2D(nSampler, fUV)).xyz-vec3(1.0, 1.0, 1.0);
+					bumpNormal = bumpNormal + vec3(0.0, 1.0, 0.0);
+					
+					float max_tex_dot = max(dot(L, bumpNormal), 0.0);
+					float NL_dot = dot(N, posToLight);
+					//if the light source can be seen by the face bump map normally
+					if(NL_dot > -0.1) 
+						Kd = max_tex_dot;
+					//in the transition between when light can be seen by the face and not, use a 
+					//linear smoother so the transition is not abrupt
+					else if (NL_dot > -0.2){
+						float lin_smoother = 1.0 + (NL_dot + 0.1)/0.1;
+						Kd = max_tex_dot * lin_smoother;}
 				}
+				else{
+					Kd = max(dot(N, posToLight), 0.0);
+				}
+				
+			vec4 fColor;
 
+				if(enableLighting == 0)
+					fColor = vec4(1.0, 1.0, 1.0, 1.0);
+				else{
+					vec4 ambient  = ambientProduct;
+					vec4 diffuse  =  Kd * diffuseProduct;
+	
+					fColor = ambient + diffuse;
+					fColor.a = 1.0;
+	
+					if(uniformLighting == 0) {
+						fColor = (0.25 * ambient) + (0.75 * diffuseProduct);
+					}
+				}
 				gl_FragColor = fColor * texture2D(uSampler, fUV);
 			}
 		</script>
@@ -161,6 +175,7 @@
 				<li>Jump with <strong>SPACE</strong></li>
 				<li>Look around with <strong>the mouse</strong></li>
 				<li>Run by holding <strong>SHIFT</strong> while moving forward</li>
+				<li>Add stick to fire with <strong>T</strong> while at firepit</li>
 			</ul>
 		</div>
 	</body>
