@@ -42,6 +42,8 @@ var Tree = (function() {
 		this.foliageMiddle = new HexagonalPrism(foliageMaterial, foliageTex, null);
 		this.foliageBottom = new HexagonalPyramid(foliageMaterial, foliageTex, null);
 
+		this.stick = null;
+
 		trees.push(this);
 	}
 
@@ -103,4 +105,26 @@ Tree.prototype.draw = function(dt, mat) {
 	this.foliageTop.draw(dt, mat);
 	this.foliageMiddle.draw(dt, mat);
 	this.foliageBottom.draw(dt, mat);
+
+	if(this.stick) {
+		this.stick.draw(dt, mat);
+	}
+}
+
+Tree.prototype.addStick = function() {
+
+	// Pick a random 45 degree offset around the tree
+	var rand = Math.floor(Math.random() * 10) - 1;
+	var theta = rand * 45;
+	var yaw = rand * -60;
+	var rad = radians(theta);
+	var sin = Math.sin(theta);
+	var cos = Math.cos(theta);
+
+	var y = Math.abs(Math.random() * this.height * 2);
+	var radius = (this.radius * 0.15) + 0.15;
+	var pos = vec3(radius * cos, y, radius * sin);
+
+	var roll = Math.floor((Math.random() * 90) - 45);
+	this.stick = new Stick(add(this.position, pos), yaw, 0, roll);
 }

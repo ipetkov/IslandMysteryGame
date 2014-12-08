@@ -13,8 +13,8 @@ var Campfire = (function() {
 		var fireTex = new Texture.fromImageSrc('./images/fire.jpg', gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
 		var smokeTex = new Texture.fromImageSrc('./images/smoke.jpg', gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
 
-		this.stick1 = new Stick(vec3(-0.14 + this.position[0], 0.14 + this.position[1], this.position[2]), 0.0, 235.0);
-		this.stick2 = new Stick(vec3(0.14 + this.position[0], 0.14 + this.position[1], this.position[2]), 0.0, 125.0);
+		this.stick1 = new Stick(vec3(-0.14 + this.position[0], 0.14 + this.position[1], this.position[2]), 0.0, 0.0, 235.0);
+		this.stick2 = new Stick(vec3(0.14 + this.position[0], 0.14 + this.position[1], this.position[2]), 0.0, 0.0, 125.0);
 
 		this.fireplane1 = new Plane(null, fireTex);
 		this.fireplane1.position = vec3(0.0 + this.position[0], 0.001 + this.position[1], 0.0 + this.position[2]);
