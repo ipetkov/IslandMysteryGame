@@ -1,8 +1,8 @@
 var Stick = (function() {
 
 	var trunkMaterial = new Material(
-		vec4(0.6, 0.5, 0.5, 1.0),
-		vec4(0.6, 0.3, 0.1, 1.0)
+		vec4(0.8, 0.6, 0.6, 1.0),
+		vec4(0.8, 0.4, 0.2, 1.0)
 	);
 
 	var barkTex    = null;
@@ -32,10 +32,19 @@ var Stick = (function() {
 })();
 
 Stick.prototype.draw = function(dt, mat) {
-	this.mainbody.roll = this.mainbody.roll + dt/10;
+//	this.mainbody.pitch = this.mainbody.pitch + dt/10;
+	var height = this.mainbody.position[1];
+	var x_dis = this.mainbody.position[0];
+	var z_dis = this.mainbody.position[2];
 	this.mainbody.draw(dt, mat);
-	
-	var rotMat = mat4(); //rotate(this.mainbody.yaw,   vec3(0, 1, 0));
-	rotMat = rotate(this.mainbody.roll, vec3(0, 0, 1));
+
+    var rotMat = translate(x_dis, height, z_dis); 
+	rotMat = mult(rotMat, rotate(this.mainbody.roll, vec3(0, 0, 1)));
+	rotMat = mult(rotMat,rotate(this.mainbody.yaw, vec3(0,1,0)));
+	rotMat = mult(rotMat, translate(-x_dis, -height, -z_dis)); 
+//	rotMat = mult(rotMat, translate(x_dis, 0.0, 0.0)); 
+//	rotMat = mult(rotMat,rotate(this.mainbody.yaw, vec3(0,1,0)));
+//	rotMat = mult(rotMat, translate(-x_dis, 0.0, 0.0)); 
+
 	this.sidebranch.draw(dt, rotMat);
 }

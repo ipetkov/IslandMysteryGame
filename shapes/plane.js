@@ -10,12 +10,12 @@ var Plane = (function() {
 	var vertices = [
 		// Front face
 		// X    Y     Z
-		-0.5, -0.5,  0.5, // front lower left
-		 0.5, -0.5,  0.5, // front lower right
-		 0.5,  0.5,  0.5, // front upper right
-		 0.5,  0.5,  0.5, // front upper right
-		-0.5,  0.5,  0.5, // front upper left
-		-0.5, -0.5,  0.5, // front lower left
+		-0.5, -0.5,  0.0, // front lower left
+		 0.5, -0.5,  0.0, // front lower right
+		 0.5,  0.5,  0.0, // front upper right
+		 0.5,  0.5,  0.0, // front upper right
+		-0.5,  0.5,  0.0, // front upper left
+		-0.5, -0.5,  0.0, // front lower left
 	];
 
 	var flatNormals = [
@@ -43,12 +43,12 @@ var Plane = (function() {
 	];
 
 	var tangents = [
-		1.0, 0.0, 0.0,
-		1.0, 0.0, 0.0,
-		1.0, 0.0, 0.0,
-		1.0, 0.0, 0.0,
-		1.0, 0.0, 0.0,
-		1.0, 0.0, 0.0
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0
 	];	
 
 	// Method for sending vertex data to GPU a single time
