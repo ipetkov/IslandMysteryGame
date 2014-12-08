@@ -1,47 +1,39 @@
 var Rock = (function() {
 	var rockMaterial = new Material(
-		vec4(0.2, 0.2, 0.2, 1.0),
+		vec4(0.6, 0.6, 0.6, 1.0),
 		vec4(0.25, 0.33, 0.36, 1.0)
 	);
 
 	var rockTex = null;
 
-
 	function constructor(position, scale)
 	{
-		var m_position;
-		this.position = function() { return m_position; }
-
 		this.physical = new Physical(	vec3(0.0, -0.01, 0.0),
-										0.5,
+										Math.min(0.5 / scale, 0.5),
 										0.0,
 										scale);
-
 		if(!rockTex) {
-			rockTex = new Texture.fromImageSrc('./images/grass.jpg');
+			rockTex = new Texture.fromImageSrc('./images/rock.png');
 		}
-
-		m_position = position;
 		
 		this.figure = new Sphere(rockMaterial, rockTex, false);
-		this.figure.position = vec3(m_position);
-		this.figure.scale = vec3(scale, scale, scale);	
+		this.figure.position = position;
+		this.figure.radius = scale;	
 
-		this.moveBy = function(x, y, z)
+		this.moveBy = function(distance)
 		{
-			m_position[0] += x;
-			m_position[1] += y;
-			m_position[2] += z;
+			this.figure.position[0] += distance[0];
+			this.figure.position[1] += distance[1];
+			this.figure.position[2] += distance[2];
 		}	
+		this.position = function() { return this.figure.position; }
 	}
 
 	return constructor;
 })();
 
 Rock.prototype.draw = function(dt, mat) {
-	var finalMove = this.physical.physics(	this.position(),
-											this.position());
-	this.moveBy(finalMove[0], finalMove[1], finalMove[2]);
-	this.figure.position = this.position();
+	var finalMove = this.physical.physics(	this.position(), this.position());
+	this.moveBy(finalMove);
 	this.figure.draw(dt, mat);
 }

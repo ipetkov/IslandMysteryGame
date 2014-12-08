@@ -152,7 +152,8 @@ window.onload = function() {
 
 	sun = new Sun(100, 1/dayDuration);
 
-	rock = new Rock(vec3(50.0, 30.0, 50.0), 1.0);
+	rock = new Rock(vec3(50.0, 5.0, 50.0), 0.3);
+	rock.physical.accelerate(vec3(0.0, 0.5, 0.0));
 
 	shapes = [water, theIsland, sun, rock];
 
