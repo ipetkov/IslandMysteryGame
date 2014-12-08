@@ -217,6 +217,12 @@ Player.prototype.handleKeyDown = function(e) {
 		case 16: // SHIFT - run
 			this.isRunning = true;
 			break;
+		case 84: //T - add a stick to the fire if you are at camp
+			var x = this.position()[0];
+			var z = this.position()[2];
+			if(x > 49 && x < 51 && z > 29 && z <31)
+				fire.addStick();
+			break;
 		case 32: // SPACE - jump
 			if (!this.isAirborne)
 			{
