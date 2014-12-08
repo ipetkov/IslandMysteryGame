@@ -42,6 +42,10 @@ function Camera(glCanvas) {
 		position = add(position, translation);
 	};
 
+	this.yaw = function() {
+		return -yaw;
+	}
+
 	this.position = function()
 	{
 		return vec3(position[0], position[1], -position[2]);

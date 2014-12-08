@@ -177,7 +177,7 @@ window.onload = function() {
             if(heights[x][z]>0.21 && rand<=0.09) {
                 shapes.push(new Tree(
                     vec3(x, heights[x][z]-0.5, z),
-                    vec3(kXZ, kY, kXZ),
+		    kXZ, kY,
                     age));
             }
         }
@@ -214,6 +214,7 @@ function draw() {
 	var dt = timer.getElapsedTime();
 
 	sun.draw(dt);  // This will set our light position and material
+	Tree.drawTrees(dt);
 
 	shapes.forEach(function(e) {
 		dt += timer.getElapsedTime();
