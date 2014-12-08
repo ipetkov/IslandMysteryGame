@@ -54,16 +54,16 @@
 				vec3 normalInWorld = (normalMat * norm).xyz;
 				vec3 lightInWorld  = lightPosition; // Light already in world coordinates
 
-				//Calculate the tangent space
+				posToLight = normalize(lightInWorld - posInWorld);
 				N = normalize(normalInWorld);
+				L = vec3(0.0, 0.0, 0.0);
+
+
+			if(enableBumping == 1){
+				//Calculate the tangent space
 				vec3 T = normalize((normalMat * tan).xyz);
 				vec3 B = cross(N, T);
 
-				posToLight = normalize(lightInWorld - posInWorld);
-
-				L = vec3(0.0, 0.0, 0.0);
-
-			if(enableBumping == 1){
 				//convert the light vector into the tangent space
 				L.x = dot(T, posToLight);
 
