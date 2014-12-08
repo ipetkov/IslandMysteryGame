@@ -9,15 +9,18 @@ var Island = (function() {
     var mtnvbo = null;
     var mtnnbo = null;
     var mtntbo = null;
-    
+    var mtntanbo = null;
+
     var mtn2vbo = null;
     var mtn2nbo = null;
     var mtn2tbo = null;
-    
+    var mtn2tanbo = null;
+
     var sandvbo = null;
     var sandnbo = null;
     var sandtbo = null;
-    
+    var sandtanbo = null;
+
 
     var groundTexture;
     var groundMaterial = new Material(
@@ -37,14 +40,17 @@ var Island = (function() {
     var mtnVertices = [];
     var mtnNormals = [];
     var mtnTexCoordinates = [];
+    var mtnTangents = [];
     
     var mtn2Vertices = [];
     var mtn2Normals = [];
     var mtn2TexCoordinates = [];
+    var mtn2Tangents = [];
     
     var sandVertices = [];
     var sandNormals = [];
     var sandTexCoordinates = [];
+    var sandTangents = [];
 
     var plane = function(a, b, c) {
         var ab = subtract(b,a);
@@ -85,6 +91,13 @@ var Island = (function() {
                 mtnTexCoordinates.push(1.0, 0.0);
                 mtnTexCoordinates.push(0.0, 0.0);
                 mtnTexCoordinates.push(0.0, 1.0);
+              
+                mtnTangents.push(0.0, 0.0, 0.0);
+                mtnTangents.push(0.0, 0.0, 0.0);
+                mtnTangents.push(0.0, 0.0, 0.0);
+                mtnTangents.push(0.0, 0.0, 0.0);
+                mtnTangents.push(0.0, 0.0, 0.0);
+                mtnTangents.push(0.0, 0.0, 0.0);
             }
             
             else if(ul[1]>=15) {
@@ -111,6 +124,13 @@ var Island = (function() {
                 mtn2TexCoordinates.push(1.0, 0.0);
                 mtn2TexCoordinates.push(0.0, 0.0);
                 mtn2TexCoordinates.push(0.0, 1.0);
+              
+                mtn2Tangents.push(0.0, 0.0, 0.0);
+                mtn2Tangents.push(0.0, 0.0, 0.0);
+                mtn2Tangents.push(0.0, 0.0, 0.0);
+                mtn2Tangents.push(0.0, 0.0, 0.0);
+                mtn2Tangents.push(0.0, 0.0, 0.0);
+                mtn2Tangents.push(0.0, 0.0, 0.0);
             }
             
             else if(ul[1]<=0.2) {
@@ -137,6 +157,13 @@ var Island = (function() {
                 sandTexCoordinates.push(1.0, 0.0);
                 sandTexCoordinates.push(0.0, 0.0);
                 sandTexCoordinates.push(0.0, 1.0);
+              
+                sandTangents.push(0.0, 0.0, 0.0);
+                sandTangents.push(0.0, 0.0, 0.0);
+                sandTangents.push(0.0, 0.0, 0.0);
+                sandTangents.push(0.0, 0.0, 0.0);
+                sandTangents.push(0.0, 0.0, 0.0);
+                sandTangents.push(0.0, 0.0, 0.0);
             }
             
             else {
@@ -164,21 +191,15 @@ var Island = (function() {
                 texCoordinates.push(1.0, 0.0);
                 texCoordinates.push(0.0, 0.0);
                 texCoordinates.push(0.0, 1.0);
+              
+                tangents.push(0.0, 0.0, 0.0);
+                tangents.push(0.0, 0.0, 0.0);
+                tangents.push(0.0, 0.0, 0.0);
+                tangents.push(0.0, 0.0, 0.0);
+                tangents.push(0.0, 0.0, 0.0);
+                tangents.push(0.0, 0.0, 0.0);
             }
             
-            texCoordinates.push(0.0, 1.0);
-            texCoordinates.push(1.0, 1.0);
-            texCoordinates.push(1.0, 0.0);
-            texCoordinates.push(1.0, 0.0);
-            texCoordinates.push(0.0, 0.0);
-            texCoordinates.push(0.0, 1.0);
-			
-			tangents.push(0.0, 0.0, 0.0);
-			tangents.push(0.0, 0.0, 0.0);
-			tangents.push(0.0, 0.0, 0.0);
-			tangents.push(0.0, 0.0, 0.0);
-			tangents.push(0.0, 0.0, 0.0);
-			tangents.push(0.0, 0.0, 0.0);
         }
     }
     
@@ -222,6 +243,11 @@ var Island = (function() {
 		gl.bindBuffer(gl.ARRAY_BUFFER, mtntbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(mtnTexCoordinates), gl.STATIC_DRAW);
         
+        mtntanbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, mtntanbo);
+		gl.bufferData(gl.ARRAY_BUFFER, flatten(mtnTangents), gl.STATIC_DRAW);
+        
+        
         mtn2vbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, mtn2vbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(mtn2Vertices), gl.STATIC_DRAW);
@@ -234,6 +260,11 @@ var Island = (function() {
 		gl.bindBuffer(gl.ARRAY_BUFFER, mtn2tbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(mtn2TexCoordinates), gl.STATIC_DRAW);
         
+        mtn2tanbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, mtn2tanbo);
+		gl.bufferData(gl.ARRAY_BUFFER, flatten(mtn2Tangents), gl.STATIC_DRAW);
+        
+        
         sandvbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, sandvbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(sandVertices), gl.STATIC_DRAW);
@@ -245,6 +276,10 @@ var Island = (function() {
 		sandtbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, sandtbo);
 		gl.bufferData(gl.ARRAY_BUFFER, flatten(sandTexCoordinates), gl.STATIC_DRAW);
+        
+        sandtanbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, sandtanbo);
+		gl.bufferData(gl.ARRAY_BUFFER, flatten(sandTangents), gl.STATIC_DRAW);
 
 	};
     
@@ -255,10 +290,10 @@ var Island = (function() {
 			initVertexData();
 		}
         
-        this.dunes=new Shape(vbo, nbo, tbo, null, vertices.length, groundMaterial, groundTexture);
-        this.mtn=new Shape(mtnvbo, mtnnbo, mtntbo, null, mtnVertices.length, null, mtnTexture);
-        this.mtn2=new Shape(mtn2vbo, mtn2nbo, mtn2tbo, null, mtn2Vertices.length, null, mtn2Texture);
-        this.sand=new Shape(sandvbo, sandnbo, sandtbo, null, sandVertices.length, null, sandTexture);
+        this.grass=new Shape(vbo, nbo, tanbo, tbo, null, vertices.length, groundMaterial, groundTexture, null);
+        this.mtn=new Shape(mtnvbo, mtnnbo, mtntanbo, mtntbo, null, mtnVertices.length, null, mtnTexture, null);
+        this.mtn2=new Shape(mtn2vbo, mtn2nbo, mtn2tanbo, mtn2tbo, null, mtn2Vertices.length, null, mtn2Texture, null);
+        this.sand=new Shape(sandvbo, sandnbo, sandtanbo, sandtbo, null, sandVertices.length, null, sandTexture, null);
         
     };
     
@@ -269,7 +304,7 @@ var Island = (function() {
 inheritPrototype(Island, Shape);
 
 Island.prototype.draw = function(dt, mat) {
-    this.dunes.draw(dt, mat);
+    this.grass.draw(dt, mat);
     this.mtn.draw(dt, mat);
     this.mtn2.draw(dt, mat);
     this.sand.draw(dt, mat);
