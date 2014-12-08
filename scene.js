@@ -124,11 +124,15 @@ var glHelper = (function() {
 	}
 
 	helper.setAmbientProduct = function(vec) {
-		setUniformVec4(uniformAmbientProduct, mult(sun.lightMaterial.ambient, vec));
+		setUniformVec4(uniformAmbientProduct, mult(this.material.ambient, vec));
+	}
+
+	helper.setLightMaterial = function(mat){
+		this.material = mat;
 	}
 
 	helper.setDiffuseProduct = function(vec) {
-		setUniformVec4(uniformDiffuseProduct, mult(sun.lightMaterial.diffuse, vec));
+		setUniformVec4(uniformDiffuseProduct, mult(this.material.diffuse, vec));
 	}
 
 	helper.setLightPosition = function(vec) {
@@ -219,7 +223,8 @@ window.onload = function() {
 	for(var i = 0; i < 10; i++){
 		campRocks.push(new CampRock(rockMaterial, new Texture.fromImageSrc('./images/rockTex.png'), gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST));
 		campRocks[i].position = vec3(50.0 + Math.cos(i*Math.PI/5), heights[50][30] + 0.1, 30.0 + Math.sin(i*Math.PI/5));
-		campRocks[i].scale = vec3(0.5, 0.5, 0.5);
+		campRocks[i].scale = vec3(1.0, 1.0, 1.0);
+		campRocks[i].yaw = i/5*180;
 		}
 
 	fire = new Campfire(vec3(50.0, heights[50][30]+0.1, 30.0));
@@ -255,17 +260,24 @@ function draw() {
 	sun.draw(dt);  // This will set our light position and material
 	Tree.drawTrees(dt);
 	
-	fire.draw(dt, identMat);
 
 	shapes.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
 
+	player.draw(); // This will draw the crosshairs and arms on the screen
+
+	//fire will change liht material and position and draw rocks
+	//with that light. 
+	fire.draw(dt, identMat);
 	campRocks.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
+	glHelper.setLightMaterial(sun.lightMaterial);
+	//light is reset here, position is taken care of
+	//by sun.draw which is the first shape drawn
 
 //This commented cube draws a test cube that clearly shows the sucesfull
 //implemintation of bump mapping
@@ -274,6 +286,5 @@ function draw() {
 //	bumpCube.draw(dt, identMat);
 //	glHelper.enableBumping(false);
 
-	player.draw(); // This will draw the crosshairs and arms on the screen
 	window.requestAnimFrame(draw);
 }

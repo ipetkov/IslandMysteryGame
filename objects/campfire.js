@@ -7,6 +7,7 @@ var Campfire = (function() {
 		this.fireOn = false;
 		this.burningTime = 0.0;
 		this.timeToBurnOut = 40000;
+		this.material = new Material(vec4(0.6, 0.6, 0.6, 1.0), vec4(1.0, 0.27, 0.0, 1.0));
 
 		this.position = new vec3;
 		this.position[0] = position[0];
@@ -81,6 +82,10 @@ Campfire.prototype.draw = function(dt, mat) {
 
 	if(this.fireOn){
 		glHelper.enableLighting(false);
+		glHelper.setLightPosition(this.position);
+		//light position is not reset to sun in campfire.js
+		//It is resent in sky.js when sun.draw is called
+		glHelper.setLightMaterial(this.material);
 		this.burningTime = this.burningTime + dt;
 		var timeRatio = (this.burningTime / (this.timeToBurnOut/4.0)) % 1;
 		if(timeRatio > 0.99){
