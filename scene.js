@@ -21,7 +21,6 @@ var uniformEnableLighting  = 'enableLighting';
 var uniformUniformLighting = 'uniformLighting';
 var uniformEnableBumping   = 'enableBumping';
 
-
 var shapes = [];
 var bumpCube;
 var sun;
@@ -235,6 +234,16 @@ function draw() {
 	var dt = timer.getElapsedTime();
 
 	sun.draw(dt);  // This will set our light position and material
+
+	// Quick and dirty way to generate more sticks in the scene
+	var trees = Tree.getTrees();
+	var stickDiff = trees.length - (Stick.getSticks().length + player.sticks.length);
+	for(var i = 0; i < stickDiff; i++) {
+		var index = Math.floor(Math.random * trees.length);
+		trees[i].addStick();
+	}
+
+	dt += timer.getElapsedTime();
 	Tree.drawTrees(dt);
 
 	shapes.forEach(function(e) {

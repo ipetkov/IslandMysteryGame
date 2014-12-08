@@ -18,6 +18,8 @@ function Player(glCanvas, pos, speed) {
 	this.isRunning = false;
 	this.isAirborne = false;
 
+	this.sticks = [];
+
 	this.position = function()
 	{
 		return this.camera.position();

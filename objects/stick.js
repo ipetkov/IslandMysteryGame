@@ -29,6 +29,10 @@ var Stick = (function() {
 		sticks.push(this);
 	}
 
+	constructor.getSticks = function() {
+		return sticks;
+	}
+
 	return constructor;
 })();
 

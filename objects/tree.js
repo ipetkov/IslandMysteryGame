@@ -112,6 +112,9 @@ Tree.prototype.draw = function(dt, mat) {
 }
 
 Tree.prototype.addStick = function() {
+	if(this.stick) {
+		return;
+	}
 
 	// Pick a random 45 degree offset around the tree
 	var rand = Math.floor(Math.random() * 10) - 1;
