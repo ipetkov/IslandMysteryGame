@@ -43,13 +43,13 @@ var Physical = (function()
 			if (this.isAirborne())
 				m_velocity[1] += m_acceleration[1];
 
-			var finalX = x2 + this.velocity()[0];
-			var finalY = y2 + this.velocity()[1];
-			var finalZ = z2 + this.velocity()[2];
+			var finalX = x2 + m_velocity[0];
+			var finalY = y2 + m_velocity[1];
+			var finalZ = z2 + m_velocity[2];
 
 			// Terrain collision
 			var groundHeight = heightOf(x2, z2);
-			if (y2 > groundHeight + m_radius)
+			if (y2 > groundHeight + m_radius || m_velocity[1] > 0.0)
 			{
 				this.setFlight(true);
 			}
@@ -57,7 +57,15 @@ var Physical = (function()
 			{	
 				finalY = groundHeight + m_radius + 0.001;
 				// Bounce
-				m_velocity[1] *= -m_bounce;
+				var coord1 = vec3(x2 + 0.5, heightOf(x2 + 0.5, z2 - 0.5), z2 - 0.5);
+				var coord2 = vec3(x2, heightOf(x2, z2 + 0.5), z2 + 0.5);
+				var coord3 = vec3(x2 - 0.5, heightOf(x2 - 0.5, z2 - 0.5), z2 - 0.5);
+				var terrainNormal = plane(coord1, coord2, coord3);
+
+				m_velocity = scaleVec(m_bounce, add(scaleVec(2 * dot(scaleVec(-1, m_velocity), terrainNormal), terrainNormal), m_velocity));
+
+				//m_velocity[1] *= -m_bounce;
+				
 				if (m_velocity[1] < 0.02)
 				{
 					finalY = groundHeight + m_radius;
@@ -71,7 +79,7 @@ var Physical = (function()
 
 				var xVel = m_velocity[0];
 				var zVel = m_velocity[2];
-				if (Math.sqrt(xVel * xVel + zVel * zVel) < 0.02)
+				if (Math.sqrt(xVel * xVel + zVel * zVel) < 0.01)
 				{
 					m_velocity[0] = 0.0;
 					m_velocity[2] = 0.0;

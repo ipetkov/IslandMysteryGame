@@ -17,7 +17,7 @@ function Player(glCanvas, pos, speed) {
 	this.isRunning = false;
 	
 	this.physical = new Physical(	vec3(0.0, -0.01, 0.0),	//acceleration
-									0.1,					//bounce
+									0.0,					//bounce
 									0.0,					//friction
 									0.0);					//radius
 	this.position = function()

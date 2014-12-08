@@ -1,11 +1,5 @@
 "use strict";
 
-function inheritPrototype(subType, superType) {
-	var proto = Object.create(superType.prototype);
-	proto.constructor = subType;
-	subType.prototype = proto;
-}
-
 function Material(ambient, diffuse) {
 	// Default material is all white, thus the object's texture will dominate
 	var whiteColor = vec4(1.0, 1.0, 1.0, 1.0);
