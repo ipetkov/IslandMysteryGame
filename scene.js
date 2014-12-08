@@ -257,7 +257,7 @@ function draw() {
 
 	// Quick and dirty way to generate more sticks in the scene
 	var trees = Tree.getTrees();
-	var stickDiff = trees.length - (Tree.getSticks().length + player.sticks.length);
+	var stickDiff = trees.length - (Tree.getSticks().length + player.numSticks);
 	for(var i = 0; i < stickDiff; i++) {
 		var index = Math.floor(Math.random * trees.length);
 		trees[i].addStick();

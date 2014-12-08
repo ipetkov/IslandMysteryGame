@@ -18,7 +18,8 @@ function Player(glCanvas, pos, speed) {
 	this.isRunning = false;
 	this.isAirborne = false;
 
-	this.sticks = [];
+	this.numSticks = 0;
+	this.maxSticks = 3;
 
 	this.position = function()
 	{
@@ -59,15 +60,17 @@ function Player(glCanvas, pos, speed) {
 			}
 		}
 
-		for(var i = 0; i < sticks.length; i++) {
-			if(sticks[i].checkCollision(newPos, this.movementSpeed)) {
-				var s = sticks[i];
-				this.sticks.push(s);
-				s.tree.stick = null;
-				sticks.splice(i, 1);
-				document.getElementById(stickCountId).textContent = 'Sticks: ' + this.sticks.length;
+		if(this.numSticks < this.maxSticks) {
+			for(var i = 0; i < sticks.length; i++) {
+				if(sticks[i].checkCollision(newPos, this.movementSpeed)) {
+					var s = sticks[i];
+					this.numSticks++;
+					s.tree.stick = null;
+					sticks.splice(i, 1);
+					document.getElementById(stickCountId).textContent = 'Sticks: ' + this.numSticks;
 
-				break;
+					break;
+				}
 			}
 		}
 
@@ -233,10 +236,17 @@ Player.prototype.handleKeyDown = function(e) {
 			this.isRunning = true;
 			break;
 		case 84: //T - add a stick to the fire if you are at camp
+			if(this.numSticks <= 0) {
+				break;
+			}
+
 			var x = this.position()[0];
 			var z = this.position()[2];
-			if(x > 49 && x < 51 && z > 29 && z <31)
+			if(x > 49 && x < 51 && z > 29 && z <31) {
 				fire.addStick();
+				this.numSticks--;
+				document.getElementById(stickCountId).textContent = 'Sticks: ' + this.numSticks;
+			}
 			break;
 		case 32: // SPACE - jump
 			if (!this.isAirborne)
