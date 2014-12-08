@@ -3,6 +3,8 @@ var Campfire = (function() {
 
 	function constructor(position)
 	{
+		this.numSticks = 0.0;
+
 		this.position = new vec3;
 		this.position[0] = position[0];
 		this.position[1] = position[1];
@@ -62,35 +64,44 @@ Campfire.prototype.draw = function(dt, mat) {
 	var height = this.position[1];
 	var x_dis = this.position[0];
 	var z_dis = this.position[2];
-
-	this.stick1.draw(dt, mat);
-	this.stick2.draw(dt, mat);
-
-	glHelper.enableLighting(false);
-	this.fireplane1.draw(dt, mat);
-	this.fireplane2.draw(dt, mat);
-	this.fireplane3.draw(dt, mat);
-	this.fireplane4.draw(dt, mat);
-
-
-	for(var i = 0; i < 4; i++){
-		var tau = dt/10000;
-		this.smokeplane[i].position[1] = this.smokeplane[i].position[1] + tau;
-		if(this.smokeplane[i].position[1] > 0.6 + this.position[1]) this.smokeplane[i].position[1] = 0.4 + this.position[1];
 	
-		var scaler = this.smokeplane[i].position[1] - 0.35 - this.position[1];
-		var z_displacer = scaler - 0.05;
-		this.smokeplane[i].scale = vec3(scaler, scaler, scaler);
-		this.smokeplane[i].position[2] = z_displacer + this.position[2];
+	if(this.numSticks > 0.0)
+		this.stick1.draw(dt, mat);
+	if(this.numSticks > 1.0)
+		this.stick2.draw(dt, mat);
+	if(this.numSticks > 2.0){
 
-		this.smokeplane[i].draw(dt,mat);
+	
+		var rotMat = translate(x_dis, height, z_dis); 
+		rotMat = mult(rotMat,rotate(90.0, vec3(0,1,0)));
+		rotMat = mult(rotMat, translate(-x_dis, -height, -z_dis)); 
+	
+		this.stick1.draw(dt, rotMat);
 	}
+	if(this.numSticks > 3.0){
+		this.stick2.draw(dt, rotMat);
 
-	glHelper.enableLighting(true);
-	var rotMat = translate(x_dis, height, z_dis); 
-	rotMat = mult(rotMat,rotate(90.0, vec3(0,1,0)));
-	rotMat = mult(rotMat, translate(-x_dis, -height, -z_dis)); 
+		glHelper.enableLighting(false);
+		this.fireplane1.draw(dt, mat);
+		this.fireplane2.draw(dt, mat);
+		this.fireplane3.draw(dt, mat);
+		this.fireplane4.draw(dt, mat);
 
-	this.stick1.draw(dt, rotMat);
-	this.stick2.draw(dt, rotMat);
+
+		var tau = dt/1000;
+		for(var i = 0; i < 4; i++){
+			tau = tau + timer.getElapsedTime() / 1000;
+			this.smokeplane[i].position[1] = this.smokeplane[i].position[1] + tau;
+			if(this.smokeplane[i].position[1] > 0.6 + this.position[1]) this.smokeplane[i].position[1] = 0.4 + this.position[1];
+		
+			var scaler = this.smokeplane[i].position[1] - 0.35 - this.position[1];
+			var z_displacer = scaler - 0.05;
+			this.smokeplane[i].scale = vec3(scaler, scaler, scaler);
+			this.smokeplane[i].position[2] = z_displacer + this.position[2];
+	
+			tau = tau + timer.getElapsedTime() / 1000;
+			this.smokeplane[i].draw(dt,mat);
+		}
+		glHelper.enableLighting(true);
+	}
 }

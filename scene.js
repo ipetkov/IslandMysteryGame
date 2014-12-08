@@ -165,6 +165,7 @@ window.onload = function() {
 	}
 
 	var fire = new Campfire(vec3(5.0, 0.0, 5.0));
+	fire.numSticks = 4.0;
 	shapes.push(fire);
 
 	// Attach our keyboard listener to the canvas
