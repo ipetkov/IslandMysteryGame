@@ -252,10 +252,11 @@ Player.prototype.handleKeyDown = function(e) {
 				fire.addStick();
 			break;
 		case 32: // SPACE - jump
-			if (!this.physical.isAirborne())
+			var pos = this.position();
+			if (pos[1] <= heightOf(pos[0], pos[2]) + 0.3)
 			{
 				this.physical.setFlight(true);
-				this.physical.accelerate(vec3(0.0, 0.10, 0.0));
+				this.physical.setVelocity(vec3(0.0, 0.10, 0.0));
 			}
 			break;
     }
