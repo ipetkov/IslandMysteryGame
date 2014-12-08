@@ -43,7 +43,7 @@
 			uniform mat4 normalMat;
 
 			uniform vec3 lightPosition;
-			uniform int enableBumping;
+			uniform int enableBumpingV;
 
 			varying vec2 fUV;
 			varying vec3 N, L, posToLight;
@@ -62,7 +62,7 @@
 				L = vec3(0.0, 0.0, 0.0);
 
 
-			if(enableBumping == 1){
+			if(enableBumpingV == 1){
 				vec4 tan  = vec4(objTangent, 0.0);
 
 				//Calculate the tangent space
@@ -97,7 +97,7 @@
 			uniform sampler2D uSampler;
 			uniform sampler2D nSampler;
 
-			uniform int enableBumping;
+			uniform int enableBumpingF;
 			uniform int enableLighting;
 			uniform int uniformLighting;
 
@@ -108,7 +108,7 @@
 				// We ignore specular highlights
 				float Kd = 0.0;
 
-				if(enableBumping == 1){
+				if(enableBumpingF == 1){
 					vec3 bumpNormal = 2.0*(texture2D(nSampler, fUV)).xyz-vec3(1.0, 1.0, 1.0);
 					bumpNormal = bumpNormal + vec3(0.0, 1.0, 0.0);
 					

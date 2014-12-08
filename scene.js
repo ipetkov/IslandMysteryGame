@@ -19,7 +19,8 @@ var uniformTexSampler      = 'uSampler';
 var uniformBumpTexSampler  = 'nSampler';
 var uniformEnableLighting  = 'enableLighting';
 var uniformUniformLighting = 'uniformLighting';
-var uniformEnableBumping   = 'enableBumping';
+var uniformEnableBumpingV   = 'enableBumpingV';
+var uniformEnableBumpingF   = 'enableBumpingF';
 
 
 var shapes = [];
@@ -116,7 +117,9 @@ var glHelper = (function() {
 	}
 
 	helper.enableBumping = function(arg) {
-		var loc = gl.getUniformLocation(program, uniformEnableBumping);
+		var loc = gl.getUniformLocation(program, uniformEnableBumpingF);
+		gl.uniform1i(loc, (arg ? 1 : 0));
+		loc = gl.getUniformLocation(program, uniformEnableBumpingV);
 		gl.uniform1i(loc, (arg ? 1 : 0));
 	}
 
