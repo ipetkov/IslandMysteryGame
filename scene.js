@@ -33,7 +33,7 @@ var timer = new Timer();
 
 // Steps in for moving camera
 var rotateDegree = 1;
-var moveUnit = 0.125;
+var moveUnit = 0.075;
 var mouseSensitivity = 0.1;
 var dayDuration = 1000;
 
@@ -141,7 +141,7 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(10.0, 0.0, -10.0), moveUnit);
+	player = new Player(canvas, vec3(80.0, 0.0, -100.0), moveUnit);
     player.camera.yawBy(-45);
 
 	pointerLock(canvas, function(x, y) {
@@ -164,8 +164,8 @@ window.onload = function() {
 
 	sun = new Sun(300, 1/dayDuration);
 
-	rock = new Rock(vec3(50.0, 5.0, 50.0), 0.3);
-	rock.physical.accelerate(vec3(0.0, 0.5, 0.0));
+	rock = new Rock(vec3(40.0, 0.0, 20.0), 0.15);
+	rock.physical.accelerate(vec3(0.0, 0.0, 0.0));
 
 	shapes = [water, theIsland, sun, rock];
 

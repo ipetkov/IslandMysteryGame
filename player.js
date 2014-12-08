@@ -18,7 +18,7 @@ function Player(glCanvas, pos, speed) {
 	
 	this.physical = new Physical(	vec3(0.0, -0.01, 0.0),	//acceleration
 									0.0,					//bounce
-									0.0,					//friction
+									0.1,					//friction
 									0.0);					//radius
 	this.position = function()
 	{
@@ -249,7 +249,7 @@ Player.prototype.handleKeyDown = function(e) {
 			if (!this.physical.isAirborne())
 			{
 				this.physical.setFlight(true);
-				this.physical.accelerate(vec3(0.0, 0.20, 0.0));
+				this.physical.accelerate(vec3(0.0, 0.10, 0.0));
 			}
 			break;
     }
@@ -288,8 +288,10 @@ Player.prototype.handleMouseDown = function() {
 Player.prototype.handleMouseUp = function() {
 	var yaw = radians(this.camera.yaw());
 	var pitch = radians(this.camera.pitch());
-	var armPower = 0.5;
-	var throwSpeed = armPower / rock.physical.radius();
+	var armPower = 0.01;
+	var objectWeight = rock.physical.radius();
+	objectWeight *= objectWeight;
+	var throwSpeed = armPower / objectWeight;
 
 
 	rock.figure.position = this.position();
@@ -301,9 +303,9 @@ Player.prototype.handleMouseUp = function() {
 
 
 	rock.physical.setVelocity(vec3(
-		armPower * Math.sin(-yaw) * Math.cos(-pitch),
-		armPower * Math.sin(-pitch),
-		armPower * -Math.cos(-yaw) * Math.cos(-pitch)
+		throwSpeed * Math.sin(-yaw) * Math.cos(-pitch),
+		throwSpeed * Math.sin(-pitch),
+		throwSpeed * -Math.cos(-yaw) * Math.cos(-pitch)
 		));
 }
 

@@ -9,8 +9,8 @@ var Rock = (function() {
 	function constructor(position, scale)
 	{
 		this.physical = new Physical(	vec3(0.0, -0.01, 0.0),
-										Math.min(0.5 / scale, 0.7),
-										0.1,
+										Math.min(0.5 / scale * scale, 0.5),
+										0.0,
 										scale);
 		if(!rockTex) {
 			rockTex = new Texture.fromImageSrc('./images/rock.png');

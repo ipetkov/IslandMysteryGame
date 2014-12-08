@@ -29,6 +29,11 @@ var Physical = (function()
 		this.isAirborne = function() { return m_isAirborne; }
 		this.setFlight = function(fly) { m_isAirborne = fly; }
 
+		this.isMoving = function()
+		{
+			return (m_velocity[0] == m_velocity[1] == m_velocity[2] == 0.0);
+		}
+
 		this.physics = function(startPosition, attemptPosition)
 		{
 			var x1 = startPosition[0];
@@ -56,17 +61,16 @@ var Physical = (function()
 			else
 			{	
 				finalY = groundHeight + m_radius + 0.001;
-				// Bounce
-				var coord1 = vec3(x2 + 0.5, heightOf(x2 + 0.5, z2 - 0.5), z2 - 0.5);
-				var coord2 = vec3(x2, heightOf(x2, z2 + 0.5), z2 + 0.5);
-				var coord3 = vec3(x2 - 0.5, heightOf(x2 - 0.5, z2 - 0.5), z2 - 0.5);
+				// Bouncing
+				var coord1 = vec3(x2 + 0.2, heightOf(x2 + 0.2, z2 - 0.2), z2 - 0.2);
+				var coord2 = vec3(x2, heightOf(x2, z2 + 0.2), z2 + 0.2);
+				var coord3 = vec3(x2 - 0.2, heightOf(x2 - 0.2, z2 - 0.2), z2 - 0.2);
 				var terrainNormal = plane(coord1, coord2, coord3);
 
-				m_velocity = scaleVec(m_bounce, add(scaleVec(2 * dot(scaleVec(-1, m_velocity), terrainNormal), terrainNormal), m_velocity));
+				var projNV = scaleVec(dot(scaleVec(-1, m_velocity), terrainNormal), terrainNormal);
+				m_velocity = scaleVec(m_bounce, add(scaleVec(2, projNV), m_velocity));
 
-				//m_velocity[1] *= -m_bounce;
-				
-				if (m_velocity[1] < 0.02)
+				if (m_velocity[1] < 0.03)
 				{
 					finalY = groundHeight + m_radius;
 					this.setFlight(false);
