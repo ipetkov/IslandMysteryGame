@@ -188,6 +188,25 @@ window.onload = function() {
 	newcube.position = vec3(1.0, 1.0, 0.0);
 	shapes.push(newcube);
 
+	var pig = new Pig();
+
+	pig.position = vec3(60, 0.4, 100);
+	shapes.push(pig);
+
+	// for (var i = 0; i < 3; i++)
+	// {
+	// 	var posX = Math.random() * 10.0 - 5.0;
+	// 	var posZ = Math.random() * 10.0 - 5.0;
+	// 	var kXZ = 1.0;
+	// 	var kY = 1.0;
+	// 	var age = Math.random();
+	// 	shapes.push(new Tree(
+	// 		vec3(posX, 0.0, posZ),
+	// 		vec3(kXZ, kY, kXZ),
+	// 		age
+	// 	));
+	// }
+
 	// Attach our keyboard listener to the canvas
 	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
 	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
