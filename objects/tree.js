@@ -51,7 +51,13 @@ var Tree = (function() {
 
 	constructor.drawTrees = function(dt) {
 		var identMat = mat4();
+		var iterate = 0;
 		trees.forEach(function(e) {
+			iterate++;
+			if(iterate % 2 == 0){
+				glHelper.enableBumping(true);
+				e.draw(dt, mat4());
+				glHelper.enableBumping(false);}
 			e.draw(dt, mat4());
 		});
 	}
