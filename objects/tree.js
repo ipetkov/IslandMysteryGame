@@ -1,69 +1,95 @@
 var Tree = (function() {
-	var groundMaterial = new Material(
-		vec4(0.8, 0.9, 0.5, 1.0),
-		vec4(0.8, 0.7, 0.7, 1.0)
-	);
+	var trees = [];
 
 	var trunkMaterial = new Material(
 		vec4(0.5, 0.4, 0.1, 1.0),
 		vec4(0.6, 0.3, 0.1, 1.0)
 	);
-/*
-	var foliageMaterial = new Material(
-		vec4(0.8, 0.3, 0.3, 1.0),
-		vec4(1.0, 0.3, 0.3, 1.0)
-	);
-*/
 
-	var barkTex    = null;
 	var foliageTex = null;
+	var barkBumpMap = null;
 
-	function constructor(position, scale, age)
+	function constructor(position, radius, height, age)
 	{
-		if(!barkTex) {
-			barkTex = new Texture.fromImageSrc('./images/treebark.jpg');
-		}
-
 		if(!foliageTex) {
 			foliageTex = new Texture.fromImageSrc('./images/foliage.png');
 		}
 
-		var posX = position[0];
-		var posY = position[1];
-		var posZ = position[2];
-
-		var kX = scale[0];
-		var kY = scale[1];
-		var kZ = scale[2];
+		if(!barkBumpMap) {
+			barkBumpMap = new Texture.fromImageSrc('./images/waves.jpg',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
+		}
 
 		var foliageMaterial = new Material(
 			vec4(0.8, 1.0 - 0.7 * age, 1.0 - 0.7 * age, 1.0),
 			vec4(0.3 + 0.7 * age, 0.3, 0.3, 1.0)
 		);
 
-		var barkBumpMap = new Texture.fromImageSrc('./images/waves.jpg',gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
+		this.position = position;
+		this.radius   = radius;
+		this.height   = height;
 
-		this.trunk = new HexagonalPrism(trunkMaterial, null, barkBumpMap);
-		this.trunk.position = vec3(posX, posY, posZ);
-		this.trunk.scale = vec3(kX * 0.15, 2.0 * kY, kZ * 0.15);
+		this.trunk         = new HexagonalPrism(trunkMaterial, null, barkBumpMap);
+		this.foliageTop    = new HexagonalPyramid(foliageMaterial, foliageTex, null);
+		this.foliageMiddle = new HexagonalPrism(foliageMaterial, foliageTex, null);
+		this.foliageBottom = new HexagonalPyramid(foliageMaterial, foliageTex, null);
 
-		this.foliageTop          = new HexagonalPyramid(foliageMaterial, foliageTex, null);
-		this.foliageTop.position = vec3(posX, posY + 2.5 * kY, posZ);
-		this.foliageTop.scale    = vec3(0.7 * kX, 1.5 * kY, 0.7 * kZ);
-		
-		this.foliageMiddle          = new HexagonalPrism(foliageMaterial, foliageTex, null);
-		this.foliageMiddle.position = vec3(posX, posY + 2.0 * kY, posZ);
-		this.foliageMiddle.scale    = vec3(0.7 * kX, 0.5 * kY, 0.7 * kZ);
+		trees.push(this);
+	}
 
-		this.foliageBottom          = new HexagonalPyramid(foliageMaterial, foliageTex, null);
-		this.foliageBottom.position = vec3(posX, posY + 2.0 * kY, posZ);
-		this.foliageBottom.scale    = vec3(0.7 * kX, -0.3 * kY, 0.7 * kZ);
+	constructor.getTrees = function() {
+		return trees;
+	}
+
+	constructor.drawTrees = function(dt) {
+		var identMat = mat4();
+
+		glHelper.enableBumping(true);
+		trees.forEach(function(e) {
+				e.draw(dt, mat4());
+		});
+		glHelper.enableBumping(false);
 	}
 
 	return constructor;
 })();
 
+Tree.prototype.checkCollide = function(pos, otherRadius) {
+	var treeRadius = 0.17 * this.radius;
+	var treeHeight = 4 * this.height;
+
+	if(pos[1] > treeHeight) {
+		return false;
+	}
+
+	var dist = subtract(pos, this.trunk.position);
+
+	// Ignore y-component, approximate using cylinder
+	var distSq = (dist[0] * dist[0]) + (dist[2] * dist[2]);
+	var radiusSq = otherRadius + treeRadius;
+	radiusSq *= radiusSq;
+
+	return distSq <= radiusSq;
+}
+
 Tree.prototype.draw = function(dt, mat) {
+	var pos = this.position;
+
+	var kX = this.radius;
+	var kY = this.height;
+	var kZ = this.radius;
+
+	this.trunk.position = pos;
+	this.trunk.scale = vec3(kX * 0.15, 2.0 * kY, kZ * 0.15);
+
+	this.foliageTop.position = add(pos, vec3(0.0, 2.5 * kY, 0.0));
+	this.foliageTop.scale    = vec3(0.7 * kX, 1.5 * kY, 0.7 * kZ);
+
+	this.foliageMiddle.position = add(pos, vec3(0.0, 2.0 * kY, 0.0));
+	this.foliageMiddle.scale    = vec3(0.7 * kX, 0.5 * kY, 0.7 * kZ);
+
+	this.foliageBottom.position = add(pos, vec3(0.0, 2.0 * kY, 0.0));
+	this.foliageBottom.scale    = vec3(0.7 * kX, -0.3 * kY, 0.7 * kZ);
+
 	this.trunk.draw(dt, mat);
 	this.foliageTop.draw(dt, mat);
 	this.foliageMiddle.draw(dt, mat);
