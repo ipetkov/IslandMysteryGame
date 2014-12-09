@@ -49,7 +49,7 @@ function Player(glCanvas, pos, speed) {
 		var testHeight = heightOf(this.position()[0], this.position()[2]);
 		this.camera.moveBy(-testX, -testY, -testZ);
 		
-		return (testHeight - curHeight <= 0.2);
+		return (testHeight - curHeight <= 0.2 && testHeight > 0.05);
 	}
 
 	this.move = function()
@@ -383,7 +383,7 @@ Player.prototype.handleMouseUp = function() {
 	if (inventoryRocks.length == 0)
 		return;
 	var rock = inventoryRocks[0];
-	//var rock = rocks.pop();
+	//var rock = inventoryRocks.pop();
 
 	var yaw = radians(this.camera.yaw());
 	var pitch = radians(this.camera.pitch());
