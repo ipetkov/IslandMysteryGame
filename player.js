@@ -1,9 +1,6 @@
 var footstepSound = new Audio("sounds/footstep.wav");
-footstepSound.volume = .6;
+footstepSound.volume = .9;
 
-var music = new Audio("sounds/music.mp3");
-music.loop=true;
-music.play();
 var musicOn = true;
 
 var windSound = new Audio("sounds/wind.mp3");
@@ -12,6 +9,13 @@ windSound.loop=true;
 var waveSound = new Audio("sounds/wave.mp3");
 waveSound.loop=true;
 waveSound.volume=.2;
+
+var ITBURNS = new Audio("sounds/oink.wav");
+ITBURNS.volume=0.5;
+
+var fireSound = new Audio("sounds/fire.wav");
+fireSound.loop=true;
+fireSound.volume=0.5;
 
 function Player(glCanvas, pos, speed) {
 	this.camera = new Camera(glCanvas);
@@ -138,6 +142,21 @@ function Player(glCanvas, pos, speed) {
 		}
         
         //sounds
+        //fire
+        var vectorFromFire = subtract(this.position(), fire.position);
+        var distanceFromFire = vectorFromFire[0]*vectorFromFire[0] +
+                               vectorFromFire[1]*vectorFromFire[1] +
+                               vectorFromFire[2]*vectorFromFire[2];
+        if(distanceFromFire<=16 && fire.fireOn) {
+            fireSound.play();
+        }
+        else {
+            fireSound.pause();
+        }
+        if(distanceFromFire<=.05 && fire.fireOn) {
+            ITBURNS.play();
+        }
+        //wind
         if(this.position()[1]>=maxIslandHeight-2) {
             music.volume=0.01;
             windSound.volume=0.5;
@@ -149,35 +168,36 @@ function Player(glCanvas, pos, speed) {
             windSound.play();
         }
         else if (this.position()[1]>=maxIslandHeight-15) {
-            music.volume=0.09;
+            music.volume=0.07;
             windSound.volume=0.1;
             windSound.play();
         }
         else if (this.position()[1]>=maxIslandHeight-20) {
-            music.volume=0.15;
+            music.volume=0.09;
             windSound.volume=0.05;
             windSound.play();
         }
         else if (this.position()[1]>=maxIslandHeight-25) {
-            music.volume=0.2;
+            music.volume=0.1;
             windSound.volume=0.02;
             windSound.play();
         }
         else {
-            music.volume=0.4;
+            music.volume=0.15;
             windSound.pause();
             windSound.currentTime=0;
         }
-        if(this.position()[1]<0.5) {
+        //waves
+        if(this.position()[1]<1.5) {
             waveSound.volume=.2;
             waveSound.play();
         }
-        else if(this.position()[1]<1.5) {
+        else if(this.position()[1]<8.0) {
             waveSound.volume=.1;
             waveSound.play();
         }
         else {
-            waveSound.pause();
+            waveSound.volume=.01;
         }
 	}
 
@@ -293,8 +313,14 @@ Player.prototype.handleKeyDown = function(e) {
 		case 84: //T - add a stick to the fire if you are at camp
 			var x = this.position()[0];
 			var z = this.position()[2];
-			if(x > 49 && x < 51 && z > 29 && z <31)
+            var fx = fire.position[0];
+            var fz = fire.position[2];
+			if(x > fx-1 && x < fx+1 && z > fz-1 && z <fz+1) {
 				fire.addStick();
+                var stickSound = new Audio("sounds/wood.wav");
+                stickSound.volume=0.2;
+                stickSound.play();
+            }
 			break;
 		case 32: // SPACE - jump
 			if (!this.isAirborne)
@@ -305,7 +331,7 @@ Player.prototype.handleKeyDown = function(e) {
 			break;
         case 77: // M music on/off
             musicOn=!musicOn;
-            if(musicOn){music.play();}
+            if(musicOn && isNighttime){music.play();}
             else{music.pause();}
             break;
     }

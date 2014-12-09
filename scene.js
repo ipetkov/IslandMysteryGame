@@ -39,11 +39,16 @@ var timer = new Timer();
 
 var cutscene=false;
 
+var music = new Audio("sounds/islandMusic2.mp3");
+music.loop=true;
+var isNighttime=false;
+//music.play();
+
 // Steps in for moving camera
 var rotateDegree = 1;
 var moveUnit = 0.125;
 var mouseSensitivity = 0.1;
-var dayDuration = 1000;
+var dayDuration = 500;
 
 // Helper to set shader attributes/uniforms
 var glHelper = (function() {
@@ -163,7 +168,7 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(quarterSize, 0, -quarterSize+20), moveUnit);
+	player = new Player(canvas, vec3(quarterSize-20, 0, -quarterSize+20), moveUnit);
     player.camera.yawBy(-45);
     player.camera.rollBy(-80);
 
@@ -211,26 +216,27 @@ window.onload = function() {
 	bumpCube.position = vec3(20.0, 0.8, 70.0);
 
 	//create rocks in a circle to signify campsite
+    var firex = quarterSize + 10;
+    var firez = quarterSize + 10;
+    
 	for(var i = 0; i < 10; i++){
 		campRocks.push(new CampRock(rockMaterial, new Texture.fromImageSrc('./images/rockTex.png'), gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST));
-		campRocks[i].position = vec3(50.0 + Math.cos(i*Math.PI/5), heights[50][30] + 0.1, 30.0 + Math.sin(i*Math.PI/5));
+        var rockx = firex + Math.cos(i*Math.PI/5);
+        var rockz = firez + Math.sin(i*Math.PI/5);
+        var rockyx = Math.trunc(rockx);
+        var rockyz = Math.trunc(rockz);
+        var rocky = findAvg(rockyx, rockyz);
+		campRocks[i].position = vec3(rockx, rocky + 0.1, rockz);
 		campRocks[i].scale = vec3(0.5, 0.5, 0.5);
 		}
 
-	fire = new Campfire(vec3(50.0, heights[50][30]+0.1, 30.0));
+	fire = new Campfire(vec3(firex, heights[firex][firez]+0.1, firez));
 	fire.numSticks = 0.0;
-
-	// Attach our keyboard listener to the canvas
-	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
-	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
-	window.addEventListener('keydown', playerHandleKeyDown);
-	window.addEventListener('keyup', playerHandleKeyUp);
 
 	// Set off the draw loop
 	draw();
     
     setTimeout(function() {
-        // Attach our keyboard listener to the canvas
         cutscene=true;
     }, 2000);
     
@@ -245,12 +251,25 @@ window.onload = function() {
         var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
         window.addEventListener('keydown', playerHandleKeyDown);
         window.addEventListener('keyup', playerHandleKeyUp);
-    }, 2500);
+    }, 5000);
 }
 
 
 // Draws the data in the vertex buffer on the canvas repeatedly
 function draw() {
+    if(sun.angle>180 && sun.angle<360) {
+        isNighttime=true;
+    }
+    else {
+        isNighttime=false;
+    }
+    if(isNighttime && musicOn) {
+        //music.currentTime=0;
+        music.play();
+    }
+    else {
+        music.pause();
+    }
 	var skyColor = sun.skyColor;
 	gl.clearColor(skyColor[0], skyColor[1], skyColor[2], 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
