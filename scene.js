@@ -22,12 +22,15 @@ var uniformUniformLighting = 'uniformLighting';
 var uniformEnableBumpingV   = 'enableBumpingV';
 var uniformEnableBumpingF   = 'enableBumpingF';
 
+var stickCountId = 'stickCount';
+var rockCountId = 'rockCount';
 
 var shapes = [];
 var campRocks = [];
 var fire;
 var bumpCube;
 var sun;
+var totalRocks = 5;
 
 var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
@@ -46,7 +49,7 @@ var isNighttime=false;
 
 // Steps in for moving camera
 var rotateDegree = 1;
-var moveUnit = 0.125;
+var moveUnit = 0.075 * 2;
 var mouseSensitivity = 0.1;
 var dayDuration = 500;
 
@@ -131,11 +134,15 @@ var glHelper = (function() {
 	}
 
 	helper.setAmbientProduct = function(vec) {
-		setUniformVec4(uniformAmbientProduct, mult(sun.lightMaterial.ambient, vec));
+		setUniformVec4(uniformAmbientProduct, mult(this.material.ambient, vec));
+	}
+
+	helper.setLightMaterial = function(mat){
+		this.material = mat;
 	}
 
 	helper.setDiffuseProduct = function(vec) {
-		setUniformVec4(uniformDiffuseProduct, mult(sun.lightMaterial.diffuse, vec));
+		setUniformVec4(uniformDiffuseProduct, mult(this.material.diffuse, vec));
 	}
 
 	helper.setLightPosition = function(vec) {
@@ -201,7 +208,7 @@ window.onload = function() {
             var kY = 4.0 * (Math.random() * 0.3 +1.0);
             var age = Math.random();
             var rand = Math.random();
-            if(heights[x][z]>0.21 && rand<=0.04 && (x < 49 || x > 51 || z < 29 || z > 31)) {
+            if(heights[x][z]>0.21 && rand<=0.02 && (x < 49 || x > 51 || z < 29 || z > 31)) {
                 new Tree(
                     vec3(x, heights[x][z]-0.5, z),
 				    kXZ, kY,
@@ -227,7 +234,7 @@ window.onload = function() {
         var rockyz = Math.trunc(rockz);
         var rocky = findAvg(rockyx, rockyz);
 		campRocks[i].position = vec3(rockx, rocky + 0.1, rockz);
-		campRocks[i].scale = vec3(0.5, 0.5, 0.5);
+		campRocks[i].scale = vec3(1.0, 1.0, 1.0);
 		}
 
 	fire = new Campfire(vec3(firex, heights[firex][firez]+0.1, firez));
@@ -247,10 +254,38 @@ window.onload = function() {
 		player.camera.pitchBy(-y * mouseSensitivity);
 	}, null);
 
+	// Attach our keyboard listener to the canvas
         var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
         var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
+        var playerHandleMouseDown = function(){ return player.handleMouseDown(); }
+		var playerHandleMouseUp = function(){ return player.handleMouseUp(); }
         window.addEventListener('keydown', playerHandleKeyDown);
         window.addEventListener('keyup', playerHandleKeyUp);
+    	window.addEventListener('mousedown', playerHandleMouseDown);
+		window.addEventListener('mouseup', playerHandleMouseUp);
+    }, 3000);
+
+
+    // Check to generate more rocks/sticks every 5 seconds
+    setTimeout(function() {
+	// Quick and dirty way to generate more sticks in the scene
+	var trees = Tree.getTrees();
+	var stickDiff = trees.length - (Tree.getSticks().length + player.numSticks);
+	for(var i = 0; i < stickDiff; i++) {
+		var index = Math.floor(Math.random * trees.length);
+		trees[i].addStick();
+	}
+
+	var rocks = Rock.getRocks();
+	var rockDiff = totalRocks - (rocks.length + player.rocks.length);
+	for(var i = 0; i < rockDiff; i++) {
+		var x = Math.random() * (islandSize - 1);
+		var z = Math.random() * (islandSize - 1);
+
+		var size = (Math.random() * 0.1) + 0.1;
+
+		new Rock(vec3(x, 0, z), size);
+	}
     }, 5000);
 }
 
@@ -285,19 +320,33 @@ function draw() {
 	var dt = timer.getElapsedTime();
 
 	sun.draw(dt);  // This will set our light position and material
+
+	dt += timer.getElapsedTime();
 	Tree.drawTrees(dt);
 	
-	fire.draw(dt, identMat);
 
 	shapes.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
 
+	Rock.getRocks().forEach(function(r) {
+		dt += timer.getElapsedTime();
+		r.draw(dt, identMat);
+	});
+
+	player.draw(); // This will draw the crosshairs and arms on the screen
+
+	//fire will change liht material and position and draw rocks
+	//with that light. 
+	fire.draw(dt, identMat);
 	campRocks.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
+	glHelper.setLightMaterial(sun.lightMaterial);
+	//light is reset here, position is taken care of
+	//by sun.draw which is the first shape drawn
 
 //This commented cube draws a test cube that clearly shows the sucesfull
 //implemintation of bump mapping

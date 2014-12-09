@@ -51,12 +51,6 @@ var Island = (function() {
     var sandNormals = [];
     var sandTexCoordinates = [];
     var sandTangents = [];
-
-    var plane = function(a, b, c) {
-        var ab = subtract(b,a);
-        var ac = subtract(c,a);
-        return cross(ab, ac);
-    }
     
     //init vertices and normals
     for(var x=0; x<islandSize; x++) {

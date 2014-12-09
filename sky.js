@@ -20,7 +20,7 @@ function Sun(distFromOrigin, omega) {
 	// The material the glHelper will use for calculating light products
 	this.lightMaterial = this.daylight;
 
-	this.angle = 0;      // Stores the time of day
+	this.angle = 10;      // Stores the time of day
 	this.omega = omega;  // Determines how fast the day is
 	this.distFromOrigin = distFromOrigin;
 
@@ -62,6 +62,7 @@ Sun.prototype.draw = function(dt) {
 
 	// The sun and the moon get lit using full day light no matter what
 	this.lightMaterial = this.daylight;
+	glHelper.setLightMaterial(this.lightMaterial);
 
 	// If the sun is rising/setting, still draw the moon to avoid it
 	// jumping in/out when it is around the horizon.
@@ -120,4 +121,5 @@ Sun.prototype.draw = function(dt) {
 		mix(envLight.ambient, this.darkness.ambient, lightAlpha),
 		mix(envLight.diffuse, this.darkness.diffuse, lightAlpha)
 	);
+	glHelper.setLightMaterial(this.lightMaterial);
 }

@@ -1,12 +1,5 @@
 "use strict";
 
-var plane = function(a, b, c)
-{
-	var ab = subtract(b, a);
-	var ac = subtract(c, a);
-	return cross(ab, ac);
-}
-
 var CampRock = (function() {
 	// Vertices used by each cube instance
 	var vbo = null;

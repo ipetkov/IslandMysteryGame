@@ -1,5 +1,6 @@
 var Tree = (function() {
 	var trees = [];
+	var sticks = [];
 
 	var trunkMaterial = new Material(
 		vec4(0.5, 0.4, 0.1, 1.0),
@@ -33,11 +34,17 @@ var Tree = (function() {
 		this.foliageMiddle = new HexagonalPrism(foliageMaterial, foliageTex, null);
 		this.foliageBottom = new HexagonalPyramid(foliageMaterial, foliageTex, null);
 
+		this.stick = null;
+
 		trees.push(this);
 	}
 
 	constructor.getTrees = function() {
 		return trees;
+	}
+
+	constructor.getSticks = function() {
+		return sticks;
 	}
 
 	constructor.drawTrees = function(dt) {
@@ -53,11 +60,11 @@ var Tree = (function() {
 	return constructor;
 })();
 
-Tree.prototype.checkCollide = function(pos, otherRadius) {
+Tree.prototype.checkCollision = function(pos, otherRadius) {
 	var treeRadius = 0.17 * this.radius;
-	var treeHeight = 4 * this.height;
+	var treeHeight = 4 * this.height + heightOf(pos[0], pos[2]);
 
-	if(pos[1] > treeHeight) {
+	if(pos[1] > treeHeight * 2) {
 		return false;
 	}
 
@@ -94,4 +101,32 @@ Tree.prototype.draw = function(dt, mat) {
 	this.foliageTop.draw(dt, mat);
 	this.foliageMiddle.draw(dt, mat);
 	this.foliageBottom.draw(dt, mat);
+
+	if(this.stick) {
+		this.stick.draw(dt, mat);
+	}
+}
+
+Tree.prototype.addStick = function() {
+	if(this.stick) {
+		return;
+	}
+
+	// Pick a random 45 degree offset around the tree
+	var rand = Math.floor(Math.random() * 10) - 1;
+	var theta = rand * 45;
+	var yaw = rand * -60;
+	var rad = radians(theta);
+	var sin = Math.sin(theta);
+	var cos = Math.cos(theta);
+
+	var y = Math.abs(Math.random() * this.height * 2);
+	var radius = (this.radius * 0.15) + 0.15;
+	var pos = vec3(radius * cos, y, radius * sin);
+
+	var roll = Math.floor((Math.random() * 90) - 45);
+	this.stick = new Stick(add(this.position, pos), yaw, 0, roll);
+	this.stick.tree = this;
+
+	Tree.getSticks().push(this.stick);
 }

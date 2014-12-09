@@ -46,6 +46,10 @@ function Camera(glCanvas) {
 		return -yaw;
 	}
 
+	this.pitch = function() {
+		return pitch;
+	}
+
 	this.position = function()
 	{
 		return vec3(position[0], position[1], -position[2]);
