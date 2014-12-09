@@ -194,7 +194,7 @@ Pig.prototype.draw = function(dt, mat) {
 			this.yaw = Math.floor((this.yaw + dt * omega) % 360);
 	}
 	this.moveCount++;
-	if(this.moveCount === 500 /*|| collision detection*/)
+	if(this.moveCount === 300 /*|| collision detection*/)
 		this.moveCount = 0;
 
 	if(this.moveCount > 99){

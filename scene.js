@@ -197,7 +197,9 @@ window.onload = function() {
 
 	sun = new Sun(300, 1/dayDuration);
 
-	shapes = [water, theIsland];
+	var pig = new Pig();
+	pig.position = vec3(islandSize/2, 0, islandSize/2);
+	shapes = [water, theIsland, pig];
 
     
 	for (var x=1; x<quarterSize; x+=2)
