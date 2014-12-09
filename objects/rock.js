@@ -5,6 +5,7 @@ var Rock = (function() {
 	);
 
 	var rockTex = null;
+	var rocks = [];
 
 	function constructor(position, scale)
 	{
@@ -27,6 +28,12 @@ var Rock = (function() {
 			this.figure.position[2] += distance[2];
 		}	
 		this.position = function() { return this.figure.position; }
+
+		rocks.push(this);
+	}
+
+	constructor.getRocks = function() {
+		return rocks;
 	}
 
 	return constructor;

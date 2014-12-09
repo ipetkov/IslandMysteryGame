@@ -29,12 +29,15 @@ function Player(glCanvas, pos, speed) {
 	this.leanAngle = 0.0;
 	
 	this.armPower = 0.0;
-	this.maxArmPower = 0.02;
+	this.maxArmPower = 0.01;
 	this.isCharging = false;
 	this.isRunning = false;
 
 	this.numSticks = 0;
+	this.rocks = [];
+
 	this.maxSticks = 3;
+	this.maxRocks = 5;
 	
 	this.physical = new Physical(	vec3(0.0, -0.01, 0.0),	//acceleration
 									0.0,					//bounce
@@ -100,6 +103,29 @@ function Player(glCanvas, pos, speed) {
 					sticks.splice(i, 1);
 					document.getElementById(stickCountId).textContent = 'Sticks: ' + this.numSticks;
 
+					break;
+				}
+			}
+		}
+
+		var worldRocks = Rock.getRocks();
+		if(this.rocks.length < this.maxRocks) {
+			for(var i = 0; i < worldRocks.length; i++) {
+				var r = worldRocks[i];
+				if(r.physical.isMoving()) {
+					continue;
+				}
+
+				var v = subtract(newPos, r.position());
+				var distSq = 0;
+				v.forEach(function(d) {
+					distSq += d*d;
+				});
+
+				if(distSq <= 1) {
+					this.rocks.push(r);
+					worldRocks.splice(i, 1);
+					document.getElementById(rockCountId).textContent = 'Rocks: ' + this.rocks.length;
 					break;
 				}
 			}
@@ -405,10 +431,9 @@ Player.prototype.handleMouseDown = function() {
 }
 
 Player.prototype.handleMouseUp = function() {
-	if (inventoryRocks.length == 0)
+	if (this.rocks.length == 0)
 		return;
-	var rock = inventoryRocks[0];
-	//var rock = rocks.pop();
+	var rock = this.rocks.pop();
 
 	var yaw = radians(this.camera.yaw());
 	var pitch = radians(this.camera.pitch());
@@ -429,12 +454,7 @@ Player.prototype.handleMouseUp = function() {
 
 	this.armPower = 0.0;
 	this.isCharging = false;
+
+	Rock.getRocks().push(rock);
+	document.getElementById(rockCountId).textContent = 'Rocks: ' + this.rocks.length;
 }
-
-
-
-
-
-
-
-

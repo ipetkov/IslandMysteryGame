@@ -31,7 +31,7 @@ var Physical = (function()
 
 		this.isMoving = function()
 		{
-			return (m_velocity[0] == m_velocity[1] == m_velocity[2] == 0.0);
+			return m_velocity[0] != 0 || m_velocity[1] != 0 || m_velocity[2] != 0;
 		}
 
 		this.physics = function(startPosition, attemptPosition)

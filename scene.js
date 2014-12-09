@@ -23,13 +23,14 @@ var uniformEnableBumpingV   = 'enableBumpingV';
 var uniformEnableBumpingF   = 'enableBumpingF';
 
 var stickCountId = 'stickCount';
+var rockCountId = 'rockCount';
 
 var shapes = [];
 var campRocks = [];
 var fire;
 var bumpCube;
 var sun;
-var inventoryRocks = [];
+var totalRocks = 5;
 
 var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
@@ -191,8 +192,6 @@ window.onload = function() {
 
 	sun = new Sun(300, 1/dayDuration);
 
-	inventoryRocks.push(new Rock(vec3(40.0, 0.0, 20.0), 0.15));
-
 	shapes = [water, theIsland];
 
     
@@ -254,6 +253,30 @@ window.onload = function() {
     	window.addEventListener('mousedown', playerHandleMouseDown);
 		window.addEventListener('mouseup', playerHandleMouseUp);
     }, 3000);
+
+
+    // Check to generate more rocks/sticks every 5 seconds
+    setTimeout(function() {
+	// Quick and dirty way to generate more sticks in the scene
+	var trees = Tree.getTrees();
+	var stickDiff = trees.length - (Tree.getSticks().length + player.numSticks);
+	for(var i = 0; i < stickDiff; i++) {
+		var index = Math.floor(Math.random * trees.length);
+		trees[i].addStick();
+	}
+
+	var rocks = Rock.getRocks();
+	var rockDiff = totalRocks - (rocks.length + player.rocks.length);
+	for(var i = 0; i < rockDiff; i++) {
+		var x = Math.random() * (islandSize - 1);
+		var z = Math.random() * (islandSize - 1);
+
+		var size = (Math.random() * 0.1) + 0.1;
+
+		new Rock(vec3(x, 0, z), size);
+	}
+    }, 5000);
+
 }
 
 
@@ -275,14 +298,6 @@ function draw() {
 
 	sun.draw(dt);  // This will set our light position and material
 
-	// Quick and dirty way to generate more sticks in the scene
-	var trees = Tree.getTrees();
-	var stickDiff = trees.length - (Tree.getSticks().length + player.numSticks);
-	for(var i = 0; i < stickDiff; i++) {
-		var index = Math.floor(Math.random * trees.length);
-		trees[i].addStick();
-	}
-
 	dt += timer.getElapsedTime();
 	Tree.drawTrees(dt);
 	
@@ -290,6 +305,11 @@ function draw() {
 	shapes.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
+	});
+
+	Rock.getRocks().forEach(function(r) {
+		dt += timer.getElapsedTime();
+		r.draw(dt, identMat);
 	});
 
 	player.draw(); // This will draw the crosshairs and arms on the screen
@@ -304,10 +324,6 @@ function draw() {
 	glHelper.setLightMaterial(sun.lightMaterial);
 	//light is reset here, position is taken care of
 	//by sun.draw which is the first shape drawn
-
-	inventoryRocks.forEach(function(e) {
-		e.draw(dt, identMat);
-	})
 
 //This commented cube draws a test cube that clearly shows the sucesfull
 //implemintation of bump mapping
