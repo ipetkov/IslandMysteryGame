@@ -5,7 +5,7 @@ Team #5
 
 Welcome to Mystery Island!
 
-To start the game open index.html.  after a short scene of you (the player) waking up on the island, the game will begin.  There controls are listed at the bottom of the webpage.
+To start the game run `python -m SimpleHTTPServer` from a terminal in this directory. Then open your browser and navigate to http://localhost:8000. (Or just open index.html using Firefox.)  after a short scene of you (the player) waking up on the island, the game will begin.  There controls are listed at the bottom of the webpage.
 
 The object of the game is to enjoy the island. Things you can do: 
 -pick up branches from trees to start a fire (hint: find the firepit!)
