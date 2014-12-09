@@ -1,3 +1,23 @@
+"use strict";
+var footstepSound = new Audio("sounds/footstep.wav");
+footstepSound.volume = .9;
+
+var musicOn = true;
+
+var windSound = new Audio("sounds/wind.mp3");
+windSound.loop=true;
+
+var waveSound = new Audio("sounds/wave.mp3");
+waveSound.loop=true;
+waveSound.volume=.2;
+
+var ITBURNS = new Audio("sounds/oink.wav");
+ITBURNS.volume=0.5;
+
+var fireSound = new Audio("sounds/fire.wav");
+fireSound.loop=true;
+fireSound.volume=0.5;
+
 function Player(glCanvas, pos, speed) {
 	this.camera = new Camera(glCanvas);
 	this.camera.moveBy(pos[0], pos[1], pos[2]);
@@ -8,30 +28,53 @@ function Player(glCanvas, pos, speed) {
 	this.rightVelocity = 0.0;
 	this.movementSpeed = speed;
 
-	this.yVelocity = 0.0;
-	this.yAcceleration = -0.015;
-
 	this.leanLeft = false;
 	this.leanRight = false;
 	this.leanAngle = 0.0;
 	
+	this.armPower = 0.0;
+	this.maxArmPower = 0.015;
+	this.isCharging = false;
 	this.isRunning = false;
-	this.isAirborne = false;
 
+	this.numSticks = 0;
+	this.rocks = [];
+
+	this.maxSticks = 3;
+	this.maxRocks = 5;
+	
+	this.physical = new Physical(	vec3(0.0, -0.01, 0.0),	//acceleration
+									0.0,					//bounce
+									1.0,					//friction
+									0.0);					//radius
 	this.position = function()
 	{
 		return this.camera.position();
 	}
 
+	this.testMove = function(testX, testY, testZ)
+	{
+		var curHeight = this.position()[1];
+		this.camera.moveBy(testX, testY, testZ);
+		var testHeight = heightOf(this.position()[0], this.position()[2]);
+		this.camera.moveBy(-testX, -testY, -testZ);
+		
+		return (testHeight - curHeight <= 0.2 && testHeight > 0.05);
+	}
+
 	this.move = function()
 	{
-		var thisPos = this.position();
+		var startPosition = this.position();
+
+		// Movement based on keyboard keys
 		var xV = this.rightVelocity - this.leftVelocity;
-		var yV = this.yVelocity;
+		var yV = this.physical.velocity()[1];
 		var zV = this.forwardVelocity - this.backVelocity;
 
-		var newPos = add(thisPos, vec3(xV, yV, zV));
+		var newPos = add(startPosition, vec3(xV, yV, zV));
 		var trees = Tree.getTrees();
+		var sticks = Tree.getSticks();
+		var worldRocks = Rock.getRocks();
 
 		var rad = radians(this.camera.yaw());
 		var sin = Math.sin(rad);
@@ -44,8 +87,8 @@ function Player(glCanvas, pos, speed) {
 		);
 
 		for(var i = 0; i < trees.length; i++) {
-			if(trees[i].checkCollide(newPos, this.movementSpeed)) {
-				var d = dot(subtract(trees[i].position, thisPos), heading);
+			if(trees[i].checkCollision(newPos, this.movementSpeed)) {
+				var d = dot(subtract(trees[i].position, startPosition), heading);
 				if(d > 0) {
 					continue;
 				}
@@ -56,11 +99,60 @@ function Player(glCanvas, pos, speed) {
 			}
 		}
 
+		var flyingRocks = [];
+		worldRocks.forEach(function(r) {
+			if(r.physical.isMoving()) {
+				flyingRocks.push(r);
+			}
+		});
+
+		if(this.numSticks < this.maxSticks) {
+			for(var i = 0; i < sticks.length; i++) {
+				var s = sticks[i];
+				if(s.checkCollision(newPos, this.movementSpeed)) {
+					this.numSticks++;
+					s.tree.stick = null;
+					sticks.splice(i, 1);
+					document.getElementById(stickCountId).textContent = 'Sticks: ' + this.numSticks;
+
+					break;
+				} else {
+					flyingRocks.forEach(function(r) {
+						if(s.checkCollision(r.position(), r.figure.radius)) {
+							s.isAttached = false;
+						}
+					});
+				}
+			}
+		}
+
+		if(this.rocks.length < this.maxRocks) {
+			for(var i = 0; i < worldRocks.length; i++) {
+				var r = worldRocks[i];
+				if(r.physical.isMoving()) {
+					continue;
+				}
+
+				var v = subtract(newPos, r.position());
+				var distSq = 0;
+				v.forEach(function(d) {
+					distSq += d*d;
+				});
+
+				if(distSq <= 1) {
+					this.rocks.push(r);
+					worldRocks.splice(i, 1);
+					document.getElementById(rockCountId).textContent = 'Rocks: ' + this.rocks.length;
+					break;
+				}
+			}
+		}
+
 		// Adjust velocities and lean based on player's state
-		if (this.isAirborne)
+		if (this.physical.isAirborne())
 		{
 			if (this.isRunning && zV > 0)
-				zV *= 2.5;
+				zV *= 1.5;
 			// Adjust camera back to normal
 			if (this.leanAngle < 5.0 && this.leanAngle > -5.0)
 				this.leanAngle = 0.0;
@@ -71,7 +163,7 @@ function Player(glCanvas, pos, speed) {
 		{
 			if (this.isRunning && zV > 0)
 			{
-				zV *= 2.5;
+				zV *= 1.5;
 				this.leanAngle = nextLeanAngle(this.leanAngle);
 			}
 			else
@@ -92,24 +184,113 @@ function Player(glCanvas, pos, speed) {
 		}
 
 		this.camera.setLean(this.leanAngle);
+		
+		if (this.testMove(xV, 0.0, 0.0))
+			this.camera.moveBy(xV, 0.0, 0.0);
+		else if (this.testMove(xV * Math.sqrt(3) / 2, 0.0, xV / 2))
+			this.camera.moveBy(xV * Math.sqrt(3) / 2, 0.0, xV / 2);
+		else if (this.testMove(xV * Math.sqrt(3) / 2, 0.0, -xV / 2))
+			this.camera.moveBy(xV * Math.sqrt(3) / 2, 0.0, -xV / 2);
+		else if (this.testMove(xV / 2, 0.0, xV * Math.sqrt(3) / 2))
+			this.camera.moveBy(xV / 2, 0.0, xV * Math.sqrt(3) / 2);
+		else if (this.testMove(xV / 2, 0.0, -xV * Math.sqrt(3) / 2))
+			this.camera.moveBy(xV / 2, 0.0, -xV * Math.sqrt(3) / 2);
 
-		this.camera.moveBy(xV, yV, zV );
-		thisPos = this.position();
-		var terrainHeight = heightOf(thisPos[0], thisPos[2]);
-		if (thisPos[1] > terrainHeight)
-		{
-			this.isAirborne = true;
-			this.yVelocity += this.yAcceleration;
-			if (this.yVelocity < -5.0) // Terminal velocity
-				this.yVelocity = -5.0;
+		if (this.testMove(0.0, 0.0, zV))
+			this.camera.moveBy(0.0, 0.0, zV);
+		else if (this.testMove(zV / 2, 0.0, zV * Math.sqrt(3) / 2))
+			this.camera.moveBy(zV / 2, 0.0, zV * Math.sqrt(3) / 2);
+		else if (this.testMove(-zV / 2, 0.0, zV * Math.sqrt(3) / 2))
+			this.camera.moveBy(-zV / 2, 0.0, zV * Math.sqrt(3) / 2);
+		else if (this.testMove(zV * Math.sqrt(3) / 2, 0.0, zV / 2))
+			this.camera.moveBy(zV * Math.sqrt(3) / 2, 0.0, zV / 2);
+		else if (this.testMove(-zV * Math.sqrt(3) / 2, 0.0, zV / 2))
+			this.camera.moveBy(-zV * Math.sqrt(3) / 2, 0.0, zV / 2);
+
+		this.camera.moveBy( 0.0, yV, 0.0);
+
+		var attemptPosition = this.position();
+		
+		//Movement adjustment according to physics
+		var finalMove = this.physical.physics(startPosition, attemptPosition);
+		this.camera.moveBy(finalMove[0], finalMove[1], finalMove[2]);
+
+		if (this.isCharging)
+			this.armPower = Math.min(this.maxArmPower, this.armPower + 0.001);
+
+		//footsteps
+		if(yV!=0) {
+		    footstepSound.pause();
 		}
-		else
-		{
-			this.camera.moveBy(0.0, terrainHeight - thisPos[1], 0.0);
-			this.isAirborne = false;
-			this.yVelocity = 0.0;
+
+		else if(xV!=0 || zV!=0) {
+		    footstepSound.play();
 		}
+		else {
+		    footstepSound.pause();
+		}
+        
+        //sounds
+        //fire
+        var vectorFromFire = subtract(this.position(), fire.position);
+        var distanceFromFire = vectorFromFire[0]*vectorFromFire[0] +
+                               vectorFromFire[1]*vectorFromFire[1] +
+                               vectorFromFire[2]*vectorFromFire[2];
+        if(distanceFromFire<=16 && fire.fireOn) {
+            fireSound.play();
+        }
+        else {
+            fireSound.pause();
+        }
+        if(distanceFromFire<=.05 && fire.fireOn) {
+            ITBURNS.play();
+        }
+        //wind
+        if(this.position()[1]>=maxIslandHeight-2) {
+            music.volume=0.01;
+            windSound.volume=0.5;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-10) {
+            music.volume=0.05;
+            windSound.volume=0.2;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-15) {
+            music.volume=0.07;
+            windSound.volume=0.1;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-20) {
+            music.volume=0.09;
+            windSound.volume=0.05;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-25) {
+            music.volume=0.1;
+            windSound.volume=0.02;
+            windSound.play();
+        }
+        else {
+            music.volume=0.15;
+            windSound.pause();
+            windSound.currentTime=0;
+        }
+        //waves
+        if(this.position()[1]<1.5) {
+            waveSound.volume=.2;
+            waveSound.play();
+        }
+        else if(this.position()[1]<8.0) {
+            waveSound.volume=.1;
+            waveSound.play();
+        }
+        else {
+            waveSound.volume=.01;
+        }
 	}
+
+	
 
 	var blackMaterial = new Material(
 		vec4(0.0, 0.0, 0.0, 1.0),
@@ -143,11 +324,11 @@ function Player(glCanvas, pos, speed) {
 	this.leftArm.yaw      = -10;
 
 	this.leftArm.draw = function(dt, mat) {
-		glHelper.enableLighting(false);
+		glHelper.uniformLighting(false);
 		glHelper.setProjViewMatrix(orthoMat);
 		Cube.prototype.draw.call(this, dt, mat);
 		glHelper.setProjViewMatrix(player.camera.getProjViewMatrix()); // Reset the proj matrix
-		glHelper.enableLighting(true);
+		glHelper.uniformLighting(true);
 	}
 
 	this.rightArm              = new Cube(null, rightTex, false, false, false);
@@ -159,7 +340,6 @@ function Player(glCanvas, pos, speed) {
 	this.rightArm.draw         = this.leftArm.draw;
 }
 
-
 function nextLeanAngle(curAngle)
 {
 	if (!nextLeanAngle.isInitialized)
@@ -167,14 +347,14 @@ function nextLeanAngle(curAngle)
 	nextLeanAngle.isInitialized = true;
 	
 	var newAngle = curAngle;
-	if (curAngle >= 30.0)
+	if (curAngle >= 7.0)
 		nextLeanAngle.isLeft = 0;
-	else if (curAngle <= -30.0)
+	else if (curAngle <= -7.0)
 		nextLeanAngle.isLeft = 1;
 	if (nextLeanAngle.isLeft)
-		newAngle += 4.0;
+		newAngle += 1.0;
 	else
-		newAngle -= 4.0;
+		newAngle -= 1.0;
 	return newAngle;
 }
 
@@ -192,6 +372,8 @@ Player.prototype.draw = function(dt) {
 	this.leftArm.draw(dt, identMat);
 	this.rightArm.draw(dt, identMat);
 }
+
+
 
 // Key handler which will update our camera position
 Player.prototype.handleKeyDown = function(e) {
@@ -216,15 +398,41 @@ Player.prototype.handleKeyDown = function(e) {
 			break;
 		case 16: // SHIFT - run
 			this.isRunning = true;
+            footstepSound.playbackRate=2.0;
+			break;
+		case 84: //T - add a stick to the fire if you are at camp
+			if(this.numSticks <= 0) {
+				break;
+			}
+
+			var x = this.position()[0];
+			var z = this.position()[2];
+            var fx = fire.position[0];
+            var fz = fire.position[2];
+			if(x > fx-1 && x < fx+1 && z > fz-1 && z <fz+1) {
+				fire.addStick();
+				this.numSticks--;
+				document.getElementById(stickCountId).textContent = 'Sticks: ' + this.numSticks;
+				var stickSound = new Audio("sounds/wood.wav");
+				stickSound.volume=0.2;
+				stickSound.play();
+            }
 			break;
 		case 32: // SPACE - jump
-			if (!this.isAirborne)
+			var pos = this.position();
+			if (pos[1] <= heightOf(pos[0], pos[2]) + 0.3)
 			{
-				this.isAirborne = true;
-				this.yVelocity = 0.45;
+				this.physical.setFlight(true);
+				this.physical.setVelocity(vec3(0.0, 0.10, 0.0));
 			}
 			break;
+        case 77: // M music on/off
+            musicOn=!musicOn;
+            if(musicOn && isNighttime){music.play();}
+            else{music.pause();}
+            break;
     }
+    
 }
 
 Player.prototype.handleKeyUp = function(e) {
@@ -249,7 +457,42 @@ Player.prototype.handleKeyUp = function(e) {
 			break;
 		case 16: // SHIFT - run
 			this.isRunning = false;
+            footstepSound.playbackRate=1.0;
+			break;
+        case 32: // SPACE - jump
 			break;
     }
 }
 
+Player.prototype.handleMouseDown = function() {
+	this.isCharging = true;
+}
+
+Player.prototype.handleMouseUp = function() {
+	if (this.rocks.length == 0)
+		return;
+	var rock = this.rocks.pop();
+
+	var yaw = radians(this.camera.yaw());
+	var pitch = radians(this.camera.pitch());
+	var objectWeight = rock.physical.radius();
+	objectWeight *= objectWeight;
+	var throwSpeed = this.armPower / objectWeight;
+
+	rock.figure.position = this.position();
+	rock.figure.position[0] += 0.5 * Math.cos(-yaw) * Math.cos(-pitch);
+	rock.figure.position[1] += 0.7;
+	rock.figure.position[2] += 0.5 * Math.sin(-yaw) * Math.cos(-pitch);
+
+	rock.physical.setVelocity(vec3(
+		throwSpeed * Math.sin(-yaw) * Math.cos(-pitch),
+		throwSpeed * Math.sin(-pitch),
+		throwSpeed * -Math.cos(-yaw) * Math.cos(-pitch)
+		));
+
+	this.armPower = 0.0;
+	this.isCharging = false;
+
+	Rock.getRocks().push(rock);
+	document.getElementById(rockCountId).textContent = 'Rocks: ' + this.rocks.length;
+}

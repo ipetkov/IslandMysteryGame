@@ -53,5 +53,17 @@ for(var x=1; x<islandSize; x++) {
     }
 }
 
+var minIslandHeight=0;
+var maxIslandHeight=0;
+for(var x=0; x<islandSize+1; x++) {
+    for(var z=0; z<islandSize+1; z++) {
+        if(heights[x][z]>maxIslandHeight) {
+            maxIslandHeight=heights[x][z];
+        }
+        if(heights[x][z]<minIslandHeight) {
+            minIslandHeight=heights[x][z];
+        }
+    }
+}
 
 
