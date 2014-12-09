@@ -20,7 +20,7 @@ function Sun(distFromOrigin, omega) {
 	// The material the glHelper will use for calculating light products
 	this.lightMaterial = this.daylight;
 
-	this.angle = 0;      // Stores the time of day
+	this.angle = 10;      // Stores the time of day
 	this.omega = omega;  // Determines how fast the day is
 	this.distFromOrigin = distFromOrigin;
 
