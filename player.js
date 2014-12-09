@@ -70,6 +70,7 @@ function Player(glCanvas, pos, speed) {
 		var newPos = add(startPosition, vec3(xV, yV, zV));
 		var trees = Tree.getTrees();
 		var sticks = Tree.getSticks();
+		var worldRocks = Rock.getRocks();
 
 		var rad = radians(this.camera.yaw());
 		var sin = Math.sin(rad);
@@ -94,21 +95,33 @@ function Player(glCanvas, pos, speed) {
 			}
 		}
 
+		var flyingRocks = [];
+		worldRocks.forEach(function(r) {
+			if(r.physical.isMoving()) {
+				flyingRocks.push(r);
+			}
+		});
+
 		if(this.numSticks < this.maxSticks) {
 			for(var i = 0; i < sticks.length; i++) {
-				if(sticks[i].checkCollision(newPos, this.movementSpeed)) {
-					var s = sticks[i];
+				var s = sticks[i];
+				if(s.checkCollision(newPos, this.movementSpeed)) {
 					this.numSticks++;
 					s.tree.stick = null;
 					sticks.splice(i, 1);
 					document.getElementById(stickCountId).textContent = 'Sticks: ' + this.numSticks;
 
 					break;
+				} else {
+					flyingRocks.forEach(function(r) {
+						if(s.checkCollision(r.position(), r.figure.radius)) {
+							s.isAttached = false;
+						}
+					});
 				}
 			}
 		}
 
-		var worldRocks = Rock.getRocks();
 		if(this.rocks.length < this.maxRocks) {
 			for(var i = 0; i < worldRocks.length; i++) {
 				var r = worldRocks[i];

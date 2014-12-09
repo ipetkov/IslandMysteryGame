@@ -44,7 +44,7 @@ var cutscene=false;
 
 // Steps in for moving camera
 var rotateDegree = 1;
-var moveUnit = 0.075;
+var moveUnit = 0.075 * 2;
 var mouseSensitivity = 0.1;
 var dayDuration = 1000;
 

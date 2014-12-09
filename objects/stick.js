@@ -21,8 +21,8 @@ var Stick = (function() {
 		this.isAttached = true;
 		this.physical = new Physical(	vec3(0.0, -0.01, 0.0),
 										0.1,
-										0.15,
-										1.0);
+										1.0,
+										0.15);
 		this.moveBy = function(distance)
 		{
 			this.mainbody.position[0] += distance[0];
