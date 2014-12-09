@@ -1,3 +1,19 @@
+"use strict";
+var footstepSound = new Audio("sounds/footstep.wav");
+footstepSound.volume = .6;
+
+var music = new Audio("sounds/music.mp3");
+music.loop=true;
+music.play();
+var musicOn = true;
+
+var windSound = new Audio("sounds/wind.mp3");
+windSound.loop=true;
+
+var waveSound = new Audio("sounds/wave.mp3");
+waveSound.loop=true;
+waveSound.volume=.2;
+
 function Player(glCanvas, pos, speed) {
 	this.camera = new Camera(glCanvas);
 	this.camera.moveBy(pos[0], pos[1], pos[2]);
@@ -8,32 +24,47 @@ function Player(glCanvas, pos, speed) {
 	this.rightVelocity = 0.0;
 	this.movementSpeed = speed;
 
-	this.yVelocity = 0.0;
-	this.yAcceleration = -0.015;
-
 	this.leanLeft = false;
 	this.leanRight = false;
 	this.leanAngle = 0.0;
 	
+	this.armPower = 0.0;
+	this.maxArmPower = 0.02;
+	this.isCharging = false;
 	this.isRunning = false;
-	this.isAirborne = false;
 
 	this.numSticks = 0;
 	this.maxSticks = 3;
-
+	
+	this.physical = new Physical(	vec3(0.0, -0.01, 0.0),	//acceleration
+									0.0,					//bounce
+									1.0,					//friction
+									0.0);					//radius
 	this.position = function()
 	{
 		return this.camera.position();
 	}
 
+	this.testMove = function(testX, testY, testZ)
+	{
+		var curHeight = this.position()[1];
+		this.camera.moveBy(testX, testY, testZ);
+		var testHeight = heightOf(this.position()[0], this.position()[2]);
+		this.camera.moveBy(-testX, -testY, -testZ);
+		
+		return (testHeight - curHeight <= 0.2);
+	}
+
 	this.move = function()
 	{
-		var thisPos = this.position();
+		var startPosition = this.position();
+
+		// Movement based on keyboard keys
 		var xV = this.rightVelocity - this.leftVelocity;
-		var yV = this.yVelocity;
+		var yV = this.physical.velocity()[1];
 		var zV = this.forwardVelocity - this.backVelocity;
 
-		var newPos = add(thisPos, vec3(xV, yV, zV));
+		var newPos = add(startPosition, vec3(xV, yV, zV));
 		var trees = Tree.getTrees();
 		var sticks = Tree.getSticks();
 
@@ -49,7 +80,7 @@ function Player(glCanvas, pos, speed) {
 
 		for(var i = 0; i < trees.length; i++) {
 			if(trees[i].checkCollision(newPos, this.movementSpeed)) {
-				var d = dot(subtract(trees[i].position, thisPos), heading);
+				var d = dot(subtract(trees[i].position, startPosition), heading);
 				if(d > 0) {
 					continue;
 				}
@@ -75,10 +106,10 @@ function Player(glCanvas, pos, speed) {
 		}
 
 		// Adjust velocities and lean based on player's state
-		if (this.isAirborne)
+		if (this.physical.isAirborne())
 		{
 			if (this.isRunning && zV > 0)
-				zV *= 2.5;
+				zV *= 1.5;
 			// Adjust camera back to normal
 			if (this.leanAngle < 5.0 && this.leanAngle > -5.0)
 				this.leanAngle = 0.0;
@@ -89,7 +120,7 @@ function Player(glCanvas, pos, speed) {
 		{
 			if (this.isRunning && zV > 0)
 			{
-				zV *= 2.5;
+				zV *= 1.5;
 				this.leanAngle = nextLeanAngle(this.leanAngle);
 			}
 			else
@@ -110,24 +141,97 @@ function Player(glCanvas, pos, speed) {
 		}
 
 		this.camera.setLean(this.leanAngle);
+		
+		if (this.testMove(xV, 0.0, 0.0))
+			this.camera.moveBy(xV, 0.0, 0.0);
+		else if (this.testMove(xV * Math.sqrt(3) / 2, 0.0, xV / 2))
+			this.camera.moveBy(xV * Math.sqrt(3) / 2, 0.0, xV / 2);
+		else if (this.testMove(xV * Math.sqrt(3) / 2, 0.0, -xV / 2))
+			this.camera.moveBy(xV * Math.sqrt(3) / 2, 0.0, -xV / 2);
+		else if (this.testMove(xV / 2, 0.0, xV * Math.sqrt(3) / 2))
+			this.camera.moveBy(xV / 2, 0.0, xV * Math.sqrt(3) / 2);
+		else if (this.testMove(xV / 2, 0.0, -xV * Math.sqrt(3) / 2))
+			this.camera.moveBy(xV / 2, 0.0, -xV * Math.sqrt(3) / 2);
 
-		this.camera.moveBy(xV, yV, zV );
-		thisPos = this.position();
-		var terrainHeight = heightOf(thisPos[0], thisPos[2]);
-		if (thisPos[1] > terrainHeight)
-		{
-			this.isAirborne = true;
-			this.yVelocity += this.yAcceleration;
-			if (this.yVelocity < -5.0) // Terminal velocity
-				this.yVelocity = -5.0;
+		if (this.testMove(0.0, 0.0, zV))
+			this.camera.moveBy(0.0, 0.0, zV);
+		else if (this.testMove(zV / 2, 0.0, zV * Math.sqrt(3) / 2))
+			this.camera.moveBy(zV / 2, 0.0, zV * Math.sqrt(3) / 2);
+		else if (this.testMove(-zV / 2, 0.0, zV * Math.sqrt(3) / 2))
+			this.camera.moveBy(-zV / 2, 0.0, zV * Math.sqrt(3) / 2);
+		else if (this.testMove(zV * Math.sqrt(3) / 2, 0.0, zV / 2))
+			this.camera.moveBy(zV * Math.sqrt(3) / 2, 0.0, zV / 2);
+		else if (this.testMove(-zV * Math.sqrt(3) / 2, 0.0, zV / 2))
+			this.camera.moveBy(-zV * Math.sqrt(3) / 2, 0.0, zV / 2);
+
+		this.camera.moveBy( 0.0, yV, 0.0);
+
+		var attemptPosition = this.position();
+		
+		//Movement adjustment according to physics
+		var finalMove = this.physical.physics(startPosition, attemptPosition);
+		this.camera.moveBy(finalMove[0], finalMove[1], finalMove[2]);
+
+		if (this.isCharging)
+			this.armPower = Math.min(this.maxArmPower, this.armPower + 0.001);
+
+		//footsteps
+		if(yV!=0) {
+		    footstepSound.pause();
 		}
-		else
-		{
-			this.camera.moveBy(0.0, terrainHeight - thisPos[1], 0.0);
-			this.isAirborne = false;
-			this.yVelocity = 0.0;
+
+		else if(xV!=0 || zV!=0) {
+		    footstepSound.play();
 		}
+		else {
+		    footstepSound.pause();
+		}
+        
+        //sounds
+        if(this.position()[1]>=maxIslandHeight-2) {
+            music.volume=0.01;
+            windSound.volume=0.5;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-10) {
+            music.volume=0.05;
+            windSound.volume=0.2;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-15) {
+            music.volume=0.09;
+            windSound.volume=0.1;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-20) {
+            music.volume=0.15;
+            windSound.volume=0.05;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-25) {
+            music.volume=0.2;
+            windSound.volume=0.02;
+            windSound.play();
+        }
+        else {
+            music.volume=0.4;
+            windSound.pause();
+            windSound.currentTime=0;
+        }
+        if(this.position()[1]<0.5) {
+            waveSound.volume=.2;
+            waveSound.play();
+        }
+        else if(this.position()[1]<1.5) {
+            waveSound.volume=.1;
+            waveSound.play();
+        }
+        else {
+            waveSound.pause();
+        }
 	}
+
+	
 
 	var blackMaterial = new Material(
 		vec4(0.0, 0.0, 0.0, 1.0),
@@ -177,7 +281,6 @@ function Player(glCanvas, pos, speed) {
 	this.rightArm.draw         = this.leftArm.draw;
 }
 
-
 function nextLeanAngle(curAngle)
 {
 	if (!nextLeanAngle.isInitialized)
@@ -185,14 +288,14 @@ function nextLeanAngle(curAngle)
 	nextLeanAngle.isInitialized = true;
 	
 	var newAngle = curAngle;
-	if (curAngle >= 30.0)
+	if (curAngle >= 7.0)
 		nextLeanAngle.isLeft = 0;
-	else if (curAngle <= -30.0)
+	else if (curAngle <= -7.0)
 		nextLeanAngle.isLeft = 1;
 	if (nextLeanAngle.isLeft)
-		newAngle += 4.0;
+		newAngle += 1.0;
 	else
-		newAngle -= 4.0;
+		newAngle -= 1.0;
 	return newAngle;
 }
 
@@ -210,6 +313,8 @@ Player.prototype.draw = function(dt) {
 	this.leftArm.draw(dt, identMat);
 	this.rightArm.draw(dt, identMat);
 }
+
+
 
 // Key handler which will update our camera position
 Player.prototype.handleKeyDown = function(e) {
@@ -234,6 +339,7 @@ Player.prototype.handleKeyDown = function(e) {
 			break;
 		case 16: // SHIFT - run
 			this.isRunning = true;
+            footstepSound.playbackRate=2.0;
 			break;
 		case 84: //T - add a stick to the fire if you are at camp
 			if(this.numSticks <= 0) {
@@ -249,13 +355,20 @@ Player.prototype.handleKeyDown = function(e) {
 			}
 			break;
 		case 32: // SPACE - jump
-			if (!this.isAirborne)
+			var pos = this.position();
+			if (pos[1] <= heightOf(pos[0], pos[2]) + 0.3)
 			{
-				this.isAirborne = true;
-				this.yVelocity = 0.45;
+				this.physical.setFlight(true);
+				this.physical.setVelocity(vec3(0.0, 0.10, 0.0));
 			}
 			break;
+        case 77: // M music on/off
+            musicOn=!musicOn;
+            if(musicOn){music.play();}
+            else{music.pause();}
+            break;
     }
+    
 }
 
 Player.prototype.handleKeyUp = function(e) {
@@ -280,7 +393,48 @@ Player.prototype.handleKeyUp = function(e) {
 			break;
 		case 16: // SHIFT - run
 			this.isRunning = false;
+            footstepSound.playbackRate=1.0;
+			break;
+        case 32: // SPACE - jump
 			break;
     }
 }
+
+Player.prototype.handleMouseDown = function() {
+	this.isCharging = true;
+}
+
+Player.prototype.handleMouseUp = function() {
+	if (inventoryRocks.length == 0)
+		return;
+	var rock = inventoryRocks[0];
+	//var rock = rocks.pop();
+
+	var yaw = radians(this.camera.yaw());
+	var pitch = radians(this.camera.pitch());
+	var objectWeight = rock.physical.radius();
+	objectWeight *= objectWeight;
+	var throwSpeed = this.armPower / objectWeight;
+
+	rock.figure.position = this.position();
+	rock.figure.position[0] += 0.5 * Math.cos(-yaw) * Math.cos(-pitch);
+	rock.figure.position[1] += 0.7;
+	rock.figure.position[2] += 0.5 * Math.sin(-yaw) * Math.cos(-pitch);
+
+	rock.physical.setVelocity(vec3(
+		throwSpeed * Math.sin(-yaw) * Math.cos(-pitch),
+		throwSpeed * Math.sin(-pitch),
+		throwSpeed * -Math.cos(-yaw) * Math.cos(-pitch)
+		));
+
+	this.armPower = 0.0;
+	this.isCharging = false;
+}
+
+
+
+
+
+
+
 

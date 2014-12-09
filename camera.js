@@ -46,6 +46,10 @@ function Camera(glCanvas) {
 		return -yaw;
 	}
 
+	this.pitch = function() {
+		return pitch;
+	}
+
 	this.position = function()
 	{
 		return vec3(position[0], position[1], -position[2]);
@@ -66,6 +70,10 @@ function Camera(glCanvas) {
 	this.rollBy = function(angle) {
 		roll = (roll - angle) % 360;
 	}
+    
+    this.getRoll = function() {
+        return roll;
+    }
 
 	this.getProjViewMatrix = function() {
 		var hwRatio = canvas.height / canvas.width;

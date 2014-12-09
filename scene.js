@@ -29,6 +29,7 @@ var campRocks = [];
 var fire;
 var bumpCube;
 var sun;
+var inventoryRocks = [];
 
 var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
@@ -38,9 +39,11 @@ var player;
 
 var timer = new Timer();
 
+var cutscene=false;
+
 // Steps in for moving camera
 var rotateDegree = 1;
-var moveUnit = 0.125;
+var moveUnit = 0.075;
 var mouseSensitivity = 0.1;
 var dayDuration = 1000;
 
@@ -125,11 +128,15 @@ var glHelper = (function() {
 	}
 
 	helper.setAmbientProduct = function(vec) {
-		setUniformVec4(uniformAmbientProduct, mult(sun.lightMaterial.ambient, vec));
+		setUniformVec4(uniformAmbientProduct, mult(this.material.ambient, vec));
+	}
+
+	helper.setLightMaterial = function(mat){
+		this.material = mat;
 	}
 
 	helper.setDiffuseProduct = function(vec) {
-		setUniformVec4(uniformDiffuseProduct, mult(sun.lightMaterial.diffuse, vec));
+		setUniformVec4(uniformDiffuseProduct, mult(this.material.diffuse, vec));
 	}
 
 	helper.setLightPosition = function(vec) {
@@ -162,14 +169,9 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(50, 0.0, -30), moveUnit);
+	player = new Player(canvas, vec3(quarterSize, 0, -quarterSize+20), moveUnit);
     player.camera.yawBy(-45);
-
-	pointerLock(canvas, function(x, y) {
-		player.camera.yawBy(-x * mouseSensitivity);
-		player.camera.pitchBy(-y * mouseSensitivity);
-	}, null);
-
+    player.camera.rollBy(-80);
 
 	var waterMaterial = new Material(
 		vec4(0.2, 0.2, 0.5, 0.8),
@@ -180,16 +182,16 @@ window.onload = function() {
 		vec4(0.9, 0.9, 0.9, 1.0),
 		vec4(0.9, 0.9, 0.9, 1.0)
 	);
-
-
     
 	var water = new Cube(waterMaterial, null, true, false);
 	water.position = vec3(islandSize/2, 0.0, islandSize/2);
-	water.scale = vec3(islandSize*2, 0.1, islandSize*2);
+	water.scale = vec3(islandSize*10, 0.1, islandSize*10);
     
     var theIsland = new Island();
 
 	sun = new Sun(300, 1/dayDuration);
+
+	inventoryRocks.push(new Rock(vec3(40.0, 0.0, 20.0), 0.15));
 
 	shapes = [water, theIsland];
 
@@ -199,7 +201,7 @@ window.onload = function() {
         for(var z=1; z<quarterSize; z+=2)
         {
             var kXZ = 2.5 * (Math.random() + 1.5);
-            var kY = 4.0 * (Math.random() * 0.3 + 1.0);
+            var kY = 4.0 * (Math.random() * 0.3 +1.0);
             var age = Math.random();
             var rand = Math.random();
             if(heights[x][z]>0.21 && rand<=0.02 && (x < 49 || x > 51 || z < 29 || z > 31)) {
@@ -220,20 +222,38 @@ window.onload = function() {
 	for(var i = 0; i < 10; i++){
 		campRocks.push(new CampRock(rockMaterial, new Texture.fromImageSrc('./images/rockTex.png'), gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST));
 		campRocks[i].position = vec3(50.0 + Math.cos(i*Math.PI/5), heights[50][30] + 0.1, 30.0 + Math.sin(i*Math.PI/5));
-		campRocks[i].scale = vec3(0.5, 0.5, 0.5);
+		campRocks[i].scale = vec3(1.0, 1.0, 1.0);
+		campRocks[i].yaw = i/5*180;
 		}
 
 	fire = new Campfire(vec3(50.0, heights[50][30]+0.1, 30.0));
 	fire.numSticks = 0.0;
 
-	// Attach our keyboard listener to the canvas
-	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
-	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
-	window.addEventListener('keydown', playerHandleKeyDown);
-	window.addEventListener('keyup', playerHandleKeyUp);
-
 	// Set off the draw loop
 	draw();
+    
+    setTimeout(function() {
+        // Attach our keyboard listener to the canvas
+        cutscene=true;
+    }, 2000);
+    
+    setTimeout(function() {
+        // Attach our keyboard and mouse listeners to the canvas
+	pointerLock(canvas, function(x, y) {
+		player.camera.yawBy(-x * mouseSensitivity);
+		player.camera.pitchBy(-y * mouseSensitivity);
+	}, null);
+
+	// Attach our keyboard listener to the canvas
+        var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
+        var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
+        var playerHandleMouseDown = function(){ return player.handleMouseDown(); }
+		var playerHandleMouseUp = function(){ return player.handleMouseUp(); }
+        window.addEventListener('keydown', playerHandleKeyDown);
+        window.addEventListener('keyup', playerHandleKeyUp);
+    	window.addEventListener('mousedown', playerHandleMouseDown);
+		window.addEventListener('mouseup', playerHandleMouseUp);
+    }, 3000);
 }
 
 
@@ -266,17 +286,28 @@ function draw() {
 	dt += timer.getElapsedTime();
 	Tree.drawTrees(dt);
 	
-	fire.draw(dt, identMat);
 
 	shapes.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
 
+	player.draw(); // This will draw the crosshairs and arms on the screen
+
+	//fire will change liht material and position and draw rocks
+	//with that light. 
+	fire.draw(dt, identMat);
 	campRocks.forEach(function(e) {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
+	glHelper.setLightMaterial(sun.lightMaterial);
+	//light is reset here, position is taken care of
+	//by sun.draw which is the first shape drawn
+
+	inventoryRocks.forEach(function(e) {
+		e.draw(dt, identMat);
+	})
 
 //This commented cube draws a test cube that clearly shows the sucesfull
 //implemintation of bump mapping
@@ -286,5 +317,10 @@ function draw() {
 //	glHelper.enableBumping(false);
 
 	player.draw(); // This will draw the crosshairs and arms on the screen
+    if(cutscene) {
+        if(player.camera.getRoll()!=0) {
+            player.camera.rollBy(1);
+        }
+    }
 	window.requestAnimFrame(draw);
 }
