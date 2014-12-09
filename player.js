@@ -250,6 +250,28 @@ function Player(glCanvas, pos, speed) {
         if(distanceFromFire<=.05 && fire.fireOn) {
             ITBURNS.play();
         }
+        
+        //pig
+        var vectorFromPig = subtract(this.position(), pig.position);
+        var distanceFromPig = vectorFromPig[0]*vectorFromPig[0] +
+                              vectorFromPig[1]*vectorFromPig[1] +
+                              vectorFromPig[2]*vectorFromPig[2];
+        if(distanceFromPig<=64) {
+            var rand = Math.random();
+            if(rand<=.01) {
+                ITBURNS.play();
+            }
+            else {
+                ITBURNS.pause();
+            }
+        }
+        else {
+            fireSound.pause();
+        }
+        if(distanceFromFire<=.05 && fire.fireOn) {
+            ITBURNS.play();
+        }
+        
         //wind
         if(this.position()[1]>=maxIslandHeight-2) {
             music.volume=0.01;
