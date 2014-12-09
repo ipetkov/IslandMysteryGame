@@ -28,6 +28,7 @@ var campRocks = [];
 var fire;
 var bumpCube;
 var sun;
+var inventoryRocks = [];
 
 var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
@@ -41,7 +42,7 @@ var cutscene=false;
 
 // Steps in for moving camera
 var rotateDegree = 1;
-var moveUnit = 0.125;
+var moveUnit = 0.075;
 var mouseSensitivity = 0.1;
 var dayDuration = 1000;
 
@@ -185,6 +186,8 @@ window.onload = function() {
 
 	sun = new Sun(300, 1/dayDuration);
 
+	inventoryRocks.push(new Rock(vec3(40.0, 0.0, 20.0), 0.15));
+
 	shapes = [water, theIsland];
 
     
@@ -238,8 +241,12 @@ window.onload = function() {
 	// Attach our keyboard listener to the canvas
         var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
         var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
+        var playerHandleMouseDown = function(){ return player.handleMouseDown(); }
+		var playerHandleMouseUp = function(){ return player.handleMouseUp(); }
         window.addEventListener('keydown', playerHandleKeyDown);
         window.addEventListener('keyup', playerHandleKeyUp);
+    	window.addEventListener('mousedown', playerHandleMouseDown);
+		window.addEventListener('mouseup', playerHandleMouseUp);
     }, 3000);
 }
 
@@ -274,6 +281,10 @@ function draw() {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
+
+	inventoryRocks.forEach(function(e) {
+		e.draw(dt, identMat);
+	})
 
 //This commented cube draws a test cube that clearly shows the sucesfull
 //implemintation of bump mapping
