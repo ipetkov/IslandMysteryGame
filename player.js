@@ -106,6 +106,14 @@ function Player(glCanvas, pos, speed) {
 			}
 		});
 
+		for (var i = 0; i < worldRocks.length; i++)
+		{
+			var r = worldRocks[i];
+			var pos = r.position();
+			if (heightOf(pos[0], pos[2]) <= 0.05)
+				worldRocks.splice(i, 1);
+		}
+
 		if(this.numSticks < this.maxSticks) {
 			for(var i = 0; i < sticks.length; i++) {
 				var s = sticks[i];
