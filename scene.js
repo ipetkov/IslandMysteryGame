@@ -38,6 +38,7 @@ var program; // The WebGL linked program
 var camera;  // Camera used for navigating the scene
 var player;
 var pig;
+var resetCount = 0;
 
 var timer = new Timer();
 
@@ -268,9 +269,10 @@ window.onload = function() {
 		window.addEventListener('mouseup', playerHandleMouseUp);
     }, 3000);
 
+    resetStuff();
+}
 
-    // Check to generate more rocks/sticks every 5 seconds
-    setTimeout(function() {
+function resetStuff() {
 	// Quick and dirty way to generate more sticks in the scene
 	var trees = Tree.getTrees();
 	var stickDiff = trees.length - (Tree.getSticks().length + player.numSticks);
@@ -289,7 +291,6 @@ window.onload = function() {
 
 		new Rock(vec3(x, 0, z), size);
 	}
-    }, 5000);
 }
 
 
@@ -308,6 +309,13 @@ function draw() {
     else {
         music.pause();
     }
+
+    resetCount++;
+    if(resetCount > 1000) {
+	    resetCount = 0;
+	    resetStuff();
+    }
+
 	var skyColor = sun.skyColor;
 	gl.clearColor(skyColor[0], skyColor[1], skyColor[2], 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
