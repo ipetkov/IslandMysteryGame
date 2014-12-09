@@ -38,6 +38,8 @@ var player;
 
 var timer = new Timer();
 
+var cutscene=false;
+
 // Steps in for moving camera
 var rotateDegree = 1;
 var moveUnit = 0.075;
@@ -162,15 +164,9 @@ window.onload = function() {
 	}
 
 	// Initialize the player
-	player = new Player(canvas, vec3(80.0, 0.0, -100.0), moveUnit);
-
+	player = new Player(canvas, vec3(quarterSize, 0, -quarterSize+20), moveUnit);
     player.camera.yawBy(-45);
-
-	pointerLock(canvas, function(x, y) {
-		player.camera.yawBy(-x * mouseSensitivity);
-		player.camera.pitchBy(-y * mouseSensitivity);
-	}, null);
-
+    player.camera.rollBy(-80);
 
 	var waterMaterial = new Material(
 		vec4(0.2, 0.2, 0.5, 0.8),
@@ -181,12 +177,10 @@ window.onload = function() {
 		vec4(0.9, 0.9, 0.9, 1.0),
 		vec4(0.9, 0.9, 0.9, 1.0)
 	);
-
-
     
 	var water = new Cube(waterMaterial, null, true, false);
 	water.position = vec3(islandSize/2, 0.0, islandSize/2);
-	water.scale = vec3(islandSize*2, 0.1, islandSize*2);
+	water.scale = vec3(islandSize*10, 0.1, islandSize*10);
     
     var theIsland = new Island();
 
@@ -202,7 +196,7 @@ window.onload = function() {
         for(var z=1; z<quarterSize; z+=2)
         {
             var kXZ = 2.5 * (Math.random() + 1.5);
-            var kY = 4.0 * (Math.random() * 0.3 + 1.0);
+            var kY = 4.0 * (Math.random() * 0.3 +1.0);
             var age = Math.random();
             var rand = Math.random();
             if(heights[x][z]>0.21 && rand<=0.04 && (x < 49 || x > 51 || z < 29 || z > 31)) {
@@ -243,6 +237,20 @@ window.onload = function() {
 
 	// Set off the draw loop
 	draw();
+    
+    setTimeout(function() {
+        // Attach our keyboard listener to the canvas
+        cutscene=true;
+    }, 2000);
+    
+    setTimeout(function() {
+        // Attach our keyboard and mouse listeners to the canvas
+	pointerLock(canvas, function(x, y) {
+		player.camera.yawBy(-x * mouseSensitivity);
+		player.camera.pitchBy(-y * mouseSensitivity);
+	}, null);
+
+    }, 2500);
 }
 
 
@@ -289,5 +297,10 @@ function draw() {
 //	glHelper.enableBumping(false);
 
 	player.draw(); // This will draw the crosshairs and arms on the screen
+    if(cutscene) {
+        if(player.camera.getRoll()!=0) {
+            player.camera.rollBy(1);
+        }
+    }
 	window.requestAnimFrame(draw);
 }
