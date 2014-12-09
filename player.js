@@ -132,7 +132,7 @@ function Player(glCanvas, pos, speed) {
 				if(r.physical.isMoving()) {
 					var v = subtract(pig.position, r.position());
 					var distSq = magnitude(v);
-					if(distSq <= pig.pig.scale[1]) {
+					if(distSq <= 1) {
 						ITBURNS.play();
 					}
 					continue;
