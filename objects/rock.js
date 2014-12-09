@@ -10,7 +10,7 @@ var Rock = (function() {
 	{
 		this.physical = new Physical(	vec3(0.0, -0.01, 0.0),
 										Math.min(0.5 / (scale * scale), 0.5),
-										0.0,
+										0.05,
 										scale);
 		if(!rockTex) {
 			rockTex = new Texture.fromImageSrc('./images/rock.png');
@@ -34,6 +34,23 @@ var Rock = (function() {
 
 Rock.prototype.draw = function(dt, mat) {
 	var finalMove = this.physical.physics(	this.position(), this.position());
+	var trees = Tree.getTrees();
+	var curPos = this.figure.position;
+	var velocity = this.physical.velocity();
+	var horizontalV = Math.sqrt(velocity[0] * velocity[0] + velocity[2] * velocity[2]);
+	for(var i = 0; i < trees.length; i++) {
+			if(trees[i].checkCollide(add(curPos, velocity), horizontalV + this.physical.radius())) {
+				var d = dot(subtract(trees[i].position, curPos), finalMove);
+				if(d < 0) {
+					continue;
+				}
+
+				//finalMove[0] = 0.0;
+				//finalMove[2] = 0.0;
+				this.physical.setVelocity(vec3(-velocity[0] / 2, velocity[1], -velocity[2] / 2));
+				break;
+			}
+		}
 	this.moveBy(finalMove);
 	this.figure.draw(dt, mat);
 }

@@ -28,7 +28,7 @@ var campRocks = [];
 var fire;
 var bumpCube;
 var sun;
-var rock;
+var inventoryRocks = [];
 
 var gl;	     // WebGL object for the canvas
 var canvas;  // HTML canvas element that we are drawing in
@@ -192,9 +192,9 @@ window.onload = function() {
 
 	sun = new Sun(300, 1/dayDuration);
 
-	rock = new Rock(vec3(40.0, 0.0, 20.0), 0.15);
+	inventoryRocks.push(new Rock(vec3(40.0, 0.0, 20.0), 0.15));
 
-	shapes = [water, theIsland, rock];
+	shapes = [water, theIsland];
 
     
 	for (var x=1; x<quarterSize; x+=2)
@@ -276,6 +276,10 @@ function draw() {
 		dt += timer.getElapsedTime();
 		e.draw(dt, identMat);
 	});
+
+	inventoryRocks.forEach(function(e) {
+		e.draw(dt, identMat);
+	})
 
 //This commented cube draws a test cube that clearly shows the sucesfull
 //implemintation of bump mapping

@@ -14,11 +14,14 @@ function Player(glCanvas, pos, speed) {
 	this.leanRight = false;
 	this.leanAngle = 0.0;
 	
+	this.armPower = 0.0;
+	this.maxArmPower = 0.02;
+	this.isCharging = false;
 	this.isRunning = false;
 	
 	this.physical = new Physical(	vec3(0.0, -0.01, 0.0),	//acceleration
 									0.0,					//bounce
-									0.1,					//friction
+									1.0,					//friction
 									0.0);					//radius
 	this.position = function()
 	{
@@ -136,6 +139,9 @@ function Player(glCanvas, pos, speed) {
 		//Movement adjustment according to physics
 		var finalMove = this.physical.physics(startPosition, attemptPosition);
 		this.camera.moveBy(finalMove[0], finalMove[1], finalMove[2]);
+
+		if (this.isCharging)
+			this.armPower = Math.min(this.maxArmPower, this.armPower + 0.001);
 	}
 
 	
@@ -289,31 +295,34 @@ Player.prototype.handleKeyUp = function(e) {
 }
 
 Player.prototype.handleMouseDown = function() {
-	
+	this.isCharging = true;
 }
 
 Player.prototype.handleMouseUp = function() {
+	if (inventoryRocks.length == 0)
+		return;
+	var rock = inventoryRocks[0];
+	//var rock = rocks.pop();
+
 	var yaw = radians(this.camera.yaw());
 	var pitch = radians(this.camera.pitch());
-	var armPower = 0.01;
 	var objectWeight = rock.physical.radius();
 	objectWeight *= objectWeight;
-	var throwSpeed = armPower / objectWeight;
-
+	var throwSpeed = this.armPower / objectWeight;
 
 	rock.figure.position = this.position();
 	rock.figure.position[0] += 0.5 * Math.cos(-yaw) * Math.cos(-pitch);
 	rock.figure.position[1] += 0.7;
 	rock.figure.position[2] += 0.5 * Math.sin(-yaw) * Math.cos(-pitch);
 
-	
-
-
 	rock.physical.setVelocity(vec3(
 		throwSpeed * Math.sin(-yaw) * Math.cos(-pitch),
 		throwSpeed * Math.sin(-pitch),
 		throwSpeed * -Math.cos(-yaw) * Math.cos(-pitch)
 		));
+
+	this.armPower = 0.0;
+	this.isCharging = false;
 }
 
 

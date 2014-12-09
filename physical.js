@@ -68,7 +68,8 @@ var Physical = (function()
 				var terrainNormal = plane(coord1, coord2, coord3);
 
 				var projNV = scaleVec(dot(scaleVec(-1, m_velocity), terrainNormal), terrainNormal);
-				m_velocity = scaleVec(m_bounce, add(scaleVec(2, projNV), m_velocity));
+				m_velocity = add(scaleVec(2, projNV), m_velocity);
+				m_velocity[1] *= bounce;
 
 				if (m_velocity[1] < 0.03)
 				{
