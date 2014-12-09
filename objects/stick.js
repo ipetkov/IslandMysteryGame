@@ -13,6 +13,22 @@ var Stick = (function() {
 		var posY = position[1];
 		var posZ = position[2];
 
+		this.isAttached = true;
+		this.physical = new Physical(	vec3(0.0, -0.01, 0.0),
+										0.1,
+										0.15,
+										1.0);
+		this.moveBy = function(distance)
+		{
+			this.mainbody.position[0] += distance[0];
+			this.mainbody.position[1] += distance[1];
+			this.mainbody.position[2] += distance[2];
+
+			this.sidebranch.position[0] += distance[0];
+			this.sidebranch.position[1] += distance[1];
+			this.sidebranch.position[2] += distance[2];
+		}
+
 		this.mainbody = new Cube(trunkMaterial, woodTex, false, false);
 		this.mainbody.position = vec3(posX, posY, posZ);
 		this.mainbody.scale = vec3(0.5, 0.05, 0.05);
@@ -45,6 +61,10 @@ Stick.prototype.draw = function(dt, mat) {
 //	rotMat = mult(rotMat, translate(x_dis, 0.0, 0.0)); 
 //	rotMat = mult(rotMat,rotate(this.mainbody.yaw, vec3(0,1,0)));
 //	rotMat = mult(rotMat, translate(-x_dis, 0.0, 0.0)); 
-
+	if (!this.isAttached)
+	{
+		var finalMove = this.physical.physics(this.mainbody.position, this.mainbody.position);
+		this.moveBy(finalMove);
+	}
 	this.sidebranch.draw(dt, rotMat);
 }

@@ -55,9 +55,9 @@ var Tree = (function() {
 
 Tree.prototype.checkCollide = function(pos, otherRadius) {
 	var treeRadius = 0.17 * this.radius;
-	var treeHeight = 4 * this.height;
+	var treeHeight = 4 * this.height + heightOf(pos[0], pos[2]);
 
-	if(pos[1] > treeHeight) {
+	if(pos[1] > treeHeight * 2) {
 		return false;
 	}
 
