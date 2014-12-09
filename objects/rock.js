@@ -11,7 +11,7 @@ var Rock = (function() {
 	{
 		this.physical = new Physical(	vec3(0.0, -0.01, 0.0),
 										Math.min(0.5 / (scale * scale), 0.5),
-										0.05,
+										0.15,
 										scale);
 		if(!rockTex) {
 			rockTex = new Texture.fromImageSrc('./images/rock.png');
@@ -47,14 +47,22 @@ Rock.prototype.draw = function(dt, mat) {
 	var horizontalV = Math.sqrt(velocity[0] * velocity[0] + velocity[2] * velocity[2]);
 	for(var i = 0; i < trees.length; i++) {
 			if(trees[i].checkCollision(add(curPos, velocity), horizontalV + this.physical.radius())) {
-				var d = dot(subtract(trees[i].position, curPos), finalMove);
+				var treePos = trees[i].position;
+				var towardTree = subtract(treePos, curPos);
+				var d = dot(vec2(towardTree[0], towardTree[2]), vec2(finalMove[0], finalMove[2]));
 				if(d < 0) {
 					continue;
 				}
 
-				//finalMove[0] = 0.0;
-				//finalMove[2] = 0.0;
-				this.physical.setVelocity(vec3(-velocity[0] / 2, velocity[1], -velocity[2] / 2));
+				var treeNormal = normalize(subtract(curPos, treePos));
+				var projNV = scaleVec(dot(scaleVec(-1, velocity), treeNormal), treeNormal);
+				var newVel = add(scaleVec(2, projNV), velocity);
+				newVel[0] *= 0.5;
+				newVel[1] = velocity[1];
+				newVel[2] *= 0.5;
+				this.physical.setVelocity(newVel);
+				finalMove[0] = 0;
+				finalMove[2] = 0;
 				break;
 			}
 		}

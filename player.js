@@ -29,7 +29,7 @@ function Player(glCanvas, pos, speed) {
 	this.leanAngle = 0.0;
 	
 	this.armPower = 0.0;
-	this.maxArmPower = 0.01;
+	this.maxArmPower = 0.015;
 	this.isCharging = false;
 	this.isRunning = false;
 
@@ -55,7 +55,7 @@ function Player(glCanvas, pos, speed) {
 		var testHeight = heightOf(this.position()[0], this.position()[2]);
 		this.camera.moveBy(-testX, -testY, -testZ);
 		
-		return (testHeight - curHeight <= 0.2);
+		return (testHeight - curHeight <= 0.2 && testHeight > 0.05);
 	}
 
 	this.move = function()
