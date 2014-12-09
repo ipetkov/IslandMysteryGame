@@ -37,6 +37,7 @@ var canvas;  // HTML canvas element that we are drawing in
 var program; // The WebGL linked program
 var camera;  // Camera used for navigating the scene
 var player;
+var pig;
 
 var timer = new Timer();
 
@@ -197,7 +198,7 @@ window.onload = function() {
 
 	sun = new Sun(300, 1/dayDuration);
 
-	var pig = new Pig();
+	pig = new Pig();
 	pig.position = vec3(islandSize/2, 0, islandSize/2);
 	shapes = [water, theIsland, pig];
 
