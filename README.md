@@ -24,7 +24,19 @@ Other cool stuff:
 -A lit fire will light up the rocks that make up the fire pit
 -Bumpmapping is only implemented on the trunks of the trees but an example cube is commeneted out in scene.js that shows a gloriously bumped texture
 -If there are no branches within jumpable height you can knock them off the trees with rocks found on the island!
--Rocks will reflect off trees in realistic ways.
+-Thrown rocks will reflect off trees in realistic ways.
+
+Who did what:
+Ivan
+-Grandmaster of the project. Taught us all how to use git. Main feature worked on was collisions. Collisions was also used to pick up sticks and stones for thin inventory. Implemented the original skeleton code we all followed. Implemented simple lighting.
+Kevin
+-Physics king. In charge of player movements and object movements. Ex throwing rocks, bouncing rocks falling sticks. Jumping. All that jazz.
+Kyle
+-Mountain and Music maker. He was in charge of the height map which is what gives our island its beautiful appearance. He also implemented all the sound features which add alot to the game. 
+David
+-Bump Man and Fire Man. Worked with lighting. Made the campfire object, and stick objetcs. 
+Ray
+-Pig Man. In charge of animating and moving the pig and various other tasks along the way.
 
 
 Works best on current versions of firefox for mac or windows.
