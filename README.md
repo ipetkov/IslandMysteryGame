@@ -1,3 +1,32 @@
 # Island Mystery Game
+Team #5
 
 ## Created by Kyle Kodani, Kevin Lu, Ivan Petkov, Xiaosong Shi, David Vasko for CS 174A at UCLA, in Fall of 2014
+
+Welcome to Mystery Island!
+
+To start the game open index.html.  after a short scene of you (the player) waking up on the island, the game will begin.  There controls are listed at the bottom of the webpage.
+
+The object of the game is to enjoy the island. Things you can do: 
+-pick up branches from trees to start a fire (hint: find the firepit!)
+-relax and listen to the soothing sounds of nature
+-throw rocks
+-climb the mountain
+-explore!
+
+
+Our advanced topics are: collision, physics, bump mapping.
+
+Other cool stuff:
+-The island is partially randomly generated.  There are 4 regions: rolling hills, forest, bay, and mountain.  Each has randomly generated terrain by using a height map.  The trees and other objects are also randomly placed.
+-There are lots of sound effects, and there is spooky music at night!
+-A fire can be made from sticks found on the island 
+-A lit fire will light up the rocks that make up the fire pit
+-Bumpmapping is only implemented on the trunks of the trees but an example cube is commeneted out in scene.js that shows a gloriously bumped texture
+-If there are no branches within jumpable height you can knock them off the trees with rocks found on the island!
+-Rocks will reflect off trees in realistic ways.
+
+
+Works best on current versions of firefox for mac or windows.
+Should work on current versions of chrome.
+Safari untested.
