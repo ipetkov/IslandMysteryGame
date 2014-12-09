@@ -3,12 +3,14 @@
 function MultiTexCube(material, flatLighting, invert, texFront, texBack, texLeft, texRight, texBottom, texTop) {
 	Cube.call(this, material, null, flatLighting, invert, null);
 
-	this.texFront  = texFront;
-	this.texBack   = texBack;
-	this.texLeft   = texLeft;
-	this.texRight  = texRight;
-	this.texBottom = texBottom;
-	this.texTop    = texTop;
+	var defaultTexture = new Texture();
+	
+	this.texFront  = texFront  || defaultTexture;
+	this.texBack   = texBack   || defaultTexture;
+	this.texLeft   = texLeft   || defaultTexture;
+	this.texRight  = texRight  || defaultTexture;
+	this.texBottom = texBottom || defaultTexture;
+	this.texTop    = texTop    || defaultTexture;
 }
 
 inheritPrototype(MultiTexCube, Cube);

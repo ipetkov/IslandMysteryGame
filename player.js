@@ -138,6 +138,11 @@ function Player(glCanvas, pos, speed) {
 			for(var i = 0; i < worldRocks.length; i++) {
 				var r = worldRocks[i];
 				if(r.physical.isMoving()) {
+					var v = subtract(pig.position, r.position());
+					var distSq = magnitude(v);
+					if(distSq <= 1) {
+						ITBURNS.play();
+					}
 					continue;
 				}
 

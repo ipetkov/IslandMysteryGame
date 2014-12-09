@@ -37,6 +37,7 @@ var canvas;  // HTML canvas element that we are drawing in
 var program; // The WebGL linked program
 var camera;  // Camera used for navigating the scene
 var player;
+var pig;
 
 var timer = new Timer();
 
@@ -190,14 +191,16 @@ window.onload = function() {
 	);
     
 	var water = new Cube(waterMaterial, null, true, false);
-	water.position = vec3(islandSize/2, 0.0, islandSize/2);
+	water.position = vec3(islandSize * 0.66, 0.0, islandSize * 0.66);
 	water.scale = vec3(islandSize*10, 0.1, islandSize*10);
     
     var theIsland = new Island();
 
 	sun = new Sun(300, 1/dayDuration);
 
-	shapes = [water, theIsland];
+	pig = new Pig();
+	pig.position = vec3(islandSize/2, 0, islandSize/2);
+	shapes = [water, theIsland, pig];
 
     
 	for (var x=1; x<quarterSize; x+=2)
