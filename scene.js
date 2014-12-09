@@ -223,18 +223,6 @@ window.onload = function() {
 	fire = new Campfire(vec3(50.0, heights[50][30]+0.1, 30.0));
 	fire.numSticks = 0.0;
 
-	// Attach our keyboard listener to the canvas
-	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
-	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
-	var playerHandleMouseDown = function(){ return player.handleMouseDown(); }
-	var playerHandleMouseUp = function(){ return player.handleMouseUp(); }
-	
-	window.addEventListener('keydown', playerHandleKeyDown);
-	window.addEventListener('keyup', playerHandleKeyUp);
-	window.addEventListener('mousedown', playerHandleMouseDown);
-	window.addEventListener('mouseup', playerHandleMouseUp);
-
-
 	// Set off the draw loop
 	draw();
     
@@ -250,7 +238,16 @@ window.onload = function() {
 		player.camera.pitchBy(-y * mouseSensitivity);
 	}, null);
 
-    }, 2500);
+	// Attach our keyboard listener to the canvas
+        var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
+        var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
+        var playerHandleMouseDown = function(){ return player.handleMouseDown(); }
+		var playerHandleMouseUp = function(){ return player.handleMouseUp(); }
+        window.addEventListener('keydown', playerHandleKeyDown);
+        window.addEventListener('keyup', playerHandleKeyUp);
+    	window.addEventListener('mousedown', playerHandleMouseDown);
+		window.addEventListener('mouseup', playerHandleMouseUp);
+    }, 3000);
 }
 
 
