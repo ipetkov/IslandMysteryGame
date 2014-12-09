@@ -66,7 +66,7 @@ var Island = (function() {
             var lr = [x+1, heights[x+1][z], z];
             var ur = [x+1, heights[x+1][z+1], z+1];
         
-            if(ul[1]>=7 && ul[1]<15) {
+            if(ul[1]>=6 && ul[1]<20) {
             
                 mtnVertices.push(ll);
                 mtnVertices.push(ul);
@@ -100,7 +100,7 @@ var Island = (function() {
                 mtnTangents.push(0.0, 0.0, 0.0);
             }
             
-            else if(ul[1]>=15) {
+            else if(ul[1]>=20) {
                 mtn2Vertices.push(ll);
                 mtn2Vertices.push(ul);
                 mtn2Vertices.push(ur);
@@ -133,7 +133,7 @@ var Island = (function() {
                 mtn2Tangents.push(0.0, 0.0, 0.0);
             }
             
-            else if(ul[1]<=0.2) {
+            else if(ul[1]<=0.3) {
                 sandVertices.push(ll);
                 sandVertices.push(ul);
                 sandVertices.push(ur);

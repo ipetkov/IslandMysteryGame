@@ -1,3 +1,18 @@
+var footstepSound = new Audio("sounds/footstep.wav");
+footstepSound.volume = .6;
+
+var music = new Audio("sounds/music.mp3");
+music.loop=true;
+music.play();
+var musicOn = true;
+
+var windSound = new Audio("sounds/wind.mp3");
+windSound.loop=true;
+
+var waveSound = new Audio("sounds/wave.mp3");
+waveSound.loop=true;
+waveSound.volume=.2;
+
 function Player(glCanvas, pos, speed) {
 	this.camera = new Camera(glCanvas);
 	this.camera.moveBy(pos[0], pos[1], pos[2]);
@@ -93,6 +108,18 @@ function Player(glCanvas, pos, speed) {
 
 		this.camera.setLean(this.leanAngle);
 
+		//footsteps
+		if(yV!=0) {
+		    footstepSound.pause();
+		}
+
+		else if(xV!=0 || zV!=0) {
+		    footstepSound.play();
+		}
+		else {
+		    footstepSound.pause();
+		}
+
 		this.camera.moveBy(xV, yV, zV );
 		thisPos = this.position();
 		var terrainHeight = heightOf(thisPos[0], thisPos[2]);
@@ -109,6 +136,49 @@ function Player(glCanvas, pos, speed) {
 			this.isAirborne = false;
 			this.yVelocity = 0.0;
 		}
+        
+        //sounds
+        if(this.position()[1]>=maxIslandHeight-2) {
+            music.volume=0.01;
+            windSound.volume=0.5;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-10) {
+            music.volume=0.05;
+            windSound.volume=0.2;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-15) {
+            music.volume=0.09;
+            windSound.volume=0.1;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-20) {
+            music.volume=0.15;
+            windSound.volume=0.05;
+            windSound.play();
+        }
+        else if (this.position()[1]>=maxIslandHeight-25) {
+            music.volume=0.2;
+            windSound.volume=0.02;
+            windSound.play();
+        }
+        else {
+            music.volume=0.4;
+            windSound.pause();
+            windSound.currentTime=0;
+        }
+        if(this.position()[1]<0.5) {
+            waveSound.volume=.2;
+            waveSound.play();
+        }
+        else if(this.position()[1]<1.5) {
+            waveSound.volume=.1;
+            waveSound.play();
+        }
+        else {
+            waveSound.pause();
+        }
 	}
 
 	var blackMaterial = new Material(
@@ -193,6 +263,8 @@ Player.prototype.draw = function(dt) {
 	this.rightArm.draw(dt, identMat);
 }
 
+
+
 // Key handler which will update our camera position
 Player.prototype.handleKeyDown = function(e) {
 	switch(e.keyCode) {
@@ -216,6 +288,7 @@ Player.prototype.handleKeyDown = function(e) {
 			break;
 		case 16: // SHIFT - run
 			this.isRunning = true;
+            footstepSound.playbackRate=2.0;
 			break;
 		case 84: //T - add a stick to the fire if you are at camp
 			var x = this.position()[0];
@@ -228,9 +301,15 @@ Player.prototype.handleKeyDown = function(e) {
 			{
 				this.isAirborne = true;
 				this.yVelocity = 0.45;
-			}
+            }
 			break;
+        case 77: // M music on/off
+            musicOn=!musicOn;
+            if(musicOn){music.play();}
+            else{music.pause();}
+            break;
     }
+    
 }
 
 Player.prototype.handleKeyUp = function(e) {
@@ -255,6 +334,9 @@ Player.prototype.handleKeyUp = function(e) {
 			break;
 		case 16: // SHIFT - run
 			this.isRunning = false;
+            footstepSound.playbackRate=1.0;
+			break;
+        case 32: // SPACE - jump
 			break;
     }
 }
