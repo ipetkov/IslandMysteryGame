@@ -220,12 +220,6 @@ window.onload = function() {
 	fire = new Campfire(vec3(50.0, heights[50][30]+0.1, 30.0));
 	fire.numSticks = 0.0;
 
-	// Attach our keyboard listener to the canvas
-	var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
-	var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
-	window.addEventListener('keydown', playerHandleKeyDown);
-	window.addEventListener('keyup', playerHandleKeyUp);
-
 	// Set off the draw loop
 	draw();
     
@@ -241,11 +235,12 @@ window.onload = function() {
 		player.camera.pitchBy(-y * mouseSensitivity);
 	}, null);
 
+	// Attach our keyboard listener to the canvas
         var playerHandleKeyDown = function(e){ return player.handleKeyDown(e); }
         var playerHandleKeyUp = function(e){ return player.handleKeyUp(e); }
         window.addEventListener('keydown', playerHandleKeyDown);
         window.addEventListener('keyup', playerHandleKeyUp);
-    }, 2500);
+    }, 3000);
 }
 
 
